@@ -4,6 +4,8 @@
 
 仓库默认提供一套可直接改造成个人站点的主题基线：示例内容已经整理为适合公开发布的版本，站点配置、内容结构和常用页面也都已经就位。
 
+![Vellume social preview](./.github/social-preview.png)
+
 ## 特性
 
 - 偏编辑式的阅读界面，适合长文、笔记和系列化内容
@@ -60,3 +62,8 @@ pnpm check:astro
 pnpm check:biome
 pnpm build
 ```
+
+## 仓库展示资源
+
+- GitHub 社交预览图已生成并保存在 `./.github/social-preview.png`
+- 如果需要替换，可重新运行 `pnpm build`，然后用新的 `dist/assets/og/index.png` 覆盖它
