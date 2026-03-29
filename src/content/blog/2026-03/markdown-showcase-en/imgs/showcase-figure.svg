@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+  <title>Markdown Showcase Figure</title>
+  <desc>A warm editorial demo illustration used as a local article image.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8f1ee" />
+      <stop offset="100%" stop-color="#fceae6" />
+    </linearGradient>
+  </defs>
+  <rect width="960" height="540" rx="32" fill="url(#bg)" />
+  <rect x="92" y="86" width="776" height="368" rx="28" fill="#ffffff" stroke="#d8d0cb" stroke-width="4" />
+  <rect x="132" y="136" width="230" height="18" rx="9" fill="#904a42" opacity="0.18" />
+  <rect x="132" y="176" width="476" height="14" rx="7" fill="#555555" opacity="0.16" />
+  <rect x="132" y="204" width="430" height="14" rx="7" fill="#555555" opacity="0.12" />
+  <rect x="132" y="254" width="170" height="120" rx="20" fill="#f3f1ef" stroke="#d8d0cb" />
+  <rect x="336" y="254" width="170" height="120" rx="20" fill="#fceae6" stroke="#d8d0cb" />
+  <rect x="540" y="254" width="170" height="120" rx="20" fill="#f3f1ef" stroke="#d8d0cb" />
+  <path d="M756 176h60v176h-60" fill="none" stroke="#904a42" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M770 196l30 68-30 68" fill="none" stroke="#904a42" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
