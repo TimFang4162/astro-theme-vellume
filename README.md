@@ -4,7 +4,25 @@
 
 它强调稳定的阅读节奏、暖色纸感界面、衬线标题，以及克制而不过度喧宾夺主的动态效果。仓库本身已经整理成适合公开分发的主题形态，可以直接作为模板开始修改。
 
+[![Astro](https://img.shields.io/badge/Astro-6.1-ff5d01?logo=astro&logoColor=white)](https://astro.build/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.2-06b6d4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Node.js](https://img.shields.io/badge/Node.js-%3E%3D22.12-43853d?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Template Repository](https://img.shields.io/badge/GitHub-Template-black?logo=github)](https://github.com/TimFang4162/astro-theme-vellume/generate)
+
+## 快速入口
+
+- 使用模板：<https://github.com/TimFang4162/astro-theme-vellume/generate>
+- 仓库地址：<https://github.com/TimFang4162/astro-theme-vellume>
+- 内容文档：[docs/content-authoring.md](./docs/content-authoring.md)
+
 ![Vellume social preview](./.github/social-preview.png)
+
+## 项目状态
+
+- 这个仓库已经整理成可直接分发的主题模板
+- 当前没有公开演示站，建议本地运行或自行部署预览
+- 当前仓库还没有 `LICENSE` 文件，准备公开分发前建议补上
 
 ## 为什么用它
 
@@ -21,6 +39,16 @@
 - 系列、标签、归档、RSS、OG 图和搜索页
 - Tailwind CSS 4 与 TypeScript
 - 可选接入 Artalk 评论系统，默认关闭
+
+## 技术栈
+
+- Astro 6
+- TypeScript 5
+- Tailwind CSS 4
+- Astro Content Collections
+- astro-og-canvas
+- astro-pagefind
+- Biome
 
 ## 快速开始
 
@@ -105,3 +133,7 @@ visibility: "public"
 - GitHub 社交预览图源文件保存在 `./.github/social-preview.svg`
 - 上传到 GitHub 时建议使用导出的 `./.github/social-preview.png`
 - 如果需要替换，可直接更新 SVG 后重新导出 PNG
+
+## License
+
+当前仓库还没有附带许可证文件。如果你准备面向外部长期分发，建议尽快补一个明确的开源许可证。
