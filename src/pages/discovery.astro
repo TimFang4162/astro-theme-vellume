@@ -1,0 +1,124 @@
+---
+import { Icon } from "astro-icon/components";
+import PostArchiveSections from "../components/blog/PostArchiveSections.astro";
+import SeriesCard from "../components/blog/SeriesCard.astro";
+import Button from "../components/ui/Button.astro";
+import ChipLink from "../components/ui/ChipLink.astro";
+import SectionIntro from "../components/ui/SectionIntro.astro";
+import Layout from "../layouts/BaseLayout.astro";
+import {
+  getPublicBlogPosts,
+  getSeriesEntries,
+  getSeriesMeta,
+  getTagCounts,
+  sortTagCounts,
+} from "../lib/blog";
+
+const allPosts = await getPublicBlogPosts();
+const tagCounts = getTagCounts(allPosts);
+const totalTagCount = tagCounts.size;
+const featuredTags = sortTagCounts(tagCounts).slice(0, 18);
+const seriesList = getSeriesMeta(await getSeriesEntries(), allPosts);
+---
+
+<Layout title="发现" description="按系列、标签和时间线浏览文章">
+  <div class="page-stack">
+    <SectionIntro
+      title="发现"
+      description="按系列、标签和时间线浏览文章"
+      fontStyle="reading"
+    />
+
+    <div
+      class="grid gap-8 lg:grid-cols-[minmax(0,1.7fr)_minmax(18rem,0.95fr)] lg:[grid-template-areas:'main_sidebar']"
+    >
+      <aside
+        class="space-y-6 lg:[grid-area:sidebar] lg:sticky lg:top-24 lg:self-start"
+      >
+        <section class="p-1">
+          <div class="heading-row mb-5">
+            <h2 class="section-title-reading text-strong">
+              系列 · {seriesList.length}
+            </h2>
+            <Button
+              href="/series"
+              variant="ghost"
+              segmented
+              size="sm"
+              class="text-primary"
+            >
+              全部系列
+              <Icon name="material-symbols:arrow-forward-rounded" size={16} />
+            </Button>
+          </div>
+
+          <div class="space-y-3">
+            {seriesList.map((seriesItem) => (
+              <SeriesCard
+                href={`/series/${seriesItem.entry.id}`}
+                title={seriesItem.entry.data.title}
+                count={seriesItem.count}
+                variant="compact"
+              />
+            ))}
+          </div>
+        </section>
+
+        <section class="p-1">
+          <div class="heading-row mb-5">
+            <h2 class="section-title-reading text-strong">
+              标签 · {totalTagCount}
+            </h2>
+            <Button
+              href="/tags"
+              variant="ghost"
+              segmented
+              size="sm"
+              class="text-primary"
+            >
+              全部标签
+              <Icon name="material-symbols:arrow-forward-rounded" size={16} />
+            </Button>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            {featuredTags.map(([tag, count]) => (
+              <ChipLink
+                href={`/tags/${tag}`}
+                label={tag}
+                size="md"
+                labelClass="font-semibold text-primary"
+              >
+                <span class="eyebrow">{count}</span>
+              </ChipLink>
+            ))}
+          </div>
+        </section>
+      </aside>
+
+      <div class="page-stack lg:[grid-area:main]">
+        <section class="space-y-3">
+          <div class="heading-row">
+            <h2 class="section-title-reading text-strong">文章目录</h2>
+            <Button
+              href="/posts"
+              variant="ghost"
+              segmented
+              size="sm"
+              class="text-primary"
+            >
+              全部文章
+              <Icon name="material-symbols:arrow-forward-rounded" size={16} />
+            </Button>
+          </div>
+        </section>
+        <PostArchiveSections
+          posts={allPosts}
+          headingTag="h3"
+          defaultView="list"
+          fontStyle="reading"
+        />
+      </div>
+    </div>
+  </div>
+</Layout>

@@ -1,0 +1,214 @@
+---
+import { Icon } from "astro-icon/components";
+import { formatDate } from "../../utils/date";
+import { estimateReadTime } from "../../utils/text";
+import Badge from "../ui/Badge.astro";
+import MetaItem from "../ui/MetaItem.astro";
+import TagBadgeList from "../ui/TagBadgeList.astro";
+import ViewCollection from "../ui/ViewCollection.astro";
+
+interface HomeFeedPostItem {
+  type: "post";
+  id: string;
+  title: string;
+  href: string;
+  publishedAt: Date;
+  tags: string[];
+  minutesRead: number;
+}
+
+interface HomeFeedSeriesItem {
+  type: "series";
+  id: string;
+  title: string;
+  href: string;
+  publishedAt: Date;
+  description?: string;
+  count: number;
+  latestPostTitle?: string;
+}
+
+export type HomeFeedItem = HomeFeedPostItem | HomeFeedSeriesItem;
+
+interface HomeFeedDisplayBase {
+  badgeColor: "default" | "primary";
+  kindLabel: "文章" | "系列";
+  metaIcon: string;
+  metaLabel: string;
+  publishedAtIso: string;
+  publishedAtLabel: string;
+}
+
+type HomeFeedDisplayItem =
+  | (HomeFeedPostItem &
+      HomeFeedDisplayBase & {
+        description?: undefined;
+      })
+  | (HomeFeedSeriesItem & HomeFeedDisplayBase);
+
+interface Props {
+  items: HomeFeedItem[];
+  title?: string;
+  description?: string;
+  showViewToggle?: boolean;
+  defaultView?: "card" | "list";
+}
+
+const {
+  items,
+  title,
+  description,
+  showViewToggle = true,
+  defaultView = "card",
+} = Astro.props;
+
+function getPostReadTime(item: HomeFeedPostItem) {
+  return estimateReadTime(item.minutesRead);
+}
+
+function getDisplayItem(item: HomeFeedItem): HomeFeedDisplayItem {
+  const publishedAtIso = item.publishedAt.toISOString();
+  const publishedAtLabel = formatDate(item.publishedAt);
+
+  if (item.type === "series") {
+    return {
+      ...item,
+      badgeColor: "primary",
+      kindLabel: "系列",
+      metaIcon: "material-symbols:layers-outline-rounded",
+      metaLabel: `${item.count} 篇文章`,
+      publishedAtIso,
+      publishedAtLabel,
+    };
+  }
+
+  return {
+    ...item,
+    badgeColor: "default",
+    kindLabel: "文章",
+    metaIcon: "material-symbols:schedule-outline-rounded",
+    metaLabel: `预计阅读 ${getPostReadTime(item)}`,
+    publishedAtIso,
+    publishedAtLabel,
+  };
+}
+
+const displayItems = items.map(getDisplayItem);
+---
+
+<ViewCollection
+  defaultView={defaultView}
+  showViewToggle={showViewToggle}
+  title={title}
+  description={description}
+  fontStyle="reading"
+>
+  {displayItems.length === 0 && (
+    <div class="surface-card p-6 text-sm leading-7 text-muted-foreground">
+      No posts yet. Add Markdown files under <code>src/content/blog</code> to populate the home feed.
+    </div>
+  )}
+  {displayItems.map((item) => (
+    <a
+      href={item.href}
+      data-view-item={defaultView}
+      class="view-collection-item group block transition"
+    >
+      <div class="view-collection-card surface-card surface-card-hover flex h-full flex-col p-4">
+        <div class="mb-3 flex items-center justify-between gap-3">
+          <Badge size="sm" color={item.badgeColor}>{item.kindLabel}</Badge>
+          <time
+            datetime={item.publishedAtIso}
+            class="text-sm font-mono text-muted-foreground"
+          >
+            {item.publishedAtLabel}
+          </time>
+        </div>
+
+        <h3 class="card-title text-strong transition group-hover:text-primary">
+          {item.title}
+        </h3>
+
+        {item.type === "series" ? (
+          <div class="mt-auto space-y-2.5 pt-3">
+            {item.latestPostTitle && (
+              <div class="rounded-2xl bg-accent/55 px-3 py-2">
+                <div class="flex items-center gap-1.5 text-[0.68rem] font-semibold tracking-[0.14em] text-primary/80 uppercase">
+                  <Icon
+                    name="material-symbols:bookmark-star-outline-rounded"
+                    size={14}
+                  />
+                  最新文章
+                </div>
+                <p class="mt-1 line-clamp-2 text-sm text-muted-foreground transition group-hover:text-primary">
+                  {item.latestPostTitle}
+                </p>
+              </div>
+            )}
+            <MetaItem
+              icon={item.metaIcon}
+              as="div"
+              class="text-sm text-muted-foreground"
+            >
+              {item.metaLabel}
+            </MetaItem>
+          </div>
+        ) : (
+          <div class="mt-auto space-y-2.5 pt-3">
+            <TagBadgeList tags={item.tags} variant="plain" />
+            <MetaItem
+              icon={item.metaIcon}
+              as="div"
+              class="text-sm text-muted-foreground"
+            >
+              {item.metaLabel}
+            </MetaItem>
+          </div>
+        )}
+      </div>
+
+      <div
+        class="view-collection-list list-row-hover px-5 py-4"
+        data-view-list-layout="dated"
+      >
+        <time
+          datetime={item.publishedAtIso}
+          class="home-feed-list-date text-sm font-mono text-muted-foreground"
+        >
+          {item.publishedAtLabel}
+        </time>
+
+        <div class="min-w-0 space-y-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <Badge size="sm" color={item.badgeColor}>{item.kindLabel}</Badge>
+            <div class="text-base font-medium text-strong transition group-hover:text-primary">
+              {item.title}
+            </div>
+          </div>
+          {item.type === "series" ? (
+            <>
+              {item.latestPostTitle && (
+                <div class="text-sm text-muted-foreground">
+                  最新：
+                  <span class="font-medium text-strong transition group-hover:text-primary">
+                    {item.latestPostTitle}
+                  </span>
+                </div>
+              )}
+              <MetaItem icon={item.metaIcon} as="div" class="text-sm text-muted-foreground">
+                {item.metaLabel}
+              </MetaItem>
+            </>
+          ) : (
+            <div class="meta-row">
+              <MetaItem icon={item.metaIcon}>
+                {item.metaLabel}
+              </MetaItem>
+              <TagBadgeList tags={item.tags} variant="plain" />
+            </div>
+          )}
+        </div>
+      </div>
+    </a>
+  ))}
+</ViewCollection>

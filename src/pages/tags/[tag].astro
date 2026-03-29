@@ -1,0 +1,37 @@
+---
+import PostList from "../../components/blog/PostList.astro";
+import SectionIntro from "../../components/ui/SectionIntro.astro";
+import Layout from "../../layouts/BaseLayout.astro";
+import { getPublicBlogPosts, getTagCounts } from "../../lib/blog";
+
+export async function getStaticPaths() {
+  const allPosts = await getPublicBlogPosts();
+  const tags = getTagCounts(allPosts);
+
+  return Array.from(tags.keys()).map((tag) => ({
+    params: { tag },
+    props: { tag, allPosts },
+  }));
+}
+
+const { tag, allPosts } = Astro.props;
+const filteredPosts = allPosts.filter((post) => post.data.tags.includes(tag));
+---
+
+<Layout title={`标签: ${tag}`}>
+  <div class="page-stack">
+    <SectionIntro
+      title={`标签: ${tag}`}
+      description={`共 ${filteredPosts.length} 篇文章`}
+      fontStyle="reading"
+      backHref="/tags"
+      backLabel="返回标签页"
+    />
+    <PostList
+      posts={filteredPosts}
+      defaultView="card"
+      description={`共 ${filteredPosts.length} 篇文章，支持卡片和列表两种查看方式`}
+      showViewToggle
+    />
+  </div>
+</Layout>

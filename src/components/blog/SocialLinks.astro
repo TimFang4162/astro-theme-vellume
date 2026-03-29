@@ -1,0 +1,109 @@
+---
+import { Icon } from "astro-icon/components";
+import { siteConfig } from "../../config/site";
+import QRCode from "../ui/QRCode.astro";
+
+interface Props {
+  showWeChat?: boolean;
+  githubUrl?: string;
+  emailUrl?: string;
+  wechatQrValue?: string;
+}
+
+const {
+  showWeChat = true,
+  githubUrl = siteConfig.links.github,
+  emailUrl = siteConfig.links.email,
+  wechatQrValue = siteConfig.links.wechatQr,
+} = Astro.props;
+---
+
+<div
+  class="flex flex-wrap items-center gap-5 text-sm font-medium text-muted-foreground"
+>
+  {githubUrl && (
+      <a
+        href={githubUrl}
+        target="_blank"
+        rel="noopener noreferrer me"
+        class="social-link"
+        aria-label="GitHub"
+      >
+        <Icon name="ri:github-fill" size={18} />
+        <span>GitHub</span>
+      </a>
+    )}
+  {emailUrl && (
+      <a href={emailUrl} class="social-link" aria-label="Email">
+        <Icon name="material-symbols:mail-outline-rounded" size={20} />
+        <span>Email</span>
+      </a>
+    )}
+  {showWeChat && wechatQrValue && (
+      <div class="wechat-popover group relative z-30 inline-flex items-center">
+        <button
+          type="button"
+          class="social-link cursor-pointer"
+          aria-controls="wechat-popover-panel"
+          aria-haspopup="dialog"
+          popovertarget="wechat-popover-panel"
+        >
+          <Icon name="ri:wechat-fill" size={18} />
+          <span>WeChat</span>
+        </button>
+        <div
+          id="wechat-popover-panel"
+          class="wechat-popover__panel popover-card fixed z-[90] p-3 text-center text-sm text-muted-foreground"
+          popover="auto"
+        >
+          <QRCode
+            url={wechatQrValue}
+            size={184}
+            darkColor="#111111"
+            lightColor="#ffffff"
+            class="mx-auto mb-2 box-border rounded-2xl border border-border bg-white p-2 text-black"
+          />
+          扫码添加微信
+        </div>
+      </div>
+    )}
+</div>
+
+<style>
+.wechat-popover__panel {
+  inset: auto;
+  margin: 0 0 0.75rem;
+  width: min(13rem, calc(100vw - 2rem));
+  position-area: top center;
+  position-try-fallbacks:
+    top end,
+    top start,
+    bottom center;
+  position-try:
+    top end,
+    top start,
+    bottom center;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(0.25rem) scale(0.96);
+  transform-origin: bottom center;
+  transition:
+    opacity 0.24s ease,
+    transform 0.24s ease;
+}
+
+.wechat-popover__panel:popover-open {
+  pointer-events: auto;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.wechat-popover:has(.wechat-popover__panel:popover-open) .social-link {
+  color: var(--primary);
+}
+
+.wechat-popover__panel :global(.qrcode-wrapper) {
+  box-sizing: border-box;
+  max-width: 11.5rem;
+}
+</style>

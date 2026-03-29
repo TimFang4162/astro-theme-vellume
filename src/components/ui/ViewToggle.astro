@@ -1,0 +1,48 @@
+---
+import { Icon } from "astro-icon/components";
+import Button from "./Button.astro";
+
+interface Props {
+  currentView?: "card" | "list";
+  class?: string;
+}
+
+const { currentView = "card", class: className } = Astro.props;
+
+const options = [
+  {
+    value: "card",
+    label: "卡片",
+    icon: "material-symbols:calendar-view-month-outline",
+  },
+  {
+    value: "list",
+    label: "列表",
+    icon: "material-symbols:view-list-outline",
+  },
+] as const;
+---
+
+<div
+  class:list={["segmented-control", className]}
+  role="group"
+  aria-label="切换展示方式"
+>
+  {options.map((option) => {
+      const isActive = currentView === option.value;
+
+      return (
+        <Button
+          variant="ghost"
+          size="sm"
+          segmented
+          data-view-btn={option.value}
+          aria-pressed={isActive ? "true" : "false"}
+          aria-label={`${option.label}视图`}
+        >
+          <Icon name={option.icon} size={18} />
+          {option.label}
+        </Button>
+      );
+    })}
+</div>

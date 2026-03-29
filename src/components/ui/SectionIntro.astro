@@ -1,0 +1,82 @@
+---
+import { Icon } from "astro-icon/components";
+import Button from "./Button.astro";
+
+interface Props {
+  title?: string;
+  description?: string;
+  titleTag?: "h1" | "h2" | "h3";
+  tone?: "page" | "section";
+  fontStyle?: "ui" | "reading";
+  backHref?: string;
+  backLabel?: string;
+  class?: string;
+}
+
+const {
+  title,
+  description,
+  titleTag = "h1",
+  tone = "page",
+  fontStyle = "ui",
+  backHref,
+  backLabel,
+  class: className,
+} = Astro.props;
+
+const TitleTag = titleTag;
+const hasActions = Astro.slots.has("actions");
+---
+
+<section class:list={["space-y-4", className]}>
+  {backHref && backLabel && (
+      <Button href={backHref} variant="ghost" size="sm">
+        <Icon name="material-symbols:arrow-back-rounded" size={18} />
+        {backLabel}
+      </Button>
+    )}
+
+  <div
+    class:list={[
+      "flex flex-col gap-4",
+      hasActions && "md:flex-row md:items-end md:justify-between",
+    ]}
+  >
+    <div class="space-y-2">
+      {title && (
+          <TitleTag
+            class:list={[
+              tone === "page"
+                ? fontStyle === "reading"
+                  ? "page-title-reading"
+                  : "page-title"
+                : fontStyle === "reading"
+                  ? "section-title-reading"
+                  : "section-title",
+              "text-strong",
+            ]}
+          >
+            {title}
+          </TitleTag>
+        )}
+      {description && (
+          <p
+            class:list={[
+              "text-muted-foreground",
+              tone === "page"
+                ? "max-w-3xl text-lg leading-8"
+                : "max-w-2xl text-sm",
+            ]}
+          >
+            {description}
+          </p>
+        )}
+    </div>
+
+    {hasActions && (
+        <div class="flex w-fit items-center gap-3">
+          <slot name="actions" />
+        </div>
+      )}
+  </div>
+</section>

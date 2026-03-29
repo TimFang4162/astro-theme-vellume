@@ -1,0 +1,21 @@
+---
+import TagCloud from "../../components/blog/TagCloud.astro";
+import SectionIntro from "../../components/ui/SectionIntro.astro";
+import Layout from "../../layouts/BaseLayout.astro";
+import { getPublicBlogPosts, getTagCounts } from "../../lib/blog";
+
+const tags = getTagCounts(await getPublicBlogPosts());
+---
+
+<Layout title="标签" description="所有文章标签">
+  <div class="page-stack">
+    <SectionIntro
+      title="标签"
+      description={`共 ${tags.size} 个标签，按出现频次排序。`}
+      fontStyle="reading"
+      backHref="/discovery"
+      backLabel="返回发现页"
+    />
+    <TagCloud tags={tags} />
+  </div>
+</Layout>

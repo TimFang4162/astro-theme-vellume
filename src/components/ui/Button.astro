@@ -1,0 +1,59 @@
+---
+interface Props {
+  variant?: "primary" | "secondary" | "soft" | "ghost";
+  size?: "sm" | "md" | "lg";
+  shape?: "pill" | "circle";
+  segmented?: boolean;
+  href?: string;
+  class?: string;
+  type?: "button" | "submit" | "reset";
+  active?: boolean;
+  [key: string]: unknown;
+}
+
+const {
+  variant = "secondary",
+  size = "md",
+  shape = "pill",
+  segmented = false,
+  href,
+  class: className,
+  type = "button",
+  active = false,
+  ...attrs
+} = Astro.props;
+const Tag = href ? "a" : "button";
+---
+
+<Tag
+  class:list={[
+    "inline-flex shrink-0 items-center justify-center gap-2 font-medium transition-[color,border-color,background-color,box-shadow,opacity] duration-200 ease-out disabled:pointer-events-none disabled:opacity-50",
+    {
+      "rounded-full": shape === "pill" || shape === "circle",
+      "px-3.5 py-2 text-sm": shape === "pill" && size === "sm",
+      "px-4 py-2.5 text-sm": shape === "pill" && size === "md",
+      "px-5 py-3 text-base": shape === "pill" && size === "lg",
+      "size-9 text-sm": shape === "circle" && size === "sm",
+      "size-11 text-base": shape === "circle" && size === "md",
+      "size-12 text-lg": shape === "circle" && size === "lg",
+      "border border-transparent bg-primary text-primary-foreground shadow-sm hover:shadow-md active:shadow-sm":
+        variant === "primary",
+      "border border-border bg-card/90 text-strong shadow-sm backdrop-blur hover:border-primary hover:bg-accent hover:shadow-md active:shadow-sm":
+        variant === "secondary",
+      "border border-transparent bg-accent/70 text-primary hover:bg-accent active:shadow-none":
+        variant === "soft",
+      "border border-border/80 bg-transparent text-muted-foreground hover:border-primary hover:bg-accent hover:text-primary active:shadow-none aria-pressed:border-primary/50 aria-pressed:bg-accent aria-pressed:text-primary aria-pressed:shadow-sm":
+        variant === "ghost" && !segmented,
+      "border border-transparent bg-transparent text-muted-foreground shadow-none hover:border-transparent hover:bg-accent hover:text-primary active:shadow-none aria-pressed:border-primary/50 aria-pressed:bg-accent aria-pressed:text-primary aria-pressed:shadow-sm":
+        variant === "ghost" && segmented,
+      "border-primary/50 bg-accent text-primary shadow-sm":
+        active && variant !== "primary",
+    },
+    className,
+  ]}
+  href={href}
+  type={href ? undefined : type}
+  {...attrs}
+>
+  <slot />
+</Tag>

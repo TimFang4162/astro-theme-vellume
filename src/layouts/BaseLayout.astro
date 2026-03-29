@@ -1,0 +1,200 @@
+---
+import { ClientRouter } from "astro:transitions";
+import { Icon } from "astro-icon/components";
+import LoadingIndicator from "astro-loading-indicator/component";
+import { SEO } from "astro-seo";
+import { ThemeScript } from "astro-theme-toggle";
+import NavLinks from "../components/navigation/NavLinks.astro";
+import SearchModal from "../components/search/SearchModal.astro";
+import Button from "../components/ui/Button.astro";
+import ThemeToggle from "../components/ui/ThemeToggle.astro";
+import { siteConfig } from "../config/site";
+import Footer from "./Footer.astro";
+import Header from "./Header.astro";
+import "medium-zoom/dist/style.css";
+import "../styles/global.css";
+
+interface ArticleMeta {
+  publishedTime?: string;
+  modifiedTime?: string;
+  tags?: string[];
+}
+
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  mobileDrawerEnabled?: boolean;
+  type?: "website" | "article";
+  articleMeta?: ArticleMeta;
+  jsonLd?: object;
+}
+
+const {
+  title,
+  description = siteConfig.site.description,
+  image,
+  mobileDrawerEnabled = true,
+  type = "website",
+  articleMeta,
+  jsonLd,
+} = Astro.props;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const currentPath = Astro.url.pathname;
+const defaultOgImage = "/assets/og/index.png";
+const ogImage = image
+  ? new URL(image, Astro.url)
+  : new URL(defaultOgImage, Astro.site);
+const seoProps = {
+  charset: "UTF-8",
+  title,
+  titleTemplate: `%s - ${siteConfig.site.title}` as const,
+  titleDefault: siteConfig.site.title,
+  description,
+  canonical: canonicalURL.href,
+  openGraph: {
+    basic: {
+      title,
+      type,
+      image: ogImage.href,
+      url: canonicalURL.href,
+    },
+    optional: {
+      locale: siteConfig.site.locale,
+      siteName: siteConfig.site.title,
+      description,
+    },
+    article:
+      type === "article" && articleMeta
+        ? {
+            publishedTime: articleMeta.publishedTime,
+            modifiedTime: articleMeta.modifiedTime,
+            tags: articleMeta.tags,
+          }
+        : undefined,
+  },
+  twitter: {
+    card: "summary_large_image" as const,
+    title,
+    image: ogImage.href,
+    description,
+  },
+};
+---
+
+<!doctype html>
+<html lang={siteConfig.site.lang} dir="ltr" data-theme="light">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content={Astro.generator}>
+    <meta
+      name="theme-color"
+      content="#ffffff"
+      media="(prefers-color-scheme: light)"
+    >
+    <meta
+      name="theme-color"
+      content="#09090b"
+      media="(prefers-color-scheme: dark)"
+    >
+    <link rel="alternate" type="application/rss+xml" href="/rss.xml">
+    <ClientRouter />
+    <script is:inline>
+    document.addEventListener("astro:before-swap", (e) => {
+      const current = document.documentElement.dataset.theme;
+      if (current) {
+        e.newDocument.documentElement.dataset.theme = current;
+        e.newDocument.documentElement.style.colorScheme = current;
+      }
+    });
+    document.addEventListener(
+      "click",
+      (e) => {
+        if (e.target.closest("[data-theme-toggle]")) {
+          const root = document.documentElement;
+          root.classList.add("no-transition");
+          setTimeout(() => root.classList.remove("no-transition"), 600);
+        }
+      },
+      true,
+    );
+    </script>
+    <LoadingIndicator color="var(--primary)" />
+    <SEO {...seoProps} />
+    {jsonLd && (
+      <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    )}
+    <script is:inline>
+    if (localStorage.getItem("theme")) {
+      localStorage.setItem("theme-toggle", localStorage.getItem("theme"));
+      localStorage.removeItem("theme");
+    }
+    </script>
+    <ThemeScript />
+  </head>
+  <body class="min-h-screen w-full bg-background text-foreground antialiased">
+    <a href="#main-content" class="skip-link">跳到主要内容</a>
+    <Header mobileDrawerEnabled={mobileDrawerEnabled} />
+    {mobileDrawerEnabled && (
+      <>
+        <div
+          id="mobile-drawer-overlay"
+          class="pointer-events-none fixed inset-0 z-[60] bg-black/40 opacity-0 transition-opacity duration-300 lg:hidden"
+          aria-hidden="true"
+        />
+        <aside
+          id="mobile-drawer"
+          class="pointer-events-none fixed right-0 top-0 z-[61] flex h-dvh w-[min(22.5rem,86vw)] translate-x-full flex-col gap-4 overflow-y-auto border-l border-border bg-background px-4 py-4 shadow-2xl transition-transform duration-300 lg:hidden"
+          aria-hidden="true"
+          aria-labelledby="mobile-drawer-title"
+          aria-modal="true"
+          role="dialog"
+          tabindex="-1"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-sm text-muted-foreground">导航</div>
+              <div
+                id="mobile-drawer-title"
+                class="font-serif text-lg font-semibold text-strong"
+              >
+                {siteConfig.site.title}
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <ThemeToggle />
+              <Button
+                variant="ghost"
+                shape="circle"
+                size="md"
+                aria-label="关闭侧边栏"
+                data-mobile-drawer-close
+              >
+                <Icon name="material-symbols:close-rounded" size={22} />
+              </Button>
+            </div>
+          </div>
+
+          <NavLinks currentPath={currentPath} variant="drawer" closeOnClick />
+
+          <slot name="mobile-drawer" />
+        </aside>
+      </>
+    )}
+    <main id="main-content" tabindex="-1" class="page-frame main-frame">
+      <slot />
+    </main>
+    <Footer />
+    <SearchModal />
+    <script>
+    import { initCodeCopy } from "../scripts/ui/code-copy";
+    import { initLightbox } from "../scripts/ui/lightbox";
+    import { runOnPageLoad } from "../scripts/ui/page-load";
+    import { initSearch } from "../scripts/ui/search";
+
+    runOnPageLoad(initCodeCopy);
+    runOnPageLoad(initLightbox);
+    runOnPageLoad(initSearch);
+    </script>
+  </body>
+</html>

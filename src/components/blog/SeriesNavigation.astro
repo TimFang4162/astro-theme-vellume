@@ -1,0 +1,77 @@
+---
+import type { CollectionEntry } from "astro:content";
+import type { SeriesEntry } from "../../lib/blog";
+
+interface Props {
+  currentPost: CollectionEntry<"blog">;
+  posts: CollectionEntry<"blog">[];
+  series: SeriesEntry;
+  scrollable?: boolean;
+  class?: string;
+}
+
+const {
+  currentPost,
+  posts,
+  series,
+  scrollable = false,
+  class: className,
+} = Astro.props;
+const currentIndex = posts.findIndex((post) => post.id === currentPost.id);
+---
+
+{posts.length > 0 && (
+    <section
+      class:list={[
+        "surface-card flex flex-col",
+        scrollable ? "overflow-hidden" : "overflow-visible",
+        className,
+      ]}
+      data-sidebar-panel="series"
+    >
+      <div
+        class="space-y-1.5 border-b border-border p-2 pl-4"
+        data-sidebar-panel-header
+      >
+        <span class="eyebrow text-xs font-semibold">系列</span>
+        <a
+          href={`/series/${series.id}`}
+          class="block text-base font-semibold text-strong transition hover:text-primary"
+        >
+          {series.data.title}
+        </a>
+        <p class="text-sm text-muted-foreground">
+          第 {currentIndex + 1} / {posts.length} 篇
+        </p>
+      </div>
+      <div
+        class:list={[
+          "p-2",
+          scrollable ? "min-h-0 flex-1 overflow-y-auto" : "overflow-visible",
+        ]}
+        data-sidebar-panel-body
+      >
+        <ol class="m-0 list-none p-0">
+          {posts.map((post, index) => (
+            <li>
+              <a
+                href={`/posts/${post.id}`}
+                class:list={[
+                  "sidebar-link",
+                  post.id === currentPost.id
+                    ? "font-semibold"
+                    : "text-muted-foreground hover:text-primary",
+                ]}
+                data-active={post.id === currentPost.id ? "true" : "false"}
+              >
+                <span class="w-6 shrink-0 font-mono font-normal text-sm leading-6">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <span class="leading-6">{post.data.title}</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  )}

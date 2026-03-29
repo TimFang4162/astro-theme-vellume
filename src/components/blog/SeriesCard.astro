@@ -1,0 +1,49 @@
+---
+import { formatDate } from "../../utils/date";
+
+interface Props {
+  href: string;
+  title: string;
+  count: number;
+  description?: string;
+  latestPublishedAt?: Date;
+  variant?: "compact" | "default";
+}
+
+const {
+  href,
+  title,
+  count,
+  description,
+  latestPublishedAt,
+  variant = "default",
+} = Astro.props;
+---
+
+<a
+  href={href}
+  class:list={[
+    "surface-card surface-card-hover block",
+    variant === "compact" ? "px-4 py-4" : "p-4",
+  ]}
+>
+  {variant === "compact" ? (
+    <div class="flex items-center justify-between gap-3">
+      <h3 class="font-sans text-base font-semibold text-strong">{title}</h3>
+      <span class="eyebrow shrink-0">{count} 篇</span>
+    </div>
+  ) : (
+    <>
+      <div class="eyebrow mb-2">{count} 篇文章</div>
+      <h2 class="card-title text-strong">{title}</h2>
+      {description && (
+        <p class="mt-3 text-sm text-muted-foreground">{description}</p>
+      )}
+      {latestPublishedAt && (
+        <p class="mt-3 text-sm text-muted-foreground">
+          最近发布于 {formatDate(latestPublishedAt)}
+        </p>
+      )}
+    </>
+  )}
+</a>

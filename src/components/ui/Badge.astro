@@ -1,0 +1,24 @@
+---
+interface Props {
+  color?: "default" | "primary";
+  size?: "sm" | "md";
+  class?: string;
+}
+
+const { color = "primary", size = "md", class: className } = Astro.props;
+---
+
+<span
+  class:list={[
+    "inline-flex items-center rounded-full border font-medium transition-all",
+    {
+      "px-2.5 py-0.5 text-sm": size === "sm",
+      "px-3 py-1 text-sm": size === "md",
+      "border-border/80 bg-muted text-foreground": color === "default",
+      "border-primary/20 bg-accent text-primary": color === "primary",
+    },
+    className,
+  ]}
+>
+  <slot />
+</span>

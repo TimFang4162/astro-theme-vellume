@@ -1,0 +1,23 @@
+---
+interface Props {
+  href: string;
+  label: string;
+  size?: "sm" | "md";
+  class?: string;
+  labelClass?: string;
+}
+
+const { href, label, size = "sm", class: className, labelClass } = Astro.props;
+---
+
+<a
+  href={href}
+  class:list={[
+    "surface-chip chip-link inline-flex items-center gap-2",
+    size === "sm" ? "px-3 py-1 text-sm text-primary" : "px-4 py-2 text-sm",
+    className,
+  ]}
+>
+  <span class:list={["font-medium", labelClass]}>{label}</span>
+  <slot />
+</a>

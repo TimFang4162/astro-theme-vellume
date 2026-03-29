@@ -1,0 +1,87 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { Icon } from "astro-icon/components";
+import { formatDate } from "../../utils/date";
+import { estimateReadTime, getEntryReadMinutes } from "../../utils/text";
+import MetaItem from "../ui/MetaItem.astro";
+import TagBadgeList from "../ui/TagBadgeList.astro";
+
+interface Props {
+  post: CollectionEntry<"blog">;
+  view?: "card" | "list";
+  seriesTitle?: string;
+}
+
+const { post, view = "card", seriesTitle } = Astro.props;
+const { id, data } = post;
+const readTime = estimateReadTime(getEntryReadMinutes(post));
+const publishedAtIso = data.publishedAt.toISOString();
+const publishedAtLabel = formatDate(data.publishedAt);
+const seriesLabel = seriesTitle ?? data.series?.id;
+---
+
+<a
+  href={`/posts/${id}`}
+  data-view-item={view}
+  class="view-collection-item group block transition"
+>
+  <div
+    class="view-collection-card surface-card surface-card-hover flex h-full flex-col p-4"
+  >
+    <h3 class="card-title text-strong transition group-hover:text-primary">
+      {data.title}
+    </h3>
+
+    <div class="mt-auto space-y-2.5 pt-3">
+      <TagBadgeList tags={data.tags} variant="plain" />
+      <div class="meta-row">
+        <MetaItem
+          as="time"
+          datetime={publishedAtIso}
+          icon="material-symbols:calendar-today-outline-rounded"
+          class="font-mono"
+        >
+          {publishedAtLabel}
+        </MetaItem>
+        <MetaItem icon="material-symbols:schedule-outline-rounded">
+          预计阅读 {readTime}
+        </MetaItem>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="view-collection-list list-row-hover px-5 py-4"
+    data-view-list-layout="dated"
+  >
+    <time
+      datetime={publishedAtIso}
+      class="text-sm font-mono text-muted-foreground"
+    >
+      {publishedAtLabel}
+    </time>
+
+    <div class="min-w-0 space-y-2">
+      <div
+        class="text-base font-medium text-strong transition group-hover:text-primary"
+      >
+        {data.title}
+      </div>
+      <div class="meta-row">
+        <MetaItem icon="material-symbols:schedule-outline-rounded">
+          预计阅读 {readTime}
+        </MetaItem>
+        {seriesLabel && (
+          <span class="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-accent px-2.5 py-0.5 text-sm font-medium text-primary">
+            <Icon
+              name="material-symbols:layers-outline-rounded"
+              size={14}
+            />
+            <span>{seriesLabel}</span>
+          </span>
+        )}
+        <TagBadgeList tags={data.tags} variant="plain" />
+      </div>
+    </div>
+  </div>
+</a>

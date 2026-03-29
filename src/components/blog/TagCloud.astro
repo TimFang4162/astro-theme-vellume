@@ -1,0 +1,29 @@
+---
+import { sortTagCounts } from "../../lib/blog";
+import ChipLink from "../ui/ChipLink.astro";
+
+interface Props {
+  tags: Map<string, number>;
+}
+
+const { tags } = Astro.props;
+const sortedTags = sortTagCounts(tags);
+---
+
+<div class="flex flex-wrap gap-3">
+  {sortedTags.length === 0 && (
+    <div class="surface-card p-6 text-sm leading-7 text-muted-foreground">
+      还没有标签。发布文章后，标签云会自动生成。
+    </div>
+  )}
+  {sortedTags.map(([tag, count]) => (
+    <ChipLink
+      href={`/tags/${tag}`}
+      label={tag}
+      size="md"
+      labelClass="font-semibold text-primary"
+    >
+      <span class="text-sm text-muted-foreground">{count}</span>
+    </ChipLink>
+  ))}
+</div>

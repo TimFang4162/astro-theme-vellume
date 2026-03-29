@@ -1,0 +1,258 @@
+---
+import { Icon } from "astro-icon/components";
+/* biome-ignore lint/correctness/noUnusedImports: Astro component is used in the template. */
+import TOCHeading, { type TocItem } from "./TOCHeading.astro";
+
+interface Props {
+  headings: Array<{
+    depth: number;
+    slug: string;
+    text: string;
+  }>;
+  maxDepth?: number;
+  scrollable?: boolean;
+  class?: string;
+}
+
+const {
+  headings,
+  maxDepth = 3,
+  scrollable = true,
+  class: className,
+} = Astro.props;
+const filteredHeadings = headings.filter(
+  (heading) => heading.depth <= maxDepth,
+);
+
+function buildTocTree(
+  flatHeadings: Array<{ depth: number; slug: string; text: string }>,
+) {
+  const root: TocItem[] = [];
+  const stack: TocItem[] = [];
+
+  for (const heading of flatHeadings) {
+    const item: TocItem = {
+      depth: heading.depth,
+      slug: heading.slug,
+      text: heading.text,
+      subheadings: [],
+    };
+
+    while (stack.length > 0 && stack[stack.length - 1].depth >= item.depth) {
+      stack.pop();
+    }
+
+    if (stack.length === 0) {
+      root.push(item);
+    } else {
+      stack[stack.length - 1].subheadings.push(item);
+    }
+
+    stack.push(item);
+  }
+
+  return root;
+}
+
+const toc = buildTocTree(filteredHeadings);
+---
+
+{toc.length > 0 && (
+  <section
+    class:list={[
+      "surface-card flex flex-col",
+      scrollable ? "overflow-hidden" : "overflow-visible",
+      // scrollable && "max-h-[calc(100vh-6rem)]",
+      className,
+    ]}
+    data-toc-root
+    data-sidebar-panel="toc"
+  >
+    <div
+      class="flex items-center justify-between gap-3 border-b border-border p-2 pl-4"
+      data-sidebar-panel-header
+    >
+      <span class="text-base font-semibold text-strong">目录</span>
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          class="toc-action"
+          data-toc-action="expand"
+          aria-label="全部展开"
+          title="全部展开"
+        >
+          <Icon name="material-symbols:unfold-more" size={18} />
+        </button>
+        <button
+          type="button"
+          class="toc-action"
+          data-toc-action="collapse"
+          aria-label="全部折叠"
+          title="全部折叠"
+        >
+          <Icon name="material-symbols:unfold-less" size={18} />
+        </button>
+      </div>
+    </div>
+    <div
+      class:list={[
+        "toc-scroll min-h-0 flex-1 p-2",
+        scrollable ? "overflow-y-auto" : "overflow-visible",
+      ]}
+      data-toc-scroll
+      data-sidebar-panel-body
+    >
+      <ul class="m-0 list-none p-0">
+        {toc.map((heading) => (
+          <TOCHeading heading={heading} />
+        ))}
+      </ul>
+    </div>
+  </section>
+)}
+
+<script>
+import "../../scripts/ui/table-of-contents";
+</script>
+
+<style>
+:global(.toc-scroll) {
+  scroll-behavior: smooth;
+}
+
+:global(.toc-node) {
+  display: flow-root;
+}
+
+:global(.toc-progress) {
+  top: 10%;
+  height: 90%;
+  --toc-progress-read-end: 0%;
+  --toc-progress-active-end: 0%;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--border) 92%, transparent) 0
+      var(--toc-progress-read-end),
+    var(--primary) var(--toc-progress-read-end) var(--toc-progress-active-end),
+    transparent var(--toc-progress-active-end) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+:global(.toc-progress.has-progress) {
+  opacity: 1;
+}
+
+:global(.toc-toggle) {
+  position: absolute;
+  top: 0.375rem;
+  left: calc(1rem + var(--toc-indent, 0rem));
+  z-index: 1;
+  display: inline-flex;
+  height: 1.5rem;
+  width: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 9999px;
+  background: transparent;
+  color: color-mix(in srgb, var(--foreground) 56%, transparent);
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+:global(.toc-toggle:hover) {
+  border-color: color-mix(in srgb, var(--border) 92%, transparent);
+  background: color-mix(in srgb, var(--accent) 82%, transparent);
+  color: var(--primary);
+}
+
+:global(.toc-toggle-glyph) {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1;
+  transform: rotate(90deg);
+  transition: transform 0.2s ease;
+}
+
+:global(.toc-node[data-collapsed="true"] .toc-toggle-glyph) {
+  transform: rotate(0deg);
+}
+
+:global(.toc-children) {
+  display: block;
+}
+
+:global(.toc-node[data-collapsed="true"] > .toc-children) {
+  display: none;
+}
+
+:global(.toc-action) {
+  display: inline-flex;
+  height: 2rem;
+  width: 2rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--accent) 36%, var(--card));
+  color: color-mix(in srgb, var(--foreground) 76%, transparent);
+  line-height: 0;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+:global(.toc-action:hover) {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--accent) 82%, transparent);
+  color: var(--primary);
+}
+
+:global(.toc-action:disabled) {
+  cursor: default;
+  opacity: 0.45;
+}
+
+:global(.toc-link) {
+  padding-block: 0.5rem;
+  margin-inline-start: 0.65rem;
+  padding-inline-end: 0.75rem;
+  padding-inline-start: calc(2.2rem + var(--toc-indent, 0rem));
+  color: color-mix(in srgb, var(--foreground) 72%, transparent);
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+:global(.toc-link:hover) {
+  background: color-mix(in srgb, var(--accent) 60%, transparent);
+  color: var(--primary);
+}
+
+:global(.toc-link:not(.active)) {
+  border-radius: 1rem;
+}
+
+:global(.toc-link.active) {
+  background: var(--accent);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+:global(.toc-link.active-first) {
+  border-top-right-radius: 1rem;
+  border-top-left-radius: 1rem;
+}
+
+:global(.toc-link.active-last) {
+  border-bottom-right-radius: 1rem;
+  border-bottom-left-radius: 1rem;
+}
+</style>

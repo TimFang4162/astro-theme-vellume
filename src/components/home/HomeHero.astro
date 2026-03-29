@@ -1,0 +1,69 @@
+---
+import { Image } from "astro:assets";
+import { Icon } from "astro-icon/components";
+import { siteConfig } from "../../config/site";
+import SocialLinks from "../blog/SocialLinks.astro";
+import Button from "../ui/Button.astro";
+
+interface Props {
+  title?: string;
+  bio?: string;
+}
+
+const { title = siteConfig.author.introTitle, bio = siteConfig.author.bio } =
+  Astro.props;
+---
+
+<div class="relative left-1/2 w-screen -translate-x-1/2 px-4 sm:px-6 lg:px-8">
+  <section
+    data-home-hero
+    class="relative overflow-hidden rounded-[2rem] border border-border bg-background shadow-sm"
+  >
+    <div class="absolute inset-0 overflow-hidden rounded-[inherit]">
+      <div data-hero-canvas class="absolute inset-0 z-0"></div>
+    </div>
+    <div class="relative isolate py-16 md:py-20 lg:py-24">
+      <div
+        class="relative z-10 mx-auto flex max-w-6xl flex-col items-start gap-4 px-4 sm:px-6 lg:px-8"
+      >
+        <Image
+          src={siteConfig.author.avatar.src}
+          alt={siteConfig.author.avatar.alt}
+          width={112}
+          height={112}
+          priority
+          class="size-24 rounded-full border-4 border-background object-cover shadow-[0_24px_80px_-30px_var(--primary)] md:size-28"
+        />
+        <div class="max-w-3xl space-y-4">
+          <h1 class="display-title font-sans text-strong">{title}</h1>
+          <p
+            class="font-serif max-w-2xl text-lg leading-8 text-foreground md:text-xl"
+          >
+            {bio}
+          </p>
+        </div>
+        <SocialLinks />
+        <Button
+          href={siteConfig.links.about}
+          variant="secondary"
+          size="lg"
+          class="bg-background/85"
+        >
+          了解更多
+          <Icon
+            name="material-symbols:arrow-forward-rounded"
+            size={18}
+            class="shrink-0"
+          />
+        </Button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+import { initHomeHero } from "../../scripts/home/hero-particles";
+import { runOnPageLoad } from "../../scripts/ui/page-load";
+
+runOnPageLoad(initHomeHero);
+</script>

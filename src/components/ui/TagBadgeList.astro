@@ -1,0 +1,32 @@
+---
+import Badge from "./Badge.astro";
+
+interface Props {
+  tags: string[];
+  class?: string;
+  variant?: "badge" | "plain";
+}
+
+const { tags, class: className, variant = "badge" } = Astro.props;
+---
+
+{tags.length > 0 && (
+  <div
+    class:list={[
+      variant === "badge"
+        ? "flex flex-wrap gap-2"
+        : "flex flex-wrap gap-x-3 gap-y-1 text-sm text-muted-foreground",
+      className,
+    ]}
+  >
+    {tags.map((tag) =>
+      variant === "badge" ? (
+        <Badge size="sm" color="default">
+          {tag}
+        </Badge>
+      ) : (
+        <span class="transition group-hover:text-primary">#{tag}</span>
+      ),
+    )}
+  </div>
+)}

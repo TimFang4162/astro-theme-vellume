@@ -1,0 +1,274 @@
+---
+import "artalk/Artalk.css";
+import { siteConfig } from "../../config/site";
+
+interface Props {
+  pageKey: string;
+  pageTitle: string;
+  class?: string;
+}
+
+const { pageKey, pageTitle, class: className } = Astro.props;
+
+const enabled = siteConfig.comments.enabled;
+const server = siteConfig.comments.server;
+const site = siteConfig.comments.site;
+---
+
+{enabled && server && site && (
+  <section
+    class:list={[className]}
+    aria-labelledby="comments-title"
+    data-artalk-comments
+    data-page-key={pageKey}
+    data-page-title={pageTitle}
+    data-server={server}
+    data-site={site}
+  >
+    <h2 id="comments-title" class="section-title-reading text-strong">评论</h2>
+    <div class="mt-5 min-h-40" data-artalk-root>
+      <p class="text-sm text-muted-foreground">评论加载中…</p>
+    </div>
+  </section>
+)}
+
+<script>
+import type { ArtalkConfig } from "artalk";
+import Artalk from "artalk";
+import { runOnPageLoad } from "../../scripts/ui/page-load";
+
+let cleanup: (() => void) | undefined;
+
+type PageVoteState = {
+  pageId: number;
+  currentVote: "up" | "down" | null;
+};
+
+const isDarkTheme = () =>
+  document.documentElement.getAttribute("data-theme") === "dark";
+
+const getVoteStorageKey = (pageKey: string) => `artalk-page-vote:${pageKey}`;
+
+const getStoredVote = (pageKey: string) => {
+  const value = window.localStorage.getItem(getVoteStorageKey(pageKey));
+  return value === "up" || value === "down" ? value : null;
+};
+
+const setStoredVote = (pageKey: string, vote: "up" | "down" | null) => {
+  const key = getVoteStorageKey(pageKey);
+  if (vote) {
+    window.localStorage.setItem(key, vote);
+    return;
+  }
+
+  window.localStorage.removeItem(key);
+};
+
+const syncPageVoteUi = (
+  pageKey: string,
+  state: PageVoteState | null,
+  counts?: { up: number; down: number },
+) => {
+  const wrap = document.querySelector<HTMLElement>(
+    ".post-nav-feedback__actions",
+  );
+  const upBtn = wrap?.querySelector<HTMLElement>(
+    ".post-nav-feedback__button--yes",
+  );
+  const downBtn = wrap?.querySelector<HTMLElement>(
+    ".post-nav-feedback__button--no",
+  );
+  const upCount = wrap?.querySelector<HTMLElement>(
+    ".post-nav-feedback__button--yes .post-nav-feedback__count",
+  );
+  const downCount = wrap?.querySelector<HTMLElement>(
+    ".post-nav-feedback__button--no .post-nav-feedback__count",
+  );
+
+  if (!wrap || !upBtn || !downBtn || !upCount || !downCount) {
+    return;
+  }
+
+  if (counts) {
+    upCount.textContent = String(counts.up);
+    downCount.textContent = String(counts.down);
+  }
+
+  const storedVote = state?.currentVote ?? getStoredVote(pageKey);
+  upBtn.classList.toggle("atk-voted", storedVote === "up");
+  downBtn.classList.toggle("atk-voted", storedVote === "down");
+  upBtn.toggleAttribute("aria-pressed", storedVote === "up");
+  downBtn.toggleAttribute("aria-pressed", storedVote === "down");
+};
+
+const initArtalkComments = () => {
+  cleanup?.();
+
+  const host = document.querySelector<HTMLElement>("[data-artalk-comments]");
+  const root = host?.querySelector<HTMLElement>("[data-artalk-root]");
+
+  if (!host || !root) {
+    return;
+  }
+
+  root.replaceChildren();
+
+  const pageKey = host.dataset.pageKey ?? window.location.pathname;
+  const artalkConfig = {
+    el: root,
+    pageKey,
+    pageTitle: host.dataset.pageTitle ?? document.title,
+    server: host.dataset.server ?? "",
+    site: host.dataset.site ?? "",
+    pvEl: ".artalk-pv-count",
+    statPageKeyAttr: "data-page-key",
+  } satisfies Partial<ArtalkConfig>;
+
+  const artalk = Artalk.init(artalkConfig);
+  let pageVoteState: PageVoteState | null = null;
+
+  artalk.setDarkMode(isDarkTheme());
+  syncPageVoteUi(pageKey, pageVoteState);
+
+  artalk.on("page-loaded", (page) => {
+    pageVoteState = {
+      pageId: page.id,
+      currentVote: getStoredVote(pageKey),
+    };
+
+    syncPageVoteUi(pageKey, pageVoteState, {
+      up: page.vote_up,
+      down: page.vote_down,
+    });
+  });
+
+  const voteWrap = document.querySelector<HTMLElement>(
+    ".post-nav-feedback__actions",
+  );
+  const upBtn = voteWrap?.querySelector<HTMLButtonElement>(
+    ".post-nav-feedback__button--yes",
+  );
+  const downBtn = voteWrap?.querySelector<HTMLButtonElement>(
+    ".post-nav-feedback__button--no",
+  );
+
+  const submitPageVote = async (vote: "up" | "down") => {
+    if (!pageVoteState) {
+      return;
+    }
+
+    try {
+      const { data } = await artalk.ctx
+        .getApi()
+        .votes.vote(
+          vote === "up" ? "page_up" : "page_down",
+          pageVoteState.pageId,
+          {},
+        );
+
+      pageVoteState.currentVote = vote;
+      setStoredVote(pageKey, vote);
+      syncPageVoteUi(pageKey, pageVoteState, {
+        up: data.up,
+        down: data.down,
+      });
+    } catch (error) {
+      console.error("Failed to submit page vote.", error);
+    }
+  };
+
+  const onVoteUpClick = () => {
+    void submitPageVote("up");
+  };
+  const onVoteDownClick = () => {
+    void submitPageVote("down");
+  };
+
+  upBtn?.addEventListener("click", onVoteUpClick);
+  downBtn?.addEventListener("click", onVoteDownClick);
+
+  const observer = new MutationObserver(() => {
+    artalk.setDarkMode(isDarkTheme());
+  });
+
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-theme"],
+  });
+
+  cleanup = () => {
+    observer.disconnect();
+    upBtn?.removeEventListener("click", onVoteUpClick);
+    downBtn?.removeEventListener("click", onVoteDownClick);
+    artalk.destroy();
+    cleanup = undefined;
+  };
+};
+
+runOnPageLoad(initArtalkComments);
+document.addEventListener("astro:before-swap", () => {
+  cleanup?.();
+});
+</script>
+
+<style is:global>
+[data-artalk-comments] .artalk {
+  --at-color-main: var(--primary);
+  --at-color-font: var(--foreground);
+  --at-color-deep: var(--foreground-strong);
+  --at-color-meta: var(--muted-foreground);
+  --at-color-border: color-mix(in srgb, var(--border) 92%, transparent);
+  --at-color-bg: var(--card);
+  --at-color-bg-transl: var(--card);
+  --at-color-bg-grey: color-mix(in srgb, var(--muted) 78%, transparent);
+  --at-color-bg-grey-transl: color-mix(in srgb, var(--muted) 72%, transparent);
+}
+
+[data-artalk-comments] .artalk .atk-main-editor {
+  border-radius: 1.25rem;
+}
+
+[data-artalk-comments] .artalk .atk-main-editor .atk-editor-user-wrap {
+  margin-top: 0.25rem;
+}
+
+[data-artalk-comments]
+  .artalk
+  .atk-main-editor
+  .atk-editor-user-wrap
+  .atk-editor-user {
+  padding: 0 0.25rem;
+}
+
+[data-artalk-comments] .artalk .atk-send-btn {
+  border-radius: 9999px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+[data-artalk-comments] .artalk .atk-send-btn:hover {
+  background: color-mix(in srgb, var(--primary) 88%, black);
+}
+
+[data-artalk-comments] .artalk .atk-list-footer {
+  display: none;
+}
+
+[data-artalk-comments] .artalk .atk-list-header,
+[data-artalk-comments] .artalk .atk-comment {
+  padding-inline: 0;
+}
+
+[data-artalk-comments] .artalk .atk-comment > .atk-avatar img {
+  border-radius: 9999px;
+}
+
+[data-artalk-comments] .artalk .atk-badge {
+  background-color: var(--accent) !important;
+  color: var(--primary) !important;
+}
+
+[data-artalk-comments] .artalk .atk-list-no-comment {
+  font-family: var(--font-serif);
+}
+</style>

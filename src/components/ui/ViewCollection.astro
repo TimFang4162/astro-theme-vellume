@@ -1,0 +1,49 @@
+---
+import SectionIntro from "./SectionIntro.astro";
+import ViewToggle from "./ViewToggle.astro";
+import ViewToggleScript from "./ViewToggleScript.astro";
+
+interface Props {
+  defaultView?: "card" | "list";
+  showViewToggle?: boolean;
+  title?: string;
+  description?: string;
+  titleTag?: "h1" | "h2" | "h3";
+  tone?: "section" | "page";
+  fontStyle?: "ui" | "reading";
+  class?: string;
+}
+
+const {
+  defaultView = "card",
+  showViewToggle = false,
+  title,
+  description,
+  titleTag = "h2",
+  tone = "section",
+  fontStyle,
+  class: className,
+} = Astro.props;
+---
+
+<div
+  data-view-root
+  data-view={defaultView}
+  class:list={["view-collection-root space-y-5", className]}
+>
+  {(title || description || showViewToggle) && (
+    <SectionIntro
+      title={title}
+      description={description}
+      titleTag={titleTag}
+      tone={tone}
+      fontStyle={fontStyle}
+    >
+      {showViewToggle && <ViewToggle slot="actions" currentView={defaultView} />}
+    </SectionIntro>
+  )}
+
+  <div data-view-target={defaultView} class="view-collection"><slot /></div>
+</div>
+
+{showViewToggle && <ViewToggleScript />}

@@ -1,0 +1,59 @@
+{
+  "name": "astro-theme-vellume",
+  "description": "A content-centric, fast, modern, elegant Astro blog theme.",
+  "type": "module",
+  "version": "0.1.0",
+  "packageManager": "pnpm@10.33.0+sha512.10568bb4a6afb58c9eb3630da90cc9516417abebd3fabbe6739f0ae795728da1491e9db5a544c76ad8eb7570f5c4bb3d6c637b2cb41bfdcdb47fa823c8649319",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "check:astro": "astro check",
+    "check:biome": "biome check --write ."
+  },
+  "dependencies": {
+    "@astrojs/rss": "^4.0.17",
+    "@astrojs/sitemap": "^3.7.2",
+    "@tailwindcss/vite": "^4.2.2",
+    "artalk": "^2.9.1",
+    "astro": "6.1.1",
+    "astro-favicons": "^3.1.6",
+    "astro-icon": "^1.1.5",
+    "astro-loading-indicator": "^0.8.0",
+    "astro-og-canvas": "^0.10.1",
+    "astro-pagefind": "^1.8.6",
+    "astro-seo": "^1.1.0",
+    "astro-theme-toggle": "^0.8.0",
+    "canvaskit-wasm": "^0.41.0",
+    "mdast-util-to-string": "^4.0.0",
+    "medium-zoom": "^1.1.0",
+    "qrcode": "^1.5.4",
+    "remark-breaks": "^4.0.0",
+    "sharp": "^0.34.5",
+    "tailwindcss": "^4.2.2",
+    "three": "^0.183.2"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.8",
+    "@biomejs/biome": "2.4.8",
+    "@iconify-json/material-symbols": "^1.2.63",
+    "@iconify-json/ri": "^1.2.10",
+    "@shikijs/transformers": "^4.0.2",
+    "@tailwindcss/typography": "^0.5.19",
+    "@types/hast": "^3.0.4",
+    "@types/mdast": "^4.0.4",
+    "@types/qrcode": "^1.5.6",
+    "@types/three": "^0.183.1",
+    "@types/unist": "^3.0.3",
+    "hast-util-to-string": "^3.0.1",
+    "remark-math": "^6.0.0",
+    "shiki": "^4.0.2",
+    "typescript": "^5.9.3",
+    "unist-util-visit": "^5.1.0",
+    "unist-util-visit-parents": "^6.0.2"
+  }
+}

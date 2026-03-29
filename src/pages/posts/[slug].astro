@@ -1,0 +1,214 @@
+---
+import { render } from "astro:content";
+import ArtalkComments from "../../components/blog/ArtalkComments.astro";
+import PostNavigation from "../../components/blog/PostNavigation.astro";
+import SeriesNavigation from "../../components/blog/SeriesNavigation.astro";
+import TableOfContents from "../../components/blog/TableOfContents.astro";
+import ChipLink from "../../components/ui/ChipLink.astro";
+import MetaItem from "../../components/ui/MetaItem.astro";
+import ProseContent from "../../components/ui/ProseContent.astro";
+import { siteConfig } from "../../config/site";
+import Layout from "../../layouts/BaseLayout.astro";
+import {
+  getAccessibleBlogPosts,
+  getAdjacentPosts,
+  getPublicBlogPosts,
+  getSeriesEntries,
+  getSeriesPosts,
+} from "../../lib/blog";
+import { formatDate } from "../../utils/date";
+import {
+  estimateReadTime,
+  estimateWordCount,
+  formatWordCountK,
+  getEntryReadMinutes,
+  getFrontmatterReadMinutes,
+} from "../../utils/text";
+
+export async function getStaticPaths() {
+  const posts = await getAccessibleBlogPosts();
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content, headings, remarkPluginFrontmatter } = await render(post);
+
+const navigationPosts =
+  post.data.visibility === "public"
+    ? await getPublicBlogPosts()
+    : await getAccessibleBlogPosts();
+const seriesEntries = await getSeriesEntries();
+const seriesEntry = post.data.series
+  ? seriesEntries.find((entry) => entry.id === post.data.series?.id)
+  : undefined;
+const { prev, next } = getAdjacentPosts(navigationPosts, post.id);
+const seriesPosts = seriesEntry
+  ? getSeriesPosts(navigationPosts, seriesEntry.id)
+  : [];
+const readTime = estimateReadTime(
+  getFrontmatterReadMinutes(remarkPluginFrontmatter) ??
+    getEntryReadMinutes(post),
+);
+const wordCount = formatWordCountK(estimateWordCount(post.body || ""));
+const commentsEnabled =
+  siteConfig.comments.enabled &&
+  Boolean(siteConfig.comments.server) &&
+  Boolean(siteConfig.comments.site);
+const pageKey = `/posts/${post.id}`;
+const publishedAtIso = post.data.publishedAt.toISOString();
+const publishedAtLabel = formatDate(post.data.publishedAt);
+const updatedAtIso = post.data.updatedAt?.toISOString();
+const updatedAtLabel = post.data.updatedAt
+  ? formatDate(post.data.updatedAt)
+  : undefined;
+const tagLinks = post.data.tags.map((tag) => ({
+  href: `/tags/${tag}`,
+  label: `#${tag}`,
+}));
+const postDescription = post.data.description || post.data.title;
+const articleMeta = {
+  publishedTime: publishedAtIso,
+  modifiedTime: updatedAtIso,
+  tags: post.data.tags,
+};
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  headline: post.data.title,
+  description: postDescription,
+  datePublished: publishedAtIso,
+  dateModified: updatedAtIso || publishedAtIso,
+  url: `/posts/${post.id}/`,
+  author: {
+    "@type": "Person",
+    name: siteConfig.author.name,
+    url: Astro.site?.href,
+  },
+};
+---
+
+<Layout
+  title={post.data.title}
+  description={postDescription}
+  type="article"
+  articleMeta={articleMeta}
+  jsonLd={jsonLd}
+  image={`/assets/og/${post.id}.png`}
+>
+  <div class="page-stack">
+    <div class="content-layout">
+      <article class="article-column">
+        <header>
+          <h1 class="article-title text-strong">{post.data.title}</h1>
+          {post.data.description && (
+            <p class="mt-4 max-w-3xl text-lg leading-8 text-muted-foreground">
+              {post.data.description}
+            </p>
+          )}
+          <div class="meta-row mt-5">
+            <MetaItem
+              as="time"
+              datetime={publishedAtIso}
+              icon="material-symbols:calendar-today-outline-rounded"
+              class="font-mono"
+            >
+              发布于{publishedAtLabel}
+            </MetaItem>
+            {post.data.updatedAt && (
+              <MetaItem
+                as="time"
+                datetime={updatedAtIso}
+                icon="material-symbols:update-rounded"
+              >
+                更新于 {updatedAtLabel}
+              </MetaItem>
+            )}
+            <MetaItem icon="material-symbols:text-fields-rounded">
+              {wordCount}
+            </MetaItem>
+            <MetaItem icon="material-symbols:schedule-outline-rounded">
+              预计阅读 {readTime}
+            </MetaItem>
+            {commentsEnabled && (
+              <MetaItem icon="material-symbols:bar-chart-4-bars-rounded">
+                <span class="artalk-pv-count" data-page-key={pageKey}>-</span>
+                次浏览
+              </MetaItem>
+            )}
+          </div>
+          {(seriesEntry || tagLinks.length > 0) && (
+            <div class="chip-list mt-5 items-center">
+              {seriesEntry && (
+                <ChipLink
+                  href={`/series/${seriesEntry.id}`}
+                  label={`系列: ${seriesEntry.data.title}`}
+                />
+              )}
+              {tagLinks.map((tag) => (
+                <ChipLink href={tag.href} label={tag.label} />
+              ))}
+            </div>
+          )}
+        </header>
+
+        <ProseContent> <Content /> </ProseContent>
+      </article>
+
+      <aside
+        class="hidden self-start lg:flex lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:flex-col lg:gap-4"
+        data-article-sidebar
+      >
+        {seriesEntry && (
+          <SeriesNavigation
+            currentPost={post}
+            posts={seriesPosts}
+            series={seriesEntry}
+            scrollable
+            class="sidebar-panel-sized"
+          />
+        )}
+        <TableOfContents
+          headings={headings}
+          scrollable
+          class="sidebar-panel-sized"
+        />
+      </aside>
+    </div>
+
+    <PostNavigation
+      prev={prev}
+      next={next}
+      pageKey={pageKey}
+      showFeedback={commentsEnabled}
+    />
+
+    {commentsEnabled && (
+      <div class="article-column">
+        <ArtalkComments pageKey={pageKey} pageTitle={post.data.title} />
+      </div>
+    )}
+  </div>
+
+  <Fragment slot="mobile-drawer">
+    {seriesEntry && (
+      <SeriesNavigation
+        currentPost={post}
+        posts={seriesPosts}
+        series={seriesEntry}
+        scrollable={false}
+      />
+    )}
+    <TableOfContents
+      headings={headings}
+      scrollable={false}
+      class="surface-card max-h-none shadow-none"
+    />
+  </Fragment>
+
+  <script>
+  import "../../scripts/ui/article-sidebar";
+  </script>
+</Layout>

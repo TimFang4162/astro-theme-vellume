@@ -1,0 +1,64 @@
+---
+import { Icon } from "astro-icon/components";
+
+export interface TocItem {
+  depth: number;
+  slug: string;
+  text: string;
+  subheadings: TocItem[];
+}
+
+interface Props {
+  heading: TocItem;
+}
+
+const {
+  heading: { depth, slug, text: rawText, subheadings },
+} = Astro.props;
+const text = rawText.endsWith("#") ? rawText.slice(0, -1) : rawText;
+const indentLevel = Math.max(depth - 1, 0);
+const hasSubheadings = subheadings.length > 0;
+---
+
+<li
+  class="toc-node"
+  data-depth={depth}
+  style={`--toc-indent: ${indentLevel * 0.75}rem;`}
+  data-collapsed={hasSubheadings ? "false" : undefined}
+>
+  <div class="relative">
+    <span
+      aria-hidden="true"
+      class="toc-progress absolute w-[2px] rounded-full"
+    ></span>
+    {hasSubheadings && (
+        <button
+          type="button"
+          class="toc-toggle"
+          data-toc-toggle
+          aria-expanded="true"
+          aria-controls={`toc-children-${slug}`}
+          aria-label={`切换章节：${text}`}
+        >
+          <span aria-hidden="true" class="toc-toggle-glyph">
+            <Icon name="material-symbols:chevron-right-rounded" size={18} />
+          </span>
+        </button>
+      )}
+    <a
+      href={`#${slug}`}
+      data-heading={slug}
+      class="toc-link relative block text-sm text-muted-foreground"
+      aria-label={`跳转到章节：${text}`}
+    >
+      {text}
+    </a>
+  </div>
+  {hasSubheadings && (
+      <ul class="toc-children" id={`toc-children-${slug}`}>
+        {subheadings.map((subheading) => (
+          <Astro.self heading={subheading} />
+        ))}
+      </ul>
+    )}
+</li>

@@ -1,0 +1,50 @@
+---
+import QRCodeLib from "qrcode";
+
+interface Props {
+  url: string;
+  size?: number;
+  class?: string;
+  darkColor?: string;
+  lightColor?: string;
+}
+
+const {
+  url,
+  size = 200,
+  class: className,
+  darkColor = "currentColor",
+  lightColor = "transparent",
+} = Astro.props;
+const svg = await QRCodeLib.toString(url, {
+  type: "svg",
+  width: size,
+  margin: 1,
+  color: {
+    dark: darkColor,
+    light: lightColor,
+  },
+});
+---
+
+<div
+  class:list={["qrcode-wrapper", className]}
+  style={`--qrcode-size:${size}px;`}
+  aria-hidden="true"
+  set:html={svg}
+/>
+<style>
+.qrcode-wrapper {
+  display: inline-block;
+  color: var(--foreground);
+  width: min(var(--qrcode-size), 100%);
+  height: auto;
+  aspect-ratio: 1;
+}
+
+.qrcode-wrapper :global(svg) {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+</style>

@@ -1,0 +1,44 @@
+---
+import { getCollection, render } from "astro:content";
+import TableOfContents from "../components/blog/TableOfContents.astro";
+import ProseContent from "../components/ui/ProseContent.astro";
+import SectionIntro from "../components/ui/SectionIntro.astro";
+import Layout from "../layouts/BaseLayout.astro";
+
+const [aboutEntry] = await getCollection("about");
+
+if (!aboutEntry) {
+  throw new Error("Missing about content at src/content/about/index.md");
+}
+
+const { Content, headings } = await render(aboutEntry);
+---
+
+<Layout
+  title={aboutEntry.data.title}
+  description={aboutEntry.data.description || aboutEntry.data.title}
+>
+  <div class="content-layout">
+    <article class="article-column">
+      <SectionIntro
+        title={aboutEntry.data.title}
+        description={aboutEntry.data.description}
+        fontStyle="reading"
+      />
+
+      <ProseContent> <Content /> </ProseContent>
+    </article>
+
+    <aside class="hidden self-start lg:block lg:sticky lg:top-20">
+      <TableOfContents headings={headings} />
+    </aside>
+  </div>
+
+  <Fragment slot="mobile-drawer">
+    <TableOfContents
+      headings={headings}
+      scrollable={false}
+      class="surface-card max-h-none shadow-none"
+    />
+  </Fragment>
+</Layout>

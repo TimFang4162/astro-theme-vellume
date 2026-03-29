@@ -1,0 +1,23 @@
+---
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  title: string;
+  value: string | number;
+  icon?: string;
+}
+
+const { title, value, icon } = Astro.props;
+---
+
+<div class="surface-card surface-card-hover p-4">
+  <div class="mb-4 flex items-center gap-3">
+    {icon && (
+      <span class="icon-well size-11">
+        <Icon name={icon} size={22} />
+      </span>
+    )}
+    <span class="eyebrow">{title}</span>
+  </div>
+  <div class="text-4xl font-bold text-strong md:text-5xl">{value}</div>
+</div>

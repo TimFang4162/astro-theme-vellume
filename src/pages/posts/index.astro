@@ -1,0 +1,59 @@
+---
+import PostArchiveSections from "../../components/blog/PostArchiveSections.astro";
+import StatsCard from "../../components/blog/StatsCard.astro";
+import SectionIntro from "../../components/ui/SectionIntro.astro";
+import Layout from "../../layouts/BaseLayout.astro";
+import { getPublicBlogPosts, getTagCounts } from "../../lib/blog";
+import { estimateWordCount } from "../../utils/text";
+
+const allPosts = await getPublicBlogPosts();
+const totalPosts = allPosts.length;
+const totalWords = allPosts.reduce((sum, post) => {
+  const body = post.body || "";
+  const words = estimateWordCount(body);
+  return sum + words;
+}, 0);
+const tagCounts = getTagCounts(allPosts);
+const monthsWithPosts = new Set(
+  allPosts.map((post) => post.data.publishedAt.toISOString().slice(0, 7)),
+);
+---
+
+<Layout title="文章" description="按时间回看全部文章">
+  <div class="page-stack">
+    <SectionIntro
+      title="文章"
+      fontStyle="reading"
+      backHref="/discovery"
+      backLabel="返回发现页"
+    />
+    <div class="metric-grid">
+      <StatsCard
+        title="总文章数"
+        value={totalPosts}
+        icon="material-symbols:lab-profile-outline-rounded"
+      />
+      <StatsCard
+        title="总字数"
+        value={`${Math.round(totalWords / 1000)}k`}
+        icon="material-symbols:design-services-outline-rounded"
+      />
+      <StatsCard
+        title="标签数"
+        value={tagCounts.size}
+        icon="material-symbols:gradient-outline"
+      />
+      <StatsCard
+        title="月均更新"
+        value={(totalPosts / Math.max(monthsWithPosts.size, 1)).toFixed(1)}
+        icon="material-symbols:table-chart-view-outline-rounded"
+      />
+    </div>
+    <PostArchiveSections
+      posts={allPosts}
+      headingTag="h2"
+      defaultView="list"
+      fontStyle="reading"
+    />
+  </div>
+</Layout>

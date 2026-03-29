@@ -1,0 +1,70 @@
+---
+import { Icon } from "astro-icon/components";
+/* biome-ignore lint/correctness/noUnusedImports: Astro component is used in the template. */
+import HomeFeed, { type HomeFeedItem } from "../components/home/HomeFeed.astro";
+import HomeHero from "../components/home/HomeHero.astro";
+import Button from "../components/ui/Button.astro";
+import { siteConfig } from "../config/site";
+import Layout from "../layouts/BaseLayout.astro";
+import {
+  getPublicBlogPosts,
+  getSeriesEntries,
+  getSeriesMeta,
+} from "../lib/blog";
+import { getEntryReadMinutes } from "../utils/text";
+
+const allPosts = await getPublicBlogPosts();
+const standalonePosts = allPosts
+  .filter((post) => !post.data.series)
+  .map(
+    (post): HomeFeedItem => ({
+      type: "post",
+      id: post.id,
+      title: post.data.title,
+      href: `/posts/${post.id}`,
+      publishedAt: post.data.publishedAt,
+      tags: post.data.tags,
+      minutesRead: getEntryReadMinutes(post),
+    }),
+  );
+
+const seriesItems = getSeriesMeta(await getSeriesEntries(), allPosts).map(
+  (seriesItem): HomeFeedItem => ({
+    type: "series",
+    id: seriesItem.entry.id,
+    title: seriesItem.entry.data.title,
+    href: `/series/${seriesItem.entry.id}`,
+    publishedAt: seriesItem.latestPublishedAt ?? new Date(0),
+    description: seriesItem.entry.data.description,
+    count: seriesItem.count,
+    latestPostTitle: seriesItem.posts.at(-1)?.data.title,
+  }),
+);
+
+const homeItems = [...standalonePosts, ...seriesItems]
+  .sort((a, b) => b.publishedAt.valueOf() - a.publishedAt.valueOf())
+  .slice(0, 12);
+---
+
+<Layout title="首页" description={siteConfig.site.description}>
+  <HomeHero />
+  <section id="posts" class="mt-14 md:mt-16">
+    <HomeFeed
+      items={homeItems}
+      defaultView="card"
+      title="最新内容"
+      description={`共展示 ${homeItems.length} 项，包含独立文章与系列`}
+      showViewToggle
+    />
+    <div class="mt-8 flex justify-center">
+      <Button href="/discovery" variant="secondary" size="lg">
+        浏览全部内容
+        <Icon
+          name="material-symbols:arrow-forward-rounded"
+          size={18}
+          class="shrink-0"
+        />
+      </Button>
+    </div>
+  </section>
+</Layout>

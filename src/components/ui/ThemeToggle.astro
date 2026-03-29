@@ -1,0 +1,46 @@
+---
+import { Icon } from "astro-icon/components";
+import Button from "./Button.astro";
+
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<Button
+  variant="ghost"
+  shape="circle"
+  size="md"
+  class:list={["text-muted-foreground", className]}
+  aria-label="切换主题"
+  title="切换主题"
+  data-theme-toggle
+>
+  <span class="block dark:hidden">
+    <Icon name="material-symbols:sunny-outline-rounded" size={20} />
+  </span>
+  <span class="hidden dark:block">
+    <Icon name="material-symbols:moon-stars-outline-rounded" size={20} />
+  </span>
+</Button>
+
+<script>
+import { handleToggleClick } from "astro-theme-toggle";
+import { runOnPageLoad } from "../../scripts/ui/page-load";
+
+const initThemeToggles = () => {
+  document
+    .querySelectorAll<HTMLElement>("[data-theme-toggle]")
+    .forEach((el) => {
+      if (el.dataset.themeToggleReady === "true") return;
+      el.dataset.themeToggleReady = "true";
+      el.addEventListener("click", (e) => {
+        handleToggleClick(e);
+      });
+    });
+};
+
+runOnPageLoad(initThemeToggles);
+</script>

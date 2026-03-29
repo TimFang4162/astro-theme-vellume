@@ -1,0 +1,53 @@
+---
+import { render } from "astro:content";
+import PostList from "../../components/blog/PostList.astro";
+import ProseContent from "../../components/ui/ProseContent.astro";
+import SectionIntro from "../../components/ui/SectionIntro.astro";
+import Layout from "../../layouts/BaseLayout.astro";
+import {
+  getPublicBlogPosts,
+  getSeriesEntries,
+  getSeriesMeta,
+  getSeriesPosts,
+} from "../../lib/blog";
+
+export async function getStaticPaths() {
+  const publicPosts = await getPublicBlogPosts();
+  const seriesEntries = await getSeriesEntries();
+
+  return getSeriesMeta(seriesEntries, publicPosts).map((seriesItem) => ({
+    params: { series: seriesItem.entry.id },
+    props: { series: seriesItem.entry, publicPosts },
+  }));
+}
+
+const { series, publicPosts } = Astro.props;
+const seriesPosts = getSeriesPosts(publicPosts, series.id);
+const { Content } = await render(series);
+---
+
+<Layout
+  title={`系列: ${series.data.title}`}
+  description={series.data.description || `${series.data.title} 系列文章`}
+>
+  <div class="page-stack">
+    <SectionIntro
+      title={`系列: ${series.data.title}`}
+      description={`共 ${seriesPosts.length} 篇公开文章，按发布时间顺序排列。`}
+      fontStyle="reading"
+      backHref="/series"
+      backLabel="返回系列页"
+    />
+
+    <div class="article-column">
+      <ProseContent> <Content /> </ProseContent>
+    </div>
+
+    <PostList
+      posts={seriesPosts}
+      defaultView="card"
+      description={`共 ${seriesPosts.length} 篇文章，支持卡片和列表两种查看方式`}
+      showViewToggle
+    />
+  </div>
+</Layout>

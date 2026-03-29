@@ -1,0 +1,153 @@
+---
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  id?: string;
+}
+
+const { id = "search-modal" } = Astro.props;
+---
+
+<div
+  id={id}
+  class="search-modal"
+  role="dialog"
+  aria-modal="true"
+  aria-label="搜索"
+>
+  <div class="search-overlay" data-search-close></div>
+  <div class="search-dialog surface-card">
+    <div class="search-input-wrapper">
+      <Icon name="material-symbols:search-rounded" class="search-input-icon" />
+      <input
+        type="text"
+        class="search-input"
+        placeholder="搜索文章..."
+        autocomplete="off"
+        spellcheck="false"
+      >
+    </div>
+    <div class="search-results" data-search-results>
+      <p class="search-hint">输入关键词开始搜索</p>
+    </div>
+  </div>
+</div>
+
+<style is:global>
+#search-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  padding: 1rem;
+  padding-top: min(20vh, 8rem);
+}
+
+#search-modal.is-open {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+#search-modal .search-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+#search-modal .search-dialog {
+  position: relative;
+  width: 100%;
+  max-width: 36rem;
+  max-height: min(70vh, 32rem);
+  display: flex;
+  flex-direction: column;
+  border-radius: 1rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+#search-modal .search-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+#search-modal .search-input-icon {
+  flex-shrink: 0;
+  font-size: 1.125rem;
+  color: var(--muted-foreground);
+}
+
+#search-modal .search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 1rem;
+  color: var(--foreground-strong);
+}
+
+#search-modal .search-input::placeholder {
+  color: var(--muted-foreground);
+}
+
+#search-modal .search-results {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+#search-modal .search-hint,
+#search-modal .search-empty {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}
+
+#search-modal .search-result-item {
+  display: block;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+#search-modal .search-result-item:hover {
+  background: var(--accent);
+}
+
+#search-modal .search-result-title {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--foreground-strong);
+}
+
+#search-modal .search-result-title mark {
+  color: var(--primary);
+  background: transparent;
+  font-weight: 700;
+}
+
+#search-modal .search-result-excerpt {
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+#search-modal .search-result-excerpt mark {
+  color: var(--primary);
+  background: var(--accent);
+  border-radius: 0.125rem;
+  padding: 0 0.125rem;
+}
+</style>

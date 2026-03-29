@@ -1,0 +1,46 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { groupPostsByMonth } from "../../lib/blog";
+import PostList from "./PostList.astro";
+
+interface Props {
+  posts: CollectionEntry<"blog">[];
+  headingTag?: "h2" | "h3";
+  defaultView?: "card" | "list";
+  fontStyle?: "ui" | "reading";
+  class?: string;
+}
+
+const {
+  posts,
+  headingTag = "h2",
+  defaultView = "list",
+  fontStyle = "ui",
+  class: className,
+} = Astro.props;
+
+const groupedPosts = groupPostsByMonth(posts);
+const sortedMonths = Object.keys(groupedPosts).sort().reverse();
+const HeadingTag = headingTag;
+---
+
+<div class:list={["page-stack", className]}>
+  {sortedMonths.length === 0 && (
+    <div class="surface-card p-6 text-sm leading-7 text-muted-foreground">
+      还没有文章。可在 <code>src/content/blog</code> 中添加 Markdown 内容来生成归档列表。
+    </div>
+  )}
+  {sortedMonths.map((month) => (
+    <section class="space-y-4">
+      <HeadingTag
+        class:list={[
+          fontStyle === "reading" ? "section-title-reading" : "section-title",
+          "text-strong",
+        ]}
+      >
+        {month}
+      </HeadingTag>
+      <PostList posts={groupedPosts[month]} defaultView={defaultView} />
+    </section>
+  ))}
+</div>

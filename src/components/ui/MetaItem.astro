@@ -1,0 +1,20 @@
+---
+import { Icon } from "astro-icon/components";
+
+const {
+  icon,
+  as = "span",
+  datetime,
+  class: className,
+  iconSize = 14,
+} = Astro.props;
+const Tag = as;
+---
+
+<Tag
+  datetime={as === "time" ? datetime : undefined}
+  class:list={["meta-item", className]}
+>
+  <Icon name={icon} size={iconSize} />
+  <slot />
+</Tag>

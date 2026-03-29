@@ -1,0 +1,39 @@
+---
+import SeriesCard from "../../components/blog/SeriesCard.astro";
+import SectionIntro from "../../components/ui/SectionIntro.astro";
+import Layout from "../../layouts/BaseLayout.astro";
+import {
+  getPublicBlogPosts,
+  getSeriesEntries,
+  getSeriesMeta,
+} from "../../lib/blog";
+
+const seriesList = getSeriesMeta(
+  await getSeriesEntries(),
+  await getPublicBlogPosts(),
+);
+---
+
+<Layout title="系列" description="按系列浏览文章">
+  <div class="page-stack">
+    <SectionIntro
+      title="系列"
+      description={`共 ${seriesList.length} 个系列，按最近更新时间排序。`}
+      fontStyle="reading"
+      backHref="/discovery"
+      backLabel="返回发现页"
+    />
+
+    <div class="card-grid-2">
+      {seriesList.map((seriesItem) => (
+        <SeriesCard
+          href={`/series/${seriesItem.entry.id}`}
+          title={seriesItem.entry.data.title}
+          count={seriesItem.count}
+          description={seriesItem.entry.data.description}
+          latestPublishedAt={seriesItem.latestPublishedAt}
+        />
+      ))}
+    </div>
+  </div>
+</Layout>

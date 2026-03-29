@@ -1,0 +1,55 @@
+---
+import { Icon } from "astro-icon/components";
+import { navItems } from "../../data/navigation";
+import { isPathActive } from "../../utils/navigation";
+import Button from "../ui/Button.astro";
+
+interface Props {
+  currentPath: string;
+  variant?: "desktop" | "drawer";
+  closeOnClick?: boolean;
+}
+
+const { currentPath, variant = "desktop", closeOnClick = false } = Astro.props;
+---
+
+{variant === "desktop" ? (
+    <nav class="hidden items-center gap-2 md:flex">
+      {navItems.map((item) => {
+        const isActive = isPathActive(currentPath, item.href);
+
+        return (
+          <Button
+            href={item.href}
+            variant={isActive ? "soft" : "ghost"}
+            size="sm"
+            aria-current={isActive ? "page" : undefined}
+          >
+            <Icon name={item.icon} size={18} />
+            <span>{item.label}</span>
+          </Button>
+        );
+      })}
+    </nav>
+  ) : (
+    <nav class="space-y-2 border-b border-border pb-4">
+      {navItems.map((item) => {
+        const isActive = isPathActive(currentPath, item.href);
+
+        return (
+          <a
+            href={item.href}
+            class:list={[
+              "drawer-nav-link",
+              isActive ? "bg-accent text-primary" : "text-muted-foreground",
+            ]}
+            aria-current={isActive ? "page" : undefined}
+            data-mobile-drawer-close={closeOnClick ? "true" : undefined}
+          >
+            <Icon name={item.icon} size={20} />
+            <span>{item.label}</span>
+          </a>
+        );
+      })}
+    </nav>
+  )}

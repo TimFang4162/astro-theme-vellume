@@ -1,0 +1,174 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { formatDate } from "../../utils/date";
+
+interface Props {
+  prev?: CollectionEntry<"blog">;
+  next?: CollectionEntry<"blog">;
+  pageKey: string;
+  showFeedback?: boolean;
+}
+const { prev, next, pageKey, showFeedback = true } = Astro.props;
+---
+
+{(prev || next) && (
+  <nav class="mt-12 space-y-4 pt-2" aria-label="Post navigation">
+    <div class="post-nav-divider" aria-hidden="true">
+      <svg
+        aria-hidden="true"
+        width="100%"
+        height="8"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <pattern
+            id="post-nav-wave"
+            width="24"
+            height="8"
+            patternUnits="userSpaceOnUse"
+          >
+            <path
+              d="M0 4Q6 0 12 4Q18 8 24 4"
+              stroke="currentColor"
+              stroke-linecap="square"
+            />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#post-nav-wave)"></rect>
+      </svg>
+    </div>
+    <div class="post-nav-content article-column">
+      {showFeedback && (
+        <div class="post-nav-feedback">
+          <span class="eyebrow">这篇文章有帮助吗？</span>
+          <div class="post-nav-feedback__actions" data-page-key={pageKey}>
+            <button
+              type="button"
+              class="post-nav-feedback__button post-nav-feedback__button--yes"
+              aria-label="这篇文章有帮助"
+            >
+              <span class="post-nav-feedback__label">是</span>
+              <span class="post-nav-feedback__count"></span>
+            </button>
+            <button
+              type="button"
+              class="post-nav-feedback__button post-nav-feedback__button--no"
+              aria-label="这篇文章没有帮助"
+            >
+              <span class="post-nav-feedback__label">否</span>
+              <span class="post-nav-feedback__count"></span>
+            </button>
+          </div>
+        </div>
+      )}
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {prev && (
+          <a
+            href={`/posts/${prev.id}`}
+            class="surface-card surface-card-hover flex flex-col gap-2 p-5 text-left"
+          >
+            <div class="eyebrow">较新文章</div>
+            <div class="card-title text-strong">{prev.data.title}</div>
+            <time
+              datetime={prev.data.publishedAt.toISOString()}
+              class="text-sm font-mono text-muted-foreground"
+            >
+              {formatDate(prev.data.publishedAt)}
+            </time>
+          </a>
+        )}
+        {next && (
+          <a
+            href={`/posts/${next.id}`}
+            class="surface-card surface-card-hover flex flex-col gap-2 p-5 text-left md:text-right"
+          >
+            <div class="eyebrow">较早文章</div>
+            <div class="card-title text-strong">{next.data.title}</div>
+            <time
+              datetime={next.data.publishedAt.toISOString()}
+              class="text-sm font-mono text-muted-foreground"
+            >
+              {formatDate(next.data.publishedAt)}
+            </time>
+          </a>
+        )}
+      </div>
+    </div>
+  </nav>
+)}
+
+<style>
+.post-nav-divider {
+  color: color-mix(in srgb, var(--primary) 30%, var(--border));
+  max-width: 48rem;
+}
+
+.post-nav-divider svg {
+  display: block;
+  height: 8px;
+  width: 100%;
+}
+
+.post-nav-content {
+  display: grid;
+  gap: 1rem;
+  max-width: 48rem;
+}
+
+.post-nav-feedback {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+}
+
+.post-nav-feedback__actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+}
+
+.post-nav-feedback__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--card) 96%, transparent);
+  padding: 0.55rem 1rem;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.post-nav-feedback__button:hover {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--accent) 72%, var(--card));
+  color: var(--primary);
+  box-shadow: var(--shadow-card);
+}
+
+.post-nav-feedback__button.atk-voted {
+  border-color: color-mix(in srgb, var(--primary) 62%, transparent);
+  background: color-mix(in srgb, var(--accent) 80%, transparent);
+  color: var(--primary);
+}
+
+.post-nav-feedback__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.post-nav-feedback__count {
+  min-width: 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+}
+</style>

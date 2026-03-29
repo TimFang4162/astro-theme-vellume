@@ -1,0 +1,25 @@
+---
+import { Icon } from "astro-icon/components";
+import Button from "../components/ui/Button.astro";
+import Layout from "../layouts/BaseLayout.astro";
+---
+
+<Layout title="404 - 页面未找到">
+  <div class="flex min-h-[60vh] items-center justify-center">
+    <div
+      class="surface-card flex max-w-xl flex-col items-center rounded-[2rem] px-8 py-12 text-center"
+    >
+      <h1 class="mb-0 text-7xl font-extrabold text-primary md:text-8xl">404</h1>
+      <h2 class="mb-4 text-3xl font-bold text-strong md:text-4xl">
+        页面未找到
+      </h2>
+      <p class="mb-8 max-w-md text-lg text-muted-foreground md:text-xl">
+        抱歉，您访问的页面不存在或已被删除。
+      </p>
+      <Button href="/" variant="primary">
+        <Icon name="material-symbols:home-outline-rounded" size={20} />
+        返回首页
+      </Button>
+    </div>
+  </div>
+</Layout>
