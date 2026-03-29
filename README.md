@@ -65,5 +65,6 @@ pnpm build
 
 ## 仓库展示资源
 
-- GitHub 社交预览图已生成并保存在 `./.github/social-preview.png`
-- 如果需要替换，可重新运行 `pnpm build`，然后用新的 `dist/assets/og/index.png` 覆盖它
+- GitHub 社交预览图源文件保存在 `./.github/social-preview.svg`
+- 上传到 GitHub 时建议使用导出的 `./.github/social-preview.png`
+- 如果需要替换，可直接更新 SVG 后重新导出 PNG
