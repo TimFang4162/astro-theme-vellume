@@ -1,5 +1,5 @@
 ---
 title: Example Series
 slug: example-series
-description: Optional series metadata placeholder for the theme repository.
+description: A minimal series entry kept as a reference for structuring grouped posts.
 ---

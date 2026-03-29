@@ -22,7 +22,7 @@ const filteredPosts = allPosts.filter((post) => post.data.tags.includes(tag));
   <div class="page-stack">
     <SectionIntro
       title={`标签: ${tag}`}
-      description={`共 ${filteredPosts.length} 篇文章`}
+      description="按标签归档的相关文章"
       fontStyle="reading"
       backHref="/tags"
       backLabel="返回标签页"
@@ -30,7 +30,7 @@ const filteredPosts = allPosts.filter((post) => post.data.tags.includes(tag));
     <PostList
       posts={filteredPosts}
       defaultView="card"
-      description={`共 ${filteredPosts.length} 篇文章，支持卡片和列表两种查看方式`}
+      description="这个标签下的全部文章"
       showViewToggle
     />
   </div>

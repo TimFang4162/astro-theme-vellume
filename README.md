@@ -1,16 +1,16 @@
 # astro-theme-vellume
 
-`astro-theme-vellume` 是一个偏阅读体验的 Astro 博客主题，重点放在暖色纸感配色、衬线标题、明暗主题切换，以及首页的轻量动态背景。
+`astro-theme-vellume` 是一个面向个人写作的 Astro 主题，强调稳定的阅读节奏、暖色纸感界面、衬线标题，以及克制而不过度喧宾夺主的动态效果。
 
-这个仓库已经移除了原博客文章和个人信息，默认以“主题骨架”形式提供，你可以直接替换站点配置并添加自己的内容。
+仓库默认提供一套可直接改造成个人站点的主题基线：示例内容已经整理为适合公开发布的版本，站点配置、内容结构和常用页面也都已经就位。
 
 ## 特性
 
-- 温暖的编辑部风格界面，适合长文和笔记
-- 浅色 / 深色主题切换
-- 基于 Astro Content Collections 的内容组织
-- 系列、标签、归档、RSS、OG 图与搜索页
-- Tailwind CSS 4 + TypeScript
+- 偏编辑式的阅读界面，适合长文、笔记和系列化内容
+- 浅色 / 深色主题切换与首页轻量动态背景
+- 基于 Astro Content Collections 的内容组织方式
+- 系列、标签、归档、RSS、OG 图和搜索页
+- Tailwind CSS 4 与 TypeScript
 - 可选接入 Artalk 评论系统，默认关闭
 
 ## 开始使用
@@ -22,11 +22,11 @@ pnpm dev
 
 默认开发地址为 `http://localhost:4321`。
 
-## 发布前建议修改
+## 建议优先调整
 
-- 编辑 `src/config/site.ts` 中的站点标题、描述、作者信息与链接
-- 在 `src/content/about/index.md` 中替换 About 页面内容
-- 在 `src/content/blog/` 下添加你的文章
+- 修改 `src/config/site.ts` 中的站点标题、描述、作者信息与外部链接
+- 重写 `src/content/about/index.md`，替换默认 About 页面内容
+- 删除或替换 `src/content/blog/` 下的示例文章
 - 如果需要评论，填入 `siteConfig.comments` 并启用 `enabled`
 
 ## 内容结构
@@ -38,20 +38,22 @@ src/content/
 └── series/
 ```
 
+文章通常按 `src/content/blog/<yyyy-mm>/<slug>/index.md` 的形式组织，图片与附件可以直接放在同级目录中。
+
 文章 frontmatter 示例：
 
 ```md
 ---
-title: "My First Post"
+title: "我的第一篇文章"
 slug: "my-first-post"
-description: "A short introduction to the theme."
+description: "用来介绍主题的第一篇示例文章。"
 publishedAt: 2026-03-29
 tags: ["astro", "theme"]
 visibility: "public"
 ---
 ```
 
-## 检查命令
+## 常用检查命令
 
 ```bash
 pnpm check:astro

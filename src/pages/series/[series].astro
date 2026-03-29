@@ -33,7 +33,7 @@ const { Content } = await render(series);
   <div class="page-stack">
     <SectionIntro
       title={`系列: ${series.data.title}`}
-      description={`共 ${seriesPosts.length} 篇公开文章，按发布时间顺序排列。`}
+      description="按主题组织的系列文章"
       fontStyle="reading"
       backHref="/series"
       backLabel="返回系列页"
@@ -46,7 +46,7 @@ const { Content } = await render(series);
     <PostList
       posts={seriesPosts}
       defaultView="card"
-      description={`共 ${seriesPosts.length} 篇文章，支持卡片和列表两种查看方式`}
+      description="这个系列中的全部文章"
       showViewToggle
     />
   </div>

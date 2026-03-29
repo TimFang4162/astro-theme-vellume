@@ -1,7 +1,7 @@
 ---
 title: 主题导览
 slug: theme-tour
-description: 围绕 Vellume 的设计理念、内容能力与排版展示的一组示例文章。
+description: 围绕 Vellume 的设计思路、内容能力与排版表现组织的一组示例文章。
 ---
 
 这个系列用于展示 `astro-theme-vellume` 的默认内容形态。

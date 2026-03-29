@@ -1,18 +1,18 @@
 ---
-title: About This Theme
-description: Notes on the design goals and customization points for Vellume.
+title: About Vellume
+description: Design notes, content structure, and customization guidance for the Vellume theme.
 ---
 
-Vellume is an editorial-style Astro theme designed for personal blogs, technical notes, and long-form writing.
+Vellume is an editorial-style Astro theme built for personal blogs, technical notes, and long-form writing.
 
-It combines warm paper-like colors, serif-forward typography, and restrained motion to keep the focus on reading without making the interface feel flat.
+It combines warm paper-toned colors, serif-led typography, and restrained motion so the interface feels alive without pulling attention away from the text.
 
-## What To Customize First
+## Start Here
 
-- Update `src/config/site.ts` with your site title, description, and author details.
-- Replace this page with your own introduction, links, and profile information.
+- Update `src/config/site.ts` with your site title, description, author details, and external links.
+- Replace this page with your own introduction, profile, and contact information.
 - Add posts under `src/content/blog`.
-- Add or remove sections in navigation and footer to match your site structure.
+- Adjust navigation and footer links to match your own site structure.
 
 ## Included Features
 
@@ -26,4 +26,4 @@ It combines warm paper-like colors, serif-forward typography, and restrained mot
 
 The theme includes an Artalk comment component, but it is disabled by default.
 
-If you want to use it, set `siteConfig.comments.enabled` to `true` and provide your own `server` and `site` values in `src/config/site.ts`.
+If you want to enable it, set `siteConfig.comments.enabled` to `true` and provide your own `server` and `site` values in `src/config/site.ts`.

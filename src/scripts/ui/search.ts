@@ -71,7 +71,7 @@ export function initSearch() {
     resultsEl.textContent = "";
     const hint = document.createElement("p");
     hint.className = "search-hint";
-    hint.textContent = "输入关键词开始搜索";
+    hint.textContent = "输入标题、标签或正文关键词";
     resultsEl.appendChild(hint);
   }
 
@@ -82,7 +82,7 @@ export function initSearch() {
     if (search.results.length === 0) {
       const empty = document.createElement("p");
       empty.className = "search-empty";
-      empty.textContent = "未找到相关文章";
+      empty.textContent = "未找到相关内容";
       resultsEl.appendChild(empty);
       return;
     }
