@@ -57,6 +57,37 @@ export interface SiteConfig {
 
 export type SiteConfigInput = DeepPartial<SiteConfig>;
 
+const isPlainObject = (value: unknown): value is Record<string, unknown> =>
+  Object.prototype.toString.call(value) === "[object Object]";
+
+const mergeConfigObject = <T extends Record<string, unknown>>(
+  base: T,
+  override: DeepPartial<T>,
+): T => {
+  const result = { ...base } as Record<string, unknown>;
+
+  for (const [key, value] of Object.entries(override)) {
+    if (value === undefined) {
+      continue;
+    }
+
+    const current = result[key];
+
+    result[key] =
+      isPlainObject(current) && isPlainObject(value)
+        ? mergeConfigObject(current, value as DeepPartial<typeof current>)
+        : value;
+  }
+
+  return result as T;
+};
+
+export const defineSiteConfig = <T extends SiteConfigInput>(config: T): T =>
+  config;
+
+export const createSiteConfig = (override: SiteConfigInput = {}): SiteConfig =>
+  mergeConfigObject(themeDefaultConfig, override) as SiteConfig;
+
 export const themeDefaultConfig: SiteConfig = {
   site: {
     url: "https://example.com",

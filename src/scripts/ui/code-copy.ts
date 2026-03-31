@@ -1,41 +1,23 @@
 let bound = false;
 
-const fallbackCopyText = async (text: string) => {
-  const textarea = document.createElement("textarea");
-  textarea.value = text;
-  textarea.setAttribute("readonly", "");
-  textarea.style.position = "fixed";
-  textarea.style.top = "0";
-  textarea.style.left = "0";
-  textarea.style.opacity = "0";
-  textarea.style.pointerEvents = "none";
-  document.body.append(textarea);
-  textarea.focus({ preventScroll: true });
-  textarea.select();
-  textarea.setSelectionRange(0, textarea.value.length);
+type CopyResult = "copied" | "manual";
 
-  try {
-    const success = document.execCommand("copy");
-
-    if (!success) {
-      throw new Error("document.execCommand('copy') returned false.");
-    }
-  } finally {
-    textarea.remove();
-  }
+const promptManualCopy = (text: string): CopyResult => {
+  window.prompt("请手动复制以下代码", text);
+  return "manual";
 };
 
-const copyText = async (text: string) => {
+const copyText = async (text: string): Promise<CopyResult> => {
   if (navigator.clipboard?.writeText) {
     try {
       await navigator.clipboard.writeText(text);
-      return;
+      return "copied";
     } catch (error) {
       console.warn("Clipboard API failed, falling back.", error);
     }
   }
 
-  await fallbackCopyText(text);
+  return promptManualCopy(text);
 };
 
 export function initCodeCopy() {
@@ -74,11 +56,11 @@ export function initCodeCopy() {
     const originalLabel = label?.textContent ?? "复制";
 
     try {
-      await copyText(code.replace(/\n$/, ""));
+      const result = await copyText(code.replace(/\n$/, ""));
       if (label) {
-        label.textContent = "已复制";
+        label.textContent = result === "copied" ? "已复制" : "请手动复制";
       }
-      button.setAttribute("data-copied", "true");
+      button.setAttribute("data-copied", result);
     } catch (error) {
       console.error("Failed to copy code block.", error);
       if (label) {
