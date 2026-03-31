@@ -1,4 +1,5 @@
 let bound = false;
+const resetTimers = new WeakMap<HTMLElement, number>();
 
 type CopyResult = "copied" | "manual";
 
@@ -13,7 +14,8 @@ const copyText = async (text: string): Promise<CopyResult> => {
       await navigator.clipboard.writeText(text);
       return "copied";
     } catch (error) {
-      console.warn("Clipboard API failed, falling back.", error);
+      console.warn("Clipboard API failed, falling back to manual copy.", error);
+      return promptManualCopy(text);
     }
   }
 
@@ -34,7 +36,7 @@ export function initCodeCopy() {
       return;
     }
 
-    const button = target.closest("[data-code-copy]");
+    const button = target.closest<HTMLElement>("[data-code-copy]");
 
     if (!button) {
       return;
@@ -53,14 +55,19 @@ export function initCodeCopy() {
     }
 
     const label = button.querySelector(".code-block__copy-label");
-    const originalLabel = label?.textContent ?? "复制";
+    const originalLabel =
+      button.dataset.copyDefaultLabel ?? label?.textContent ?? "复制";
+    button.dataset.copyDefaultLabel = originalLabel;
 
     try {
       const result = await copyText(code.replace(/\n$/, ""));
       if (label) {
         label.textContent = result === "copied" ? "已复制" : "请手动复制";
       }
-      button.setAttribute("data-copied", result);
+      button.setAttribute(
+        "data-copied",
+        result === "copied" ? "true" : "manual",
+      );
     } catch (error) {
       console.error("Failed to copy code block.", error);
       if (label) {
@@ -68,11 +75,20 @@ export function initCodeCopy() {
       }
     }
 
-    window.setTimeout(() => {
+    const existingTimer = resetTimers.get(button);
+
+    if (existingTimer) {
+      window.clearTimeout(existingTimer);
+    }
+
+    const resetTimer = window.setTimeout(() => {
       if (label) {
         label.textContent = originalLabel;
       }
       button.removeAttribute("data-copied");
+      resetTimers.delete(button);
     }, 1500);
+
+    resetTimers.set(button, resetTimer);
   });
 }

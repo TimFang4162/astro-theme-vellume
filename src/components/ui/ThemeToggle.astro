@@ -30,17 +30,42 @@ const { class: className } = Astro.props;
 import { handleToggleClick } from "astro-theme-toggle";
 import { runOnPageLoad } from "../../scripts/ui/page-load";
 
-const initThemeToggles = () => {
-  document
-    .querySelectorAll<HTMLElement>("[data-theme-toggle]")
-    .forEach((el) => {
-      if (el.dataset.themeToggleReady === "true") return;
-      el.dataset.themeToggleReady = "true";
-      el.addEventListener("click", (e) => {
-        handleToggleClick(e);
-      });
-    });
+let bound = false;
+
+const getToggleOrigin = (toggle: HTMLElement, event: MouseEvent) => {
+  if (event.clientX !== 0 || event.clientY !== 0) {
+    return event;
+  }
+
+  const { left, top, width, height } = toggle.getBoundingClientRect();
+
+  return {
+    clientX: left + width / 2,
+    clientY: top + height / 2,
+  };
 };
 
-runOnPageLoad("ui:theme-toggle", initThemeToggles);
+const initThemeToggle = () => {
+  if (bound) {
+    return;
+  }
+
+  bound = true;
+
+  document.addEventListener("click", (event) => {
+    if (!(event instanceof MouseEvent) || !(event.target instanceof Element)) {
+      return;
+    }
+
+    const toggle = event.target.closest<HTMLElement>("[data-theme-toggle]");
+
+    if (!toggle) {
+      return;
+    }
+
+    handleToggleClick(getToggleOrigin(toggle, event));
+  });
+};
+
+runOnPageLoad("ui:theme-toggle", initThemeToggle);
 </script>
