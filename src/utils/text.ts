@@ -1,9 +1,9 @@
-export const LATIN_WORD_PATTERN = /[A-Za-z0-9_]+(?:['\u2019-][A-Za-z0-9_]+)*/g;
-export const CJK_CHAR_PATTERN =
+const LATIN_WORD_PATTERN = /[A-Za-z0-9_]+(?:['\u2019-][A-Za-z0-9_]+)*/g;
+const CJK_CHAR_PATTERN =
   /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/gu;
 
-export const CJK_CHARS_PER_MINUTE = 500;
-export const LATIN_WORDS_PER_MINUTE = 200;
+const CJK_CHARS_PER_MINUTE = 500;
+const LATIN_WORDS_PER_MINUTE = 200;
 
 export function estimateWordCount(text: string): number {
   const normalized = text.trim();

@@ -67,5 +67,5 @@ const avatarSrc = withBasePath(siteConfig.author.avatar.src);
 import { initHomeHero } from "../../scripts/home/hero-particles";
 import { runOnPageLoad } from "../../scripts/ui/page-load";
 
-runOnPageLoad(initHomeHero);
+runOnPageLoad("home:hero-particles", initHomeHero);
 </script>

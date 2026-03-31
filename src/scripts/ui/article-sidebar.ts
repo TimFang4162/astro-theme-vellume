@@ -205,4 +205,4 @@ function start(): void {
   });
 }
 
-runOnPageLoad(start);
+runOnPageLoad("ui:article-sidebar", start);

@@ -234,9 +234,9 @@ const seoProps = {
     import { runOnPageLoad } from "../scripts/ui/page-load";
     import { initSearch } from "../scripts/ui/search";
 
-    runOnPageLoad(initCodeCopy);
-    runOnPageLoad(initLightbox);
-    runOnPageLoad(initSearch);
+    runOnPageLoad("layout:code-copy", initCodeCopy);
+    runOnPageLoad("layout:lightbox", initLightbox);
+    runOnPageLoad("layout:search", initSearch);
     </script>
   </body>
 </html>

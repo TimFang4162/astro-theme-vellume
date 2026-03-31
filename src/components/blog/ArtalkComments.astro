@@ -13,19 +13,20 @@ const { pageKey, pageTitle, class: className } = Astro.props;
 const enabled = siteConfig.comments.enabled;
 const server = siteConfig.comments.server;
 const site = siteConfig.comments.site;
+const commentsTitleId = `comments-title-${pageKey.replace(/[^a-zA-Z0-9_-]+/g, "-")}`;
 ---
 
 {enabled && server && site && (
   <section
     class:list={[className]}
-    aria-labelledby="comments-title"
+    aria-labelledby={commentsTitleId}
     data-artalk-comments
     data-page-key={pageKey}
     data-page-title={pageTitle}
     data-server={server}
     data-site={site}
   >
-    <h2 id="comments-title" class="section-title-reading text-strong">评论</h2>
+    <h2 id={commentsTitleId} class="section-title-reading text-strong">评论</h2>
     <div class="mt-5 min-h-40" data-artalk-root>
       <p class="text-sm text-muted-foreground">评论加载中…</p>
     </div>
@@ -64,14 +65,17 @@ const setStoredVote = (pageKey: string, vote: "up" | "down" | null) => {
   window.localStorage.removeItem(key);
 };
 
+const getFeedbackWrap = (pageKey: string) =>
+  document.querySelector<HTMLElement>(
+    `.post-nav-feedback__actions[data-page-key="${CSS.escape(pageKey)}"]`,
+  );
+
 const syncPageVoteUi = (
   pageKey: string,
   state: PageVoteState | null,
   counts?: { up: number; down: number },
 ) => {
-  const wrap = document.querySelector<HTMLElement>(
-    ".post-nav-feedback__actions",
-  );
+  const wrap = getFeedbackWrap(pageKey);
   const upBtn = wrap?.querySelector<HTMLElement>(
     ".post-nav-feedback__button--yes",
   );
@@ -142,9 +146,7 @@ const initArtalkComments = () => {
     });
   });
 
-  const voteWrap = document.querySelector<HTMLElement>(
-    ".post-nav-feedback__actions",
-  );
+  const voteWrap = getFeedbackWrap(pageKey);
   const upBtn = voteWrap?.querySelector<HTMLButtonElement>(
     ".post-nav-feedback__button--yes",
   );
@@ -205,7 +207,7 @@ const initArtalkComments = () => {
   };
 };
 
-runOnPageLoad(initArtalkComments);
+runOnPageLoad("blog:artalk-comments", initArtalkComments);
 document.addEventListener("astro:before-swap", () => {
   cleanup?.();
 });

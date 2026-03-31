@@ -1,4 +1,5 @@
 import { withBasePath } from "../../utils/paths";
+import { getFocusableElements } from "./focus";
 
 interface PagefindResultData {
   url: string;
@@ -21,21 +22,6 @@ interface PagefindAPI {
 }
 
 let currentController: AbortController | null = null;
-
-function getFocusableElements(container: HTMLElement) {
-  return Array.from(
-    container.querySelectorAll<HTMLElement>(
-      [
-        "a[href]",
-        "button:not([disabled])",
-        "input:not([disabled])",
-        "select:not([disabled])",
-        "textarea:not([disabled])",
-        "[tabindex]:not([tabindex='-1'])",
-      ].join(","),
-    ),
-  ).filter((element) => element.getClientRects().length > 0);
-}
 
 export function initSearch() {
   currentController?.abort();

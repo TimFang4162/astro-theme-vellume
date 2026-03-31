@@ -86,13 +86,16 @@ const mergeConfigObject = <T extends Record<string, unknown>>(
 export const defineSiteConfig = <T extends SiteConfigInput>(config: T): T =>
   config;
 
-export const createSiteConfig = (override: SiteConfigInput = {}): SiteConfig =>
+const createSiteConfig = (override: SiteConfigInput = {}): SiteConfig =>
   mergeConfigObject(themeDefaultConfig, override) as SiteConfig;
 
-export const mergeSiteConfig = (override: SiteConfigInput): SiteConfig =>
-  mergeConfigObject(createSiteConfig(), override) as SiteConfig;
+export const mergeSiteConfig = (...overrides: SiteConfigInput[]): SiteConfig =>
+  overrides.reduce<SiteConfig>(
+    (config, override) => mergeConfigObject(config, override) as SiteConfig,
+    createSiteConfig(),
+  );
 
-export const themeDefaultConfig: SiteConfig = {
+const themeDefaultConfig: SiteConfig = {
   site: {
     url: "https://example.com",
     title: "Vellume",

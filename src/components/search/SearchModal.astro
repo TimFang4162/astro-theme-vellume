@@ -1,16 +1,10 @@
 ---
 import { Icon } from "astro-icon/components";
 import Button from "../ui/Button.astro";
-
-interface Props {
-  id?: string;
-}
-
-const { id = "search-modal" } = Astro.props;
 ---
 
 <div
-  id={id}
+  id="search-modal"
   class="search-modal"
   role="dialog"
   aria-modal="true"
@@ -21,9 +15,11 @@ const { id = "search-modal" } = Astro.props;
   <div class="search-dialog surface-card" tabindex="-1">
     <div class="search-input-wrapper">
       <Icon name="material-symbols:search-rounded" class="search-input-icon" />
-      <label class="search-input-label" for={`${id}-input`}>搜索内容</label>
+      <label class="search-input-label" for="search-modal-input"
+        >搜索内容</label
+      >
       <input
-        id={`${id}-input`}
+        id="search-modal-input"
         type="text"
         class="search-input"
         placeholder="搜索文章、系列或页面..."

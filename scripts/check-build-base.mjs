@@ -1,17 +1,6 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
-
-function normalizeBasePath(basePath) {
-  if (!basePath || basePath === "/") {
-    return "/";
-  }
-
-  const withLeadingSlash = basePath.startsWith("/") ? basePath : `/${basePath}`;
-
-  return withLeadingSlash.endsWith("/")
-    ? withLeadingSlash.slice(0, -1)
-    : withLeadingSlash;
-}
+import { normalizeBasePath } from "../src/utils/base-path-core.mjs";
 
 function collectAbsolutePaths(content) {
   const matches = [];

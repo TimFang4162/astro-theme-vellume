@@ -12,6 +12,7 @@ interface Props {
 const { prev, next, pageKey, showFeedback = true } = Astro.props;
 const prevHref = prev ? withBasePath(`/posts/${prev.id}`) : undefined;
 const nextHref = next ? withBasePath(`/posts/${next.id}`) : undefined;
+const wavePatternId = `post-nav-wave-${pageKey.replace(/[^a-zA-Z0-9_-]+/g, "-")}`;
 ---
 
 {(prev || next) && (
@@ -26,7 +27,7 @@ const nextHref = next ? withBasePath(`/posts/${next.id}`) : undefined;
       >
         <defs>
           <pattern
-            id="post-nav-wave"
+            id={wavePatternId}
             width="24"
             height="8"
             patternUnits="userSpaceOnUse"
@@ -38,7 +39,7 @@ const nextHref = next ? withBasePath(`/posts/${next.id}`) : undefined;
             />
           </pattern>
         </defs>
-        <rect width="100%" height="100%" fill="url(#post-nav-wave)"></rect>
+        <rect width="100%" height="100%" fill={`url(#${wavePatternId})`}></rect>
       </svg>
     </div>
     <div class="post-nav-content article-column">

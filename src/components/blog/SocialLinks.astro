@@ -8,6 +8,7 @@ interface Props {
   githubUrl?: string;
   emailUrl?: string;
   wechatQrValue?: string;
+  idPrefix?: string;
 }
 
 const {
@@ -15,7 +16,10 @@ const {
   githubUrl = siteConfig.links.github,
   emailUrl = siteConfig.links.email,
   wechatQrValue = siteConfig.links.wechatQr,
+  idPrefix = "social-links",
 } = Astro.props;
+const normalizedIdPrefix = idPrefix.trim().replace(/[^a-zA-Z0-9_-]+/g, "-");
+const wechatPopoverId = `${normalizedIdPrefix || "social-links"}-wechat-popover-panel`;
 ---
 
 <div
@@ -44,15 +48,15 @@ const {
         <button
           type="button"
           class="social-link cursor-pointer"
-          aria-controls="wechat-popover-panel"
+          aria-controls={wechatPopoverId}
           aria-haspopup="dialog"
-          popovertarget="wechat-popover-panel"
+          popovertarget={wechatPopoverId}
         >
           <Icon name="ri:wechat-fill" size={18} />
           <span>WeChat</span>
         </button>
         <div
-          id="wechat-popover-panel"
+          id={wechatPopoverId}
           class="wechat-popover__panel popover-card fixed z-[90] p-3 text-center text-sm text-muted-foreground"
           popover="auto"
         >

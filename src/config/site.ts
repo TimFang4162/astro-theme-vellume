@@ -12,10 +12,7 @@ function loadEnvOverrides(): SiteConfigInput {
   }
 }
 
-export const siteConfig = mergeSiteConfig({
-  ...siteOverride,
-  ...loadEnvOverrides(),
-});
+export const siteConfig = mergeSiteConfig(siteOverride, loadEnvOverrides());
 
 export const siteUrl = new URL(siteConfig.site.url);
 export const siteHost = siteUrl.host;

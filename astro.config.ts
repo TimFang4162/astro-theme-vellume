@@ -12,8 +12,9 @@ import { rehypeRenderTypstMath } from "./src/markdown/rehype-render-typst-math";
 import { remarkReadingTime } from "./src/markdown/remark-reading-time";
 import { remarkRenderDiagrams } from "./src/markdown/remark-render-diagrams";
 import { createShikiTransformers } from "./src/markdown/shiki-transformers";
+import { normalizeBasePath } from "./src/utils/base-path-core.mjs";
 
-const siteBase = process.env.SITE_BASE || "/";
+const siteBase = normalizeBasePath(process.env.SITE_BASE || "/");
 
 // https://astro.build/config
 export default defineConfig({

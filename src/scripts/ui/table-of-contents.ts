@@ -458,4 +458,4 @@ function start() {
   });
 }
 
-runOnPageLoad(start);
+runOnPageLoad("ui:table-of-contents", start);
