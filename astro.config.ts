@@ -17,6 +17,7 @@ import { createShikiTransformers } from "./src/markdown/shiki-transformers";
 // https://astro.build/config
 export default defineConfig({
   site: siteUrl.href,
+  base: process.env.SITE_BASE || "/",
 
   markdown: {
     syntaxHighlight: {
