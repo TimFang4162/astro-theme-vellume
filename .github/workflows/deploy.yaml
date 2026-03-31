@@ -39,10 +39,16 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - name: build attribution with commit hash
+        run: |
+          SHORT_SHA="${GITHUB_SHA:0:7}"
+          ATTRIBUTION="Powered by <a href=\"https://astro.build\" target=\"_blank\" class=\"text-muted-foreground transition-colors hover:text-primary\">Astro</a> & Theme <a href=\"https://github.com/TimFang4162/astro-theme-vellume\" target=\"_blank\" class=\"text-muted-foreground transition-colors hover:text-primary\">Vellume</a><br>Commit <a href=\"https://github.com/TimFang4162/astro-theme-vellume/commit/${GITHUB_SHA}\" target=\"_blank\" class=\"text-muted-foreground transition-colors hover:text-primary\">${SHORT_SHA}</a>"
+          echo "ATTRIBUTION=${ATTRIBUTION}" >> "$GITHUB_ENV"
+
       - run: pnpm build
         env:
           SITE_CONFIG_OVERRIDES: >-
-            {"comments":{"enabled":true,"server":"${{ secrets.ARTALK_SERVER }}","site":"${{ secrets.ARTALK_SITE }}"},"site":{"commitHash":"${{ github.sha }}"}}
+            {"comments":{"enabled":true,"server":"${{ secrets.ARTALK_SERVER }}","site":"${{ secrets.ARTALK_SITE }}"},"site":{"attribution":"${{ env.ATTRIBUTION }}"}}
 
       - name: deploy
         uses: peaceiris/actions-gh-pages@v4

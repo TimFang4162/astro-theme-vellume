@@ -21,17 +21,7 @@ const year = new Date().getFullYear();
         </div>
         <div class="text-sm leading-relaxed text-muted-foreground">
           <p>&copy; {year} {siteConfig.author.copyrightName}</p>
-          <p>
-            <Fragment set:html={siteConfig.site.attribution} />
-            {siteConfig.links.repository && (
-              <Fragment set:html={` &amp; Theme<a href="${siteConfig.links.repository}" target="_blank" rel="noopener noreferrer" class="text-muted-foreground transition-colors hover:text-primary">Vellume</a>`} />
-            )}
-            {siteConfig.site.commitHash && (
-              <span class="ml-1 font-mono text-xs text-muted-foreground/60">
-                {siteConfig.site.commitHash.slice(0, 7)}
-              </span>
-            )}
-          </p>
+          <p set:html={siteConfig.site.attribution} />
         </div>
       </div>
 

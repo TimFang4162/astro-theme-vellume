@@ -14,7 +14,6 @@ export interface SiteConfig {
     lang: string;
     locale: string;
     attribution: string;
-    commitHash: string;
   };
   author: {
     name: string;
@@ -102,8 +101,7 @@ export const themeDefaultConfig: SiteConfig = {
     lang: "zh-CN",
     locale: "zh_CN",
     attribution:
-      'Powered by <a href="https://astro.build" target="_blank" rel="noopener noreferrer" class="text-muted-foreground transition-colors hover:text-primary">Astro</a>',
-    commitHash: "",
+      'Powered by <a href="https://astro.build" target="_blank" class="text-muted-foreground transition-colors hover:text-primary">Astro</a> & Theme <a href="https://github.com/TimFang4162/astro-theme-vellume" target="_blank" class="text-muted-foreground transition-colors hover:text-primary">Vellume</a>',
   },
   author: {
     name: "Your Name",
