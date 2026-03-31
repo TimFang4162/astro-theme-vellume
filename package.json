@@ -8,8 +8,10 @@
     "node": ">=22.12.0"
   },
   "scripts": {
+    "generate:favicons": "node ./scripts/generate-favicons.mjs",
+    "check:base": "node ./scripts/check-build-base.mjs",
     "dev": "astro dev",
-    "build": "astro build && node ./scripts/postbuild-base.mjs",
+    "build": "astro build && pnpm check:base",
     "preview": "astro preview",
     "astro": "astro",
     "check:astro": "astro check",
@@ -21,7 +23,6 @@
     "@tailwindcss/vite": "^4.2.2",
     "artalk": "^2.9.1",
     "astro": "6.1.1",
-    "astro-favicons": "^3.1.6",
     "astro-icon": "^1.1.5",
     "astro-loading-indicator": "^0.8.0",
     "astro-og-canvas": "^0.10.1",
@@ -49,6 +50,7 @@
     "@types/qrcode": "^1.5.6",
     "@types/three": "^0.183.1",
     "@types/unist": "^3.0.3",
+    "favicons": "^7.2.0",
     "hast-util-to-string": "^3.0.1",
     "remark-math": "^6.0.0",
     "shiki": "^4.0.2",

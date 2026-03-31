@@ -1,17 +1,22 @@
 import type { Code, Html, Root } from "mdast";
 import type { Parent } from "unist";
 import { visitParents } from "unist-util-visit-parents";
-import { withBasePath } from "../utils/paths";
+import { withBasePathUsing } from "../utils/paths";
 import { createDiagramAssetName } from "./diagram-assets";
 import { escapeHtml } from "./utils";
 
-function renderDiagramHtml(language: string, source: string, version?: string) {
+function renderDiagramHtml(
+  language: string,
+  source: string,
+  version?: string,
+  basePath = process.env.SITE_BASE || "/",
+) {
   const label = language === "typst" ? "Typst" : "Mermaid";
-  const src = withBasePath(`/assets/diagrams/${createDiagramAssetName(
+  const src = withBasePathUsing(`/assets/diagrams/${createDiagramAssetName(
     language as "typst" | "mermaid",
     source,
     version,
-  )}.svg`);
+  )}.svg`, basePath);
 
   return [
     `<code-block class="code-block code-block--diagram" data-language="${language}" data-rendered-diagram>`,
@@ -29,7 +34,11 @@ function renderDiagramHtml(language: string, source: string, version?: string) {
   ].join("");
 }
 
-export function remarkRenderDiagrams(options: { version?: string } = {}) {
+export function remarkRenderDiagrams(
+  options: { version?: string; basePath?: string } = {},
+) {
+  const basePath = options.basePath ?? process.env.SITE_BASE ?? "/";
+
   return async (tree: Root) => {
     const jobs: Array<{
       language: "typst" | "mermaid";
@@ -70,7 +79,12 @@ export function remarkRenderDiagrams(options: { version?: string } = {}) {
     for (const job of jobs) {
       const htmlNode: Html = {
         type: "html",
-        value: renderDiagramHtml(job.language, job.value, options.version),
+        value: renderDiagramHtml(
+          job.language,
+          job.value,
+          options.version,
+          basePath,
+        ),
       };
 
       job.parent.children[job.index] = htmlNode;

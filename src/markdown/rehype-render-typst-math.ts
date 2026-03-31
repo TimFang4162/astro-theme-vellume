@@ -1,9 +1,9 @@
 import type { Element, Root } from "hast";
 import { toString as getNodeText } from "hast-util-to-string";
 import { visit } from "unist-util-visit";
+import { withBasePathUsing } from "../utils/paths";
 import { createMathAssetName } from "./math-assets";
 import { createElement } from "./utils";
-import { withBasePath } from "../utils/paths";
 
 function hasClass(node: Element, className: string) {
   const { className: property } = node.properties;
@@ -19,6 +19,7 @@ function createMathNode(
   source: string,
   displayMode: boolean,
   version?: string,
+  basePath = process.env.SITE_BASE || "/",
 ) {
   const wrapperTag = displayMode ? "div" : "span";
   const className = displayMode ? "math-block" : "math-inline";
@@ -33,7 +34,7 @@ function createMathNode(
     },
     [
       createElement("img", {
-        src: withBasePath(`/assets/math/${assetName}.svg`),
+        src: withBasePathUsing(`/assets/math/${assetName}.svg`, basePath),
         alt: source,
         loading: "lazy",
         decoding: "async",
@@ -58,7 +59,11 @@ function getMathSource(node: Element, displayMode: boolean) {
   return codeNode ? getNodeText(codeNode).trim() : "";
 }
 
-export function rehypeRenderTypstMath(options: { version?: string } = {}) {
+export function rehypeRenderTypstMath(
+  options: { version?: string; basePath?: string } = {},
+) {
+  const basePath = options.basePath ?? process.env.SITE_BASE ?? "/";
+
   return (tree: Root) => {
     const jobs: Array<{
       displayMode: boolean;
@@ -117,6 +122,7 @@ export function rehypeRenderTypstMath(options: { version?: string } = {}) {
         job.source,
         job.displayMode,
         options.version,
+        basePath,
       );
     }
   };

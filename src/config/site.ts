@@ -1,5 +1,5 @@
 import { siteOverride } from "../site/config";
-import { createSiteConfig, mergeSiteConfig } from "./theme-default";
+import { mergeSiteConfig } from "./theme-default";
 import type { SiteConfigInput } from "./theme-default";
 
 function loadEnvOverrides(): SiteConfigInput {

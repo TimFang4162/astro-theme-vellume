@@ -1,6 +1,6 @@
 const ABSOLUTE_URL_PATTERN = /^[a-z][a-z\d+.-]*:/i;
 
-function normalizeBasePath(basePath: string) {
+export function normalizeBasePath(basePath: string) {
   if (!basePath || basePath === "/") {
     return "/";
   }
@@ -20,26 +20,32 @@ export function isAbsoluteHref(href: string) {
   return ABSOLUTE_URL_PATTERN.test(href) || href.startsWith("//");
 }
 
-export function withBasePath(path: string) {
+export function withBasePathUsing(path: string, basePath: string) {
   if (!path || isAbsoluteHref(path) || path.startsWith("#") || path.startsWith("?")) {
     return path;
   }
 
-  const basePath = normalizeBasePath(import.meta.env.BASE_URL);
+  const normalizedBasePath = normalizeBasePath(basePath);
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
 
-  if (basePath === "/") {
+  if (normalizedBasePath === "/") {
     return normalizedPath;
   }
 
   if (
-    normalizedPath === basePath ||
-    normalizedPath.startsWith(`${basePath}/`)
+    normalizedPath === normalizedBasePath ||
+    normalizedPath.startsWith(`${normalizedBasePath}/`)
   ) {
     return normalizedPath;
   }
 
-  return normalizedPath === "/" ? `${basePath}/` : `${basePath}${normalizedPath}`;
+  return normalizedPath === "/"
+    ? `${normalizedBasePath}/`
+    : `${normalizedBasePath}${normalizedPath}`;
+}
+
+export function withBasePath(path: string) {
+  return withBasePathUsing(path, import.meta.env.BASE_URL);
 }
 
 export function withoutBasePath(path: string) {

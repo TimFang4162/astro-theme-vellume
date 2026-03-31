@@ -1,11 +1,11 @@
 import { defineSiteConfig } from "../config/theme-default";
+import { siteMetadata } from "./metadata.mjs";
 
 export const siteOverride = defineSiteConfig({
   site: {
-    url: "https://example.com",
-    title: "Vellume",
-    description:
-      "An Astro theme for blogs, notes, and long-form writing, with mixed post and series feeds, discovery pages, and reading-focused article layouts.",
+    url: siteMetadata.url,
+    title: siteMetadata.title,
+    description: siteMetadata.description,
   },
   author: {
     name: "Your Name",

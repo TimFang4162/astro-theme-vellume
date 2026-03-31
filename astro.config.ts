@@ -1,12 +1,11 @@
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
-import favicons from "astro-favicons";
 import icon from "astro-icon";
 import pagefind from "astro-pagefind";
 import remarkBreaks from "remark-breaks";
 import remarkMath from "remark-math";
-import { siteConfig, siteUrl } from "./src/config/site";
+import { siteUrl } from "./src/config/site";
 import { MARKDOWN_PIPELINE_VERSION } from "./src/markdown/pipeline-version";
 import { rehypeHierarchicalHeadingIds } from "./src/markdown/rehype-heading-ids";
 import { rehypeRenderTypstMath } from "./src/markdown/rehype-render-typst-math";
@@ -14,10 +13,12 @@ import { remarkReadingTime } from "./src/markdown/remark-reading-time";
 import { remarkRenderDiagrams } from "./src/markdown/remark-render-diagrams";
 import { createShikiTransformers } from "./src/markdown/shiki-transformers";
 
+const siteBase = process.env.SITE_BASE || "/";
+
 // https://astro.build/config
 export default defineConfig({
   site: siteUrl.href,
-  base: process.env.SITE_BASE || "/",
+  base: siteBase,
 
   markdown: {
     syntaxHighlight: {
@@ -34,11 +35,17 @@ export default defineConfig({
     remarkPlugins: [
       remarkMath,
       remarkReadingTime,
-      [remarkRenderDiagrams, { version: MARKDOWN_PIPELINE_VERSION }],
+      [
+        remarkRenderDiagrams,
+        { version: MARKDOWN_PIPELINE_VERSION, basePath: siteBase },
+      ],
       remarkBreaks,
     ],
     rehypePlugins: [
-      [rehypeRenderTypstMath, { version: MARKDOWN_PIPELINE_VERSION }],
+      [
+        rehypeRenderTypstMath,
+        { version: MARKDOWN_PIPELINE_VERSION, basePath: siteBase },
+      ],
       rehypeHierarchicalHeadingIds,
     ],
   },
@@ -74,24 +81,5 @@ export default defineConfig({
     sitemap(),
     icon({}),
     pagefind(),
-    favicons({
-      input: "public/assets/favicon.png",
-      name: siteConfig.site.title,
-      short_name: siteConfig.site.title,
-      background: siteConfig.theme.browserColor.light,
-      appleStatusBarStyle: "black-translucent",
-      themes: [
-        siteConfig.theme.browserColor.light,
-        siteConfig.theme.browserColor.dark,
-      ],
-      icons: {
-        favicons: true,
-        android: true,
-        appleIcon: true,
-        appleStartup: false,
-        windows: false,
-        yandex: true,
-      },
-    }),
   ],
 });

@@ -23,9 +23,6 @@ importers:
       astro:
         specifier: 6.1.1
         version: 6.1.1(@types/node@25.5.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)(typescript@5.9.3)(yaml@2.8.2)
-      astro-favicons:
-        specifier: ^3.1.6
-        version: 3.1.6(astro@6.1.1(@types/node@25.5.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)(typescript@5.9.3)(yaml@2.8.2))
       astro-icon:
         specifier: ^1.1.5
         version: 1.1.5
@@ -102,6 +99,9 @@ importers:
       '@types/unist':
         specifier: ^3.0.3
         version: 3.0.3
+      favicons:
+        specifier: ^7.2.0
+        version: 7.2.0
       hast-util-to-string:
         specifier: ^3.0.1
         version: 3.0.1
@@ -1200,11 +1200,6 @@ packages:
     peerDependencies:
       marked: ^14.1.0
 
-  astro-favicons@3.1.6:
-    resolution: {integrity: sha512-9YfNWaBEFz1nCHy4P1l4wfPRvuLe4qHuHovIcqD5HYfZeW82wyVG1+CZUVGhcjwbRCVkGRJ3G+CKTyX9BcoI5w==}
-    peerDependencies:
-      astro: '>= 4.0.0'
-
   astro-icon@1.1.5:
     resolution: {integrity: sha512-CJYS5nWOw9jz4RpGWmzNQY7D0y2ZZacH7atL2K9DeJXJVaz7/5WrxeyIxO8KASk1jCM96Q4LjRx/F3R+InjJrw==}
 
@@ -1527,8 +1522,8 @@ packages:
     resolution: {integrity: sha512-BQ30U1mKkvXQXXkAGcuyUA/GA26oEB7NzOtsxCDtyu62sjGw5QraKFhx2Em3WQNjPw9PG6MQ9yuIIgkSDfGu5A==}
     hasBin: true
 
-  favilib@1.0.5:
-    resolution: {integrity: sha512-3Fk5LQRU96QUmHWmyZc3WIMyz1tmte6TPlCVjaairXeHGtPHM4pnLvg11CyXTq6od1v5aaopHoREHNSwN4BKDA==}
+  favicons@7.2.0:
+    resolution: {integrity: sha512-k/2rVBRIRzOeom3wI9jBPaSEvoTSQEW4iM0EveBmBBKFxO8mSyyRWtDlfC3VnEfu0avmjrMzy8/ZFPSe6F71Hw==}
     engines: {node: '>=14.0.0'}
 
   fd-slicer@1.1.0:
@@ -3619,12 +3614,6 @@ snapshots:
     dependencies:
       marked: 17.0.5
 
-  astro-favicons@3.1.6(astro@6.1.1(@types/node@25.5.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)(typescript@5.9.3)(yaml@2.8.2)):
-    dependencies:
-      astro: 6.1.1(@types/node@25.5.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)(typescript@5.9.3)(yaml@2.8.2)
-      favilib: 1.0.5
-      ultrahtml: 1.6.0
-
   astro-icon@1.1.5:
     dependencies:
       '@iconify/tools': 4.2.0
@@ -4050,7 +4039,7 @@ snapshots:
       fast-xml-builder: 1.1.4
       strnum: 2.2.1
 
-  favilib@1.0.5:
+  favicons@7.2.0:
     dependencies:
       escape-html: 1.0.3
       sharp: 0.33.5

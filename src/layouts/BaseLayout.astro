@@ -48,6 +48,19 @@ const defaultOgImage = "/assets/og/index.png";
 const site = Astro.site ?? Astro.url;
 const ogImage = toAbsoluteSiteUrl(image ?? defaultOgImage, site);
 const rssHref = withBasePath("/rss.xml");
+const faviconBasePath = "/favicons";
+const faviconHref = withBasePath(`${faviconBasePath}/favicon.ico`);
+const favicon16Href = withBasePath(`${faviconBasePath}/favicon-16x16.png`);
+const favicon32Href = withBasePath(`${faviconBasePath}/favicon-32x32.png`);
+const favicon48Href = withBasePath(`${faviconBasePath}/favicon-48x48.png`);
+const manifestHref = withBasePath(`${faviconBasePath}/manifest.webmanifest`);
+const appleTouchIconHref = withBasePath(`${faviconBasePath}/apple-touch-icon.png`);
+const appleTouchIconPrecomposedHref = withBasePath(
+  `${faviconBasePath}/apple-touch-icon-precomposed.png`,
+);
+const yandexManifestHref = withBasePath(
+  `${faviconBasePath}/yandex-browser-manifest.json`,
+);
 const seoProps = {
   charset: "UTF-8",
   title,
@@ -100,6 +113,26 @@ const seoProps = {
       content={siteConfig.theme.browserColor.dark}
       media="(prefers-color-scheme: dark)"
     >
+    <link rel="icon" type="image/x-icon" href={faviconHref}>
+    <link rel="icon" type="image/png" sizes="16x16" href={favicon16Href}>
+    <link rel="icon" type="image/png" sizes="32x32" href={favicon32Href}>
+    <link rel="icon" type="image/png" sizes="48x48" href={favicon48Href}>
+    <link rel="manifest" href={manifestHref}>
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content={siteConfig.site.title}>
+    <link rel="apple-touch-icon" sizes="180x180" href={appleTouchIconHref}>
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href={appleTouchIconPrecomposedHref}
+    >
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    >
+    <meta name="apple-mobile-web-app-title" content={siteConfig.site.title}>
+    <link rel="yandex-tableau-widget" href={yandexManifestHref}>
     <link rel="alternate" type="application/rss+xml" href={rssHref}>
     <ClientRouter />
     <script is:inline>
