@@ -15,7 +15,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "check:astro": "astro check",
-    "check:biome": "biome check --write ."
+    "check:biome": "biome check .",
+    "fix:biome": "biome check --write ."
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.17",

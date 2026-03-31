@@ -17,6 +17,7 @@ import {
   getSeriesPosts,
 } from "../../lib/blog";
 import { formatDate } from "../../utils/date";
+import { toAbsoluteSiteUrl } from "../../utils/paths";
 import {
   estimateReadTime,
   estimateWordCount,
@@ -24,7 +25,6 @@ import {
   getEntryReadMinutes,
   getFrontmatterReadMinutes,
 } from "../../utils/text";
-import { toAbsoluteSiteUrl } from "../../utils/paths";
 
 export async function getStaticPaths() {
   const posts = await getAccessibleBlogPosts();

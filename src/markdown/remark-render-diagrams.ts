@@ -12,11 +12,14 @@ function renderDiagramHtml(
   basePath = process.env.SITE_BASE || "/",
 ) {
   const label = language === "typst" ? "Typst" : "Mermaid";
-  const src = withBasePathUsing(`/assets/diagrams/${createDiagramAssetName(
-    language as "typst" | "mermaid",
-    source,
-    version,
-  )}.svg`, basePath);
+  const src = withBasePathUsing(
+    `/assets/diagrams/${createDiagramAssetName(
+      language as "typst" | "mermaid",
+      source,
+      version,
+    )}.svg`,
+    basePath,
+  );
 
   return [
     `<code-block class="code-block code-block--diagram" data-language="${language}" data-rendered-diagram>`,

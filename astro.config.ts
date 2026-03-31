@@ -77,9 +77,5 @@ export default defineConfig({
   image: {
     layout: "constrained",
   },
-  integrations: [
-    sitemap(),
-    icon({}),
-    pagefind(),
-  ],
+  integrations: [sitemap(), icon({}), pagefind()],
 });

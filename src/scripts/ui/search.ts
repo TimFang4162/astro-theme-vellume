@@ -22,6 +22,21 @@ interface PagefindAPI {
 
 let currentController: AbortController | null = null;
 
+function getFocusableElements(container: HTMLElement) {
+  return Array.from(
+    container.querySelectorAll<HTMLElement>(
+      [
+        "a[href]",
+        "button:not([disabled])",
+        "input:not([disabled])",
+        "select:not([disabled])",
+        "textarea:not([disabled])",
+        "[tabindex]:not([tabindex='-1'])",
+      ].join(","),
+    ),
+  ).filter((element) => element.getClientRects().length > 0);
+}
+
 export function initSearch() {
   currentController?.abort();
 
@@ -34,11 +49,14 @@ export function initSearch() {
 
   const input = modalEl.querySelector<HTMLInputElement>("input");
   const resultsEl = modalEl.querySelector<HTMLElement>("[data-search-results]");
+  const dialogEl = modalEl.querySelector<HTMLElement>(".search-dialog");
   const closeTriggers = modalEl.querySelectorAll<HTMLElement>(
     "[data-search-close]",
   );
   const controller = new AbortController();
   currentController = controller;
+  let previousFocusedElement: HTMLElement | null = null;
+  let previousBodyOverflow = "";
 
   let pf: PagefindAPI | null = null;
 
@@ -58,16 +76,33 @@ export function initSearch() {
   }
 
   function open() {
+    previousFocusedElement =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    previousBodyOverflow = document.body.style.overflow;
     modalEl.classList.add("is-open");
+    modalEl.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
     setTimeout(() => input?.focus(), 50);
   }
 
-  function close() {
+  function close({ restoreFocus = true } = {}) {
     modalEl.classList.remove("is-open");
-    document.body.style.overflow = "";
+    modalEl.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = previousBodyOverflow;
     if (input) input.value = "";
     resetResults();
+    if (restoreFocus) {
+      (previousFocusedElement?.isConnected
+        ? previousFocusedElement
+        : document.querySelector<HTMLElement>("[data-search-open]")
+      )?.focus({ preventScroll: true });
+    }
+  }
+
+  function isOpen() {
+    return modalEl.classList.contains("is-open");
   }
 
   function resetResults() {
@@ -153,8 +188,18 @@ export function initSearch() {
   input?.addEventListener("input", onInput, { signal: controller.signal });
 
   closeTriggers.forEach((el) => {
-    el.addEventListener("click", close, { signal: controller.signal });
+    el.addEventListener("click", () => close(), { signal: controller.signal });
   });
+
+  resultsEl?.addEventListener(
+    "click",
+    (event) => {
+      if (event.target instanceof Element && event.target.closest("a[href]")) {
+        close({ restoreFocus: false });
+      }
+    },
+    { signal: controller.signal },
+  );
 
   document
     .querySelectorAll<HTMLElement>("[data-search-open]")
@@ -163,9 +208,55 @@ export function initSearch() {
     });
 
   document.addEventListener(
+    "keydown",
+    (event) => {
+      if (!isOpen()) {
+        return;
+      }
+
+      if (event.key === "Escape") {
+        event.preventDefault();
+        close();
+        return;
+      }
+
+      if (event.key !== "Tab" || !dialogEl) {
+        return;
+      }
+
+      const focusableElements = getFocusableElements(dialogEl);
+
+      if (focusableElements.length === 0) {
+        event.preventDefault();
+        dialogEl.focus({ preventScroll: true });
+        return;
+      }
+
+      const firstFocusable = focusableElements[0];
+      const lastFocusable = focusableElements[focusableElements.length - 1];
+      const activeElement =
+        document.activeElement instanceof HTMLElement
+          ? document.activeElement
+          : null;
+
+      if (event.shiftKey && activeElement === firstFocusable) {
+        event.preventDefault();
+        lastFocusable.focus({ preventScroll: true });
+        return;
+      }
+
+      if (!event.shiftKey && activeElement === lastFocusable) {
+        event.preventDefault();
+        firstFocusable.focus({ preventScroll: true });
+      }
+    },
+    { signal: controller.signal },
+  );
+
+  document.addEventListener(
     "astro:before-swap",
     () => {
-      close();
+      close({ restoreFocus: false });
       controller.abort();
       if (currentController === controller) {
         currentController = null;

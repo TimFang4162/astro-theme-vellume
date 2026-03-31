@@ -6,9 +6,7 @@ function normalizeBasePath(basePath) {
     return "/";
   }
 
-  const withLeadingSlash = basePath.startsWith("/")
-    ? basePath
-    : `/${basePath}`;
+  const withLeadingSlash = basePath.startsWith("/") ? basePath : `/${basePath}`;
 
   return withLeadingSlash.endsWith("/")
     ? withLeadingSlash.slice(0, -1)
@@ -108,7 +106,9 @@ async function main() {
     )
     .join("\n\n");
 
-  throw new Error(`Build output contains paths outside base ${basePath}:\n\n${details}`);
+  throw new Error(
+    `Build output contains paths outside base ${basePath}:\n\n${details}`,
+  );
 }
 
 await main();

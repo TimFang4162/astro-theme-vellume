@@ -8,6 +8,8 @@ That gives the theme a calmer, more editorial shape. It is meant for sites that 
 
 ![Vellume preview](./.github/social-preview.png)
 
+Demo: https://timfang4162.github.io/astro-theme-vellume/
+
 ## Why Vellume
 
 Vellume is designed for a different content structure than the usual "all posts in one timeline" blog. Its default shape is:
@@ -122,9 +124,13 @@ Open `http://localhost:4321`.
 pnpm dev
 pnpm build
 pnpm preview
+pnpm generate:favicons
 pnpm check:astro
 pnpm check:biome
+pnpm fix:biome
 ```
+
+`pnpm generate:favicons` will rebuild the files under `public/favicons` from `public/assets/favicon.png` using the shared site metadata in `src/site/metadata.mjs`.
 
 ## Customize The Site
 

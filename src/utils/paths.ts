@@ -5,9 +5,7 @@ export function normalizeBasePath(basePath: string) {
     return "/";
   }
 
-  const withLeadingSlash = basePath.startsWith("/")
-    ? basePath
-    : `/${basePath}`;
+  const withLeadingSlash = basePath.startsWith("/") ? basePath : `/${basePath}`;
   const withoutTrailingSlash =
     withLeadingSlash.length > 1 && withLeadingSlash.endsWith("/")
       ? withLeadingSlash.slice(0, -1)
@@ -21,7 +19,12 @@ export function isAbsoluteHref(href: string) {
 }
 
 export function withBasePathUsing(path: string, basePath: string) {
-  if (!path || isAbsoluteHref(path) || path.startsWith("#") || path.startsWith("?")) {
+  if (
+    !path ||
+    isAbsoluteHref(path) ||
+    path.startsWith("#") ||
+    path.startsWith("?")
+  ) {
     return path;
   }
 
@@ -49,7 +52,12 @@ export function withBasePath(path: string) {
 }
 
 export function withoutBasePath(path: string) {
-  if (!path || isAbsoluteHref(path) || path.startsWith("#") || path.startsWith("?")) {
+  if (
+    !path ||
+    isAbsoluteHref(path) ||
+    path.startsWith("#") ||
+    path.startsWith("?")
+  ) {
     return path;
   }
 
