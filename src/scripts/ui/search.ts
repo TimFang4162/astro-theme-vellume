@@ -43,8 +43,10 @@ export function initSearch() {
   async function loadPagefind(): Promise<PagefindAPI | null> {
     if (pf) return pf;
     try {
-      const path = "/pagefind/pagefind.js";
-      const mod = await import(path);
+      // Pagefind is generated into `dist/pagefind` at build time, so Vite
+      // should not try to pre-bundle or statically analyze this runtime import.
+      const pagefindPath = "/pagefind/pagefind.js";
+      const mod = await import(/* @vite-ignore */ pagefindPath);
       pf = mod as unknown as PagefindAPI;
       await pf.init();
       return pf;
