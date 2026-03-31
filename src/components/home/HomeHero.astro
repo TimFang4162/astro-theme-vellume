@@ -2,6 +2,7 @@
 import { Image } from "astro:assets";
 import { Icon } from "astro-icon/components";
 import { siteConfig } from "../../config/site";
+import { withBasePath } from "../../utils/paths";
 import SocialLinks from "../blog/SocialLinks.astro";
 import Button from "../ui/Button.astro";
 
@@ -12,6 +13,7 @@ interface Props {
 
 const { title = siteConfig.author.introTitle, bio = siteConfig.author.bio } =
   Astro.props;
+const avatarSrc = withBasePath(siteConfig.author.avatar.src);
 ---
 
 <div class="relative left-1/2 w-screen -translate-x-1/2 px-4 sm:px-6 lg:px-8">
@@ -27,7 +29,7 @@ const { title = siteConfig.author.introTitle, bio = siteConfig.author.bio } =
         class="relative z-10 mx-auto flex max-w-6xl flex-col items-start gap-4 px-4 sm:px-6 lg:px-8"
       >
         <Image
-          src={siteConfig.author.avatar.src}
+          src={avatarSrc}
           alt={siteConfig.author.avatar.alt}
           width={112}
           height={112}

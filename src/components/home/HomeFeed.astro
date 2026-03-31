@@ -1,6 +1,7 @@
 ---
 import { Icon } from "astro-icon/components";
 import { formatDate } from "../../utils/date";
+import { withBasePath } from "../../utils/paths";
 import { estimateReadTime } from "../../utils/text";
 import Badge from "../ui/Badge.astro";
 import MetaItem from "../ui/MetaItem.astro";
@@ -110,7 +111,7 @@ const displayItems = items.map(getDisplayItem);
   )}
   {displayItems.map((item) => (
     <a
-      href={item.href}
+      href={withBasePath(item.href)}
       data-view-item={defaultView}
       class="view-collection-item group block transition"
     >

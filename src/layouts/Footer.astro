@@ -1,8 +1,10 @@
 ---
 import { siteConfig } from "../config/site";
 import { footerNavItems } from "../data/navigation";
+import { withBasePath } from "../utils/paths";
 
 const year = new Date().getFullYear();
+const sitemapHref = withBasePath("/sitemap-index.xml");
 ---
 
 <footer
@@ -31,7 +33,7 @@ const year = new Date().getFullYear();
           {footerNavItems.map((item) => (
             <li>
               <a
-                href={item.href}
+                href={withBasePath(item.href)}
                 class="text-sm text-muted-foreground transition-colors hover:text-primary"
               >
                 {item.label}
@@ -46,7 +48,7 @@ const year = new Date().getFullYear();
         <ul class="m-0 flex list-none flex-col p-0">
           <li>
             <a
-              href={siteConfig.links.rss}
+              href={withBasePath(siteConfig.links.rss)}
               class="text-sm text-muted-foreground transition-colors hover:text-primary"
             >
               RSS
@@ -54,7 +56,7 @@ const year = new Date().getFullYear();
           </li>
           <li>
             <a
-              href="/sitemap-index.xml"
+              href={sitemapHref}
               class="text-sm text-muted-foreground transition-colors hover:text-primary"
             >
               Sitemap

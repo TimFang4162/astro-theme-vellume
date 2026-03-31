@@ -2,6 +2,7 @@
 import type { CollectionEntry } from "astro:content";
 import { Icon } from "astro-icon/components";
 import { formatDate } from "../../utils/date";
+import { withBasePath } from "../../utils/paths";
 import { estimateReadTime, getEntryReadMinutes } from "../../utils/text";
 import MetaItem from "../ui/MetaItem.astro";
 import TagBadgeList from "../ui/TagBadgeList.astro";
@@ -18,10 +19,11 @@ const readTime = estimateReadTime(getEntryReadMinutes(post));
 const publishedAtIso = data.publishedAt.toISOString();
 const publishedAtLabel = formatDate(data.publishedAt);
 const seriesLabel = seriesTitle ?? data.series?.id;
+const postHref = withBasePath(`/posts/${id}`);
 ---
 
 <a
-  href={`/posts/${id}`}
+  href={postHref}
   data-view-item={view}
   class="view-collection-item group block transition"
 >

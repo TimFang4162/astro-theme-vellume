@@ -2,6 +2,7 @@
 import { Icon } from "astro-icon/components";
 import { navItems } from "../../data/navigation";
 import { isPathActive } from "../../utils/navigation";
+import { withBasePath } from "../../utils/paths";
 import Button from "../ui/Button.astro";
 
 interface Props {
@@ -38,7 +39,7 @@ const { currentPath, variant = "desktop", closeOnClick = false } = Astro.props;
 
         return (
           <a
-            href={item.href}
+            href={withBasePath(item.href)}
             class:list={[
               "drawer-nav-link",
               isActive ? "bg-accent text-primary" : "text-muted-foreground",

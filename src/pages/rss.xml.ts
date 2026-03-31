@@ -2,6 +2,7 @@ import rss from "@astrojs/rss";
 import type { APIContext } from "astro";
 import { siteConfig, siteUrl } from "../config/site";
 import { getPublicBlogPosts } from "../lib/blog";
+import { withBasePath } from "../utils/paths";
 
 export async function GET(context: APIContext) {
   const posts = await getPublicBlogPosts();
@@ -13,7 +14,7 @@ export async function GET(context: APIContext) {
       title: post.data.title,
       pubDate: post.data.publishedAt,
       description: post.data.description || post.data.title,
-      link: `/posts/${post.id}/`,
+      link: withBasePath(`/posts/${post.id}/`),
       categories: post.data.tags,
     })),
   });

@@ -1,16 +1,17 @@
 import type { Code, Html, Root } from "mdast";
 import type { Parent } from "unist";
 import { visitParents } from "unist-util-visit-parents";
+import { withBasePath } from "../utils/paths";
 import { createDiagramAssetName } from "./diagram-assets";
 import { escapeHtml } from "./utils";
 
 function renderDiagramHtml(language: string, source: string, version?: string) {
   const label = language === "typst" ? "Typst" : "Mermaid";
-  const src = `/assets/diagrams/${createDiagramAssetName(
+  const src = withBasePath(`/assets/diagrams/${createDiagramAssetName(
     language as "typst" | "mermaid",
     source,
     version,
-  )}.svg`;
+  )}.svg`);
 
   return [
     `<code-block class="code-block code-block--diagram" data-language="${language}" data-rendered-diagram>`,

@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && node ./scripts/postbuild-base.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "check:astro": "astro check",

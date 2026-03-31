@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import type { SeriesEntry } from "../../lib/blog";
+import { withBasePath } from "../../utils/paths";
 
 interface Props {
   currentPost: CollectionEntry<"blog">;
@@ -18,6 +19,7 @@ const {
   class: className,
 } = Astro.props;
 const currentIndex = posts.findIndex((post) => post.id === currentPost.id);
+const seriesHref = withBasePath(`/series/${series.id}`);
 ---
 
 {posts.length > 0 && (
@@ -35,7 +37,7 @@ const currentIndex = posts.findIndex((post) => post.id === currentPost.id);
       >
         <span class="eyebrow text-xs font-semibold">系列</span>
         <a
-          href={`/series/${series.id}`}
+          href={seriesHref}
           class="block text-base font-semibold text-strong transition hover:text-primary"
         >
           {series.data.title}
@@ -55,7 +57,7 @@ const currentIndex = posts.findIndex((post) => post.id === currentPost.id);
           {posts.map((post, index) => (
             <li>
               <a
-                href={`/posts/${post.id}`}
+                href={withBasePath(`/posts/${post.id}`)}
                 class:list={[
                   "sidebar-link",
                   post.id === currentPost.id

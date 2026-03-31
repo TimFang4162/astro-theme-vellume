@@ -1,4 +1,6 @@
 ---
+import { withBasePath } from "../../utils/paths";
+
 interface Props {
   variant?: "primary" | "secondary" | "soft" | "ghost";
   size?: "sm" | "md" | "lg";
@@ -23,6 +25,7 @@ const {
   ...attrs
 } = Astro.props;
 const Tag = href ? "a" : "button";
+const resolvedHref = href ? withBasePath(href) : undefined;
 ---
 
 <Tag
@@ -51,7 +54,7 @@ const Tag = href ? "a" : "button";
     },
     className,
   ]}
-  href={href}
+  href={resolvedHref}
   type={href ? undefined : type}
   {...attrs}
 >

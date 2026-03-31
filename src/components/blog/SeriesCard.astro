@@ -1,5 +1,6 @@
 ---
 import { formatDate } from "../../utils/date";
+import { withBasePath } from "../../utils/paths";
 
 interface Props {
   href: string;
@@ -18,10 +19,11 @@ const {
   latestPublishedAt,
   variant = "default",
 } = Astro.props;
+const resolvedHref = withBasePath(href);
 ---
 
 <a
-  href={href}
+  href={resolvedHref}
   class:list={[
     "surface-card surface-card-hover block",
     variant === "compact" ? "px-4 py-4" : "p-4",

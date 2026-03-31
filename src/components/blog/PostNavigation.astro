@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import { formatDate } from "../../utils/date";
+import { withBasePath } from "../../utils/paths";
 
 interface Props {
   prev?: CollectionEntry<"blog">;
@@ -9,6 +10,8 @@ interface Props {
   showFeedback?: boolean;
 }
 const { prev, next, pageKey, showFeedback = true } = Astro.props;
+const prevHref = prev ? withBasePath(`/posts/${prev.id}`) : undefined;
+const nextHref = next ? withBasePath(`/posts/${next.id}`) : undefined;
 ---
 
 {(prev || next) && (
@@ -65,7 +68,7 @@ const { prev, next, pageKey, showFeedback = true } = Astro.props;
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         {prev && (
           <a
-            href={`/posts/${prev.id}`}
+            href={prevHref}
             class="surface-card surface-card-hover flex flex-col gap-2 p-5 text-left"
           >
             <div class="eyebrow">较新文章</div>
@@ -80,7 +83,7 @@ const { prev, next, pageKey, showFeedback = true } = Astro.props;
         )}
         {next && (
           <a
-            href={`/posts/${next.id}`}
+            href={nextHref}
             class="surface-card surface-card-hover flex flex-col gap-2 p-5 text-left md:text-right"
           >
             <div class="eyebrow">较早文章</div>

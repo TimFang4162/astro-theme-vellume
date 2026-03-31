@@ -3,6 +3,7 @@ import { toString as getNodeText } from "hast-util-to-string";
 import { visit } from "unist-util-visit";
 import { createMathAssetName } from "./math-assets";
 import { createElement } from "./utils";
+import { withBasePath } from "../utils/paths";
 
 function hasClass(node: Element, className: string) {
   const { className: property } = node.properties;
@@ -32,7 +33,7 @@ function createMathNode(
     },
     [
       createElement("img", {
-        src: `/assets/math/${assetName}.svg`,
+        src: withBasePath(`/assets/math/${assetName}.svg`),
         alt: source,
         loading: "lazy",
         decoding: "async",

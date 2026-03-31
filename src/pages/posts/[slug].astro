@@ -24,6 +24,7 @@ import {
   getEntryReadMinutes,
   getFrontmatterReadMinutes,
 } from "../../utils/text";
+import { toAbsoluteSiteUrl } from "../../utils/paths";
 
 export async function getStaticPaths() {
   const posts = await getAccessibleBlogPosts();
@@ -81,7 +82,7 @@ const jsonLd = {
   description: postDescription,
   datePublished: publishedAtIso,
   dateModified: updatedAtIso || publishedAtIso,
-  url: `/posts/${post.id}/`,
+  url: toAbsoluteSiteUrl(`/posts/${post.id}/`, Astro.site ?? Astro.url).href,
   author: {
     "@type": "Person",
     name: siteConfig.author.name,

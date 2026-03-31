@@ -1,4 +1,6 @@
 ---
+import { withBasePath } from "../../utils/paths";
+
 interface Props {
   href: string;
   label: string;
@@ -8,10 +10,11 @@ interface Props {
 }
 
 const { href, label, size = "sm", class: className, labelClass } = Astro.props;
+const resolvedHref = withBasePath(href);
 ---
 
 <a
-  href={href}
+  href={resolvedHref}
   class:list={[
     "surface-chip chip-link inline-flex items-center gap-2",
     size === "sm" ? "px-3 py-1 text-sm text-primary" : "px-4 py-2 text-sm",

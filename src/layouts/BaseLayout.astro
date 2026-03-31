@@ -9,6 +9,7 @@ import SearchModal from "../components/search/SearchModal.astro";
 import Button from "../components/ui/Button.astro";
 import ThemeToggle from "../components/ui/ThemeToggle.astro";
 import { siteConfig } from "../config/site";
+import { toAbsoluteSiteUrl, withBasePath } from "../utils/paths";
 import Footer from "./Footer.astro";
 import Header from "./Header.astro";
 import "medium-zoom/dist/style.css";
@@ -44,9 +45,9 @@ const {
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const currentPath = Astro.url.pathname;
 const defaultOgImage = "/assets/og/index.png";
-const ogImage = image
-  ? new URL(image, Astro.url)
-  : new URL(defaultOgImage, Astro.site);
+const site = Astro.site ?? Astro.url;
+const ogImage = toAbsoluteSiteUrl(image ?? defaultOgImage, site);
+const rssHref = withBasePath("/rss.xml");
 const seoProps = {
   charset: "UTF-8",
   title,
@@ -99,7 +100,7 @@ const seoProps = {
       content={siteConfig.theme.browserColor.dark}
       media="(prefers-color-scheme: dark)"
     >
-    <link rel="alternate" type="application/rss+xml" href="/rss.xml">
+    <link rel="alternate" type="application/rss+xml" href={rssHref}>
     <ClientRouter />
     <script is:inline>
     document.addEventListener("astro:before-swap", (e) => {
