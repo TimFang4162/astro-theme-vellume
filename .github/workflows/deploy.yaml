@@ -2,9 +2,17 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches:
-      - main
+    branches: ["main"]
   workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -51,6 +59,7 @@ jobs:
               'site': os.environ['ARTALK_SITE']
             },
             'site': {
+              'url': 'https://timfang4162.github.io/astro-theme-vellume',
               'attribution': f'Powered by <a href=\"https://astro.build\" target=\"_blank\" class=\"text-muted-foreground transition-colors hover:text-primary\">Astro</a> &amp; Theme <a href=\"https://github.com/TimFang4162/astro-theme-vellume\" target=\"_blank\" class=\"text-muted-foreground transition-colors hover:text-primary\">Vellume</a><br>Commit <a href=\"https://github.com/TimFang4162/astro-theme-vellume/commit/{os.environ[\"GITHUB_SHA\"]}\" target=\"_blank\" class=\"text-muted-foreground transition-colors hover:text-primary\">{os.environ[\"SHORT_SHA\"]}</a>'
             }
           }
@@ -64,13 +73,20 @@ jobs:
           SHORT_SHA: ${{ github.sha }}
 
       - run: pnpm build
+        env:
+          SITE_BASE: /astro-theme-vellume
 
-      - name: deploy
-        uses: peaceiris/actions-gh-pages@v4
+      - uses: actions/upload-pages-artifact@v4
         with:
-          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
-          publish_dir: ./dist
-          external_repository: TimFang4162/timfang4162.github.io
-          force_orphan: true
-          user_name: 'github-actions[bot]'
-          user_email: 'github-actions[bot]@users.noreply.github.com'
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v6
+      - id: deployment
+        uses: actions/deploy-pages@v5
