@@ -39,16 +39,31 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: build attribution with commit hash
+      - name: write site config overrides
         run: |
           SHORT_SHA="${GITHUB_SHA:0:7}"
-          ATTRIBUTION="Powered by <a href=\"https://astro.build\" target=\"_blank\" class=\"text-muted-foreground transition-colors hover:text-primary\">Astro</a> & Theme <a href=\"https://github.com/TimFang4162/astro-theme-vellume\" target=\"_blank\" class=\"text-muted-foreground transition-colors hover:text-primary\">Vellume</a><br>Commit <a href=\"https://github.com/TimFang4162/astro-theme-vellume/commit/${GITHUB_SHA}\" target=\"_blank\" class=\"text-muted-foreground transition-colors hover:text-primary\">${SHORT_SHA}</a>"
-          echo "ATTRIBUTION=${ATTRIBUTION}" >> "$GITHUB_ENV"
+          python3 -c "
+          import json, os
+          overrides = {
+            'comments': {
+              'enabled': True,
+              'server': os.environ['ARTALK_SERVER'],
+              'site': os.environ['ARTALK_SITE']
+            },
+            'site': {
+              'attribution': f'Powered by <a href=\"https://astro.build\" target=\"_blank\" class=\"text-muted-foreground transition-colors hover:text-primary\">Astro</a> &amp; Theme <a href=\"https://github.com/TimFang4162/astro-theme-vellume\" target=\"_blank\" class=\"text-muted-foreground transition-colors hover:text-primary\">Vellume</a><br>Commit <a href=\"https://github.com/TimFang4162/astro-theme-vellume/commit/{os.environ[\"GITHUB_SHA\"]}\" target=\"_blank\" class=\"text-muted-foreground transition-colors hover:text-primary\">{os.environ[\"SHORT_SHA\"]}</a>'
+            }
+          }
+          with open(os.environ['GITHUB_ENV'], 'a') as f:
+            f.write(f'SITE_CONFIG_OVERRIDES={json.dumps(overrides)}\n')
+          "
+        env:
+          ARTALK_SERVER: ${{ secrets.ARTALK_SERVER }}
+          ARTALK_SITE: ${{ secrets.ARTALK_SITE }}
+          GITHUB_SHA: ${{ github.sha }}
+          SHORT_SHA: ${{ github.sha }}
 
       - run: pnpm build
-        env:
-          SITE_CONFIG_OVERRIDES: >-
-            {"comments":{"enabled":true,"server":"${{ secrets.ARTALK_SERVER }}","site":"${{ secrets.ARTALK_SITE }}"},"site":{"attribution":"${{ env.ATTRIBUTION }}"}}
 
       - name: deploy
         uses: peaceiris/actions-gh-pages@v4
