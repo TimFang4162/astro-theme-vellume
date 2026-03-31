@@ -66,10 +66,10 @@ Vellume 基于 Astro Content Collections 组织内容。
 
 如果你准备把它改成自己的博客，通常只需要先处理这几处：
 
-1. 修改 `src/config/site.ts` 中的站点标题、描述、作者信息和链接
+1. 修改 `src/site/config.ts` 中的站点标题、描述、作者信息和链接
 2. 重写 `src/content/about/index.md`
 3. 删除示例文章，换成你自己的内容
-4. 根据需要启用评论系统或调整导航结构
+4. 根据需要启用评论系统、调整 `src/site/navigation.ts`，或者在 `src/site/theme.css` 中覆盖视觉变量
 
 评论功能默认就是关闭的，所以即使你暂时不接第三方服务，也不会影响页面结构和阅读体验。
 

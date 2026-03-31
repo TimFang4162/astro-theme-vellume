@@ -1,14 +1,8 @@
 ---
 import { siteConfig } from "../config/site";
+import { footerNavItems } from "../data/navigation";
 
 const year = new Date().getFullYear();
-const footerNav = [
-  { href: "/", label: "首页" },
-  { href: "/discovery", label: "发现" },
-  { href: "/posts", label: "文章" },
-  { href: "/series", label: "系列" },
-  { href: "/tags", label: "标签" },
-];
 ---
 
 <footer
@@ -43,7 +37,7 @@ const footerNav = [
       <nav aria-label="Footer navigation">
         <h3 class="mb-3 text-xs font-sans font-semibold text-strong">导航</h3>
         <ul class="m-0 flex list-none flex-col p-0">
-          {footerNav.map((item) => (
+          {footerNavItems.map((item) => (
             <li>
               <a
                 href={item.href}

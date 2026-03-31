@@ -43,7 +43,7 @@ const seriesItems = getSeriesMeta(await getSeriesEntries(), allPosts).map(
 
 const homeItems = [...standalonePosts, ...seriesItems]
   .sort((a, b) => b.publishedAt.valueOf() - a.publishedAt.valueOf())
-  .slice(0, 12);
+  .slice(0, siteConfig.home.feed.limit);
 ---
 
 <Layout title="首页" description={siteConfig.site.description}>
@@ -52,13 +52,17 @@ const homeItems = [...standalonePosts, ...seriesItems]
     <HomeFeed
       items={homeItems}
       defaultView="card"
-      title="最新内容"
-      description="最近更新的独立文章与系列内容"
+      title={siteConfig.home.feed.title}
+      description={siteConfig.home.feed.description}
       showViewToggle
     />
     <div class="mt-8 flex justify-center">
-      <Button href="/discovery" variant="secondary" size="lg">
-        浏览全部内容
+      <Button
+        href={siteConfig.home.feed.browseHref}
+        variant="secondary"
+        size="lg"
+      >
+        {siteConfig.home.feed.browseLabel}
         <Icon
           name="material-symbols:arrow-forward-rounded"
           size={18}

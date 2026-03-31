@@ -1,0 +1,21 @@
+/*
+User-owned theme token overrides.
+Loaded after `src/styles/global.css`.
+
+Keep browser chrome colors in `src/site/config.ts` in sync if you change the
+page background substantially.
+*/
+
+/*
+:root {
+  --primary: #2f6fed;
+  --accent: #eaf2ff;
+}
+
+@media not print {
+  [data-theme="dark"] {
+    --primary: #8fb4ff;
+    --accent: #111827;
+  }
+}
+*/

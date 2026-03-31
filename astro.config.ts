@@ -77,9 +77,12 @@ export default defineConfig({
       input: "public/assets/favicon.png",
       name: siteConfig.site.title,
       short_name: siteConfig.site.title,
-      background: "#ffffff",
+      background: siteConfig.theme.browserColor.light,
       appleStatusBarStyle: "black-translucent",
-      themes: ["#ffffff", "#09090b"],
+      themes: [
+        siteConfig.theme.browserColor.light,
+        siteConfig.theme.browserColor.dark,
+      ],
       icons: {
         favicons: true,
         android: true,

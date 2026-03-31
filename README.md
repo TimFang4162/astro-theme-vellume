@@ -130,11 +130,14 @@ pnpm check:biome
 
 The usual starting points are:
 
-1. Edit `src/config/site.ts` to change site title, description, author info, links, and comment settings.
+1. Edit `src/site/config.ts` to change site title, description, author info, links, browser colors, and comment settings.
 2. Rewrite `src/content/about/index.md`.
 3. Replace the sample posts under `src/content/blog`.
-4. Add or remove navigation items in `src/data/navigation.ts`.
+4. Add or remove navigation items in `src/site/navigation.ts`.
 5. Enable Artalk comments if you want discussion and page stats.
+6. Override design tokens in `src/site/theme.css` and reserve `src/site/custom.css` for deliberate one-off CSS overrides.
+
+`src/config/site.ts` remains as the theme's compatibility layer. It merges the theme defaults from `src/config/theme-default.ts` with your user-owned overrides in `src/site/config.ts`.
 
 ## Project Structure
 
@@ -149,16 +152,55 @@ The usual starting points are:
 │   │   ├── about/
 │   │   ├── blog/
 │   │   └── series/
+│   ├── data/
 │   ├── layouts/
 │   ├── lib/
 │   ├── markdown/
 │   ├── pages/
+│   ├── site/
 │   ├── scripts/
 │   └── styles/
 ├── astro.config.ts
 ├── package.json
 └── tsconfig.json
 ```
+
+## User-Owned Entry Points
+
+To keep upstream theme updates easier to merge, treat these paths as your primary customization surface:
+
+- `src/content/**`
+  Your posts, series, and about page content.
+- `src/site/config.ts`
+  Your site identity, links, comments, homepage feed copy, and browser chrome colors.
+- `src/site/navigation.ts`
+  Your header and footer navigation.
+- `src/site/theme.css`
+  Your design-token overrides such as colors, radii, or typography variables.
+- `src/site/custom.css`
+  Your final CSS escape hatch for intentional component-level overrides.
+
+The rest of the theme can stay closer to upstream, which keeps future merges simpler.
+
+## Updating From Upstream
+
+If you keep this repository as your blog project, the cleanest update path is to track the original theme repository as `upstream` and merge it into your branch:
+
+```bash
+git remote add upstream <theme-repository-url>
+git fetch upstream
+git checkout main
+git merge upstream/main
+pnpm install
+pnpm check:astro
+pnpm build
+```
+
+When merge conflicts happen, resolve them with these ownership rules in mind:
+
+- Prefer your edits in `src/content/**` and `src/site/**`.
+- Prefer upstream changes in theme implementation files such as `src/components/**`, `src/layouts/**`, `src/pages/**`, `src/lib/**`, and `src/styles/**`.
+- Keep `src/config/site.ts` as a thin merge layer and `src/data/navigation.ts` as a compatibility re-export so they stay easy to reconcile.
 
 ## Who This Theme Is For
 
@@ -175,16 +217,10 @@ It is less suitable if your main goal is a highly animated landing page or a fee
 
 ## Inspiration
 
-While building Vellume, I also looked at a few Astro themes that handle documentation, packaging, and defaults especially well:
+While building Vellume, I drew significant inspiration from the styles and designs of these Astro themes:
 
 - [astro-theme-pure](https://github.com/cworld1/astro-theme-pure)
 - [AstroPaper](https://github.com/satnaing/astro-paper)
 - [mizuki](https://github.com/matsuzaka-yuki/mizuki)
 
-They all take different approaches, but each of them helped clarify what should be documented clearly and what should already work out of the box.
-
-## Notes
-
-- The default site config still uses placeholder author metadata and links.
-- The repository includes sample articles intended to demonstrate the theme's capabilities.
-- The build output is fully static.
+Each takes a different approach, but their design choices and visual presentation influenced Vellume's direction in meaningful ways.

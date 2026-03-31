@@ -9,10 +9,11 @@ It combines warm paper-toned colors, serif-led typography, and restrained motion
 
 ## Start Here
 
-- Update `src/config/site.ts` with your site title, description, author details, and external links.
+- Update `src/site/config.ts` with your site title, description, author details, external links, and browser theme colors.
 - Replace this page with your own introduction, profile, and contact information.
 - Add posts under `src/content/blog`.
-- Adjust navigation and footer links to match your own site structure.
+- Adjust navigation and footer links in `src/site/navigation.ts`.
+- Override design tokens in `src/site/theme.css` if you want to change the visual tone.
 
 ## Included Features
 
@@ -26,4 +27,4 @@ It combines warm paper-toned colors, serif-led typography, and restrained motion
 
 The theme includes an Artalk comment component, but it is disabled by default.
 
-If you want to enable it, set `siteConfig.comments.enabled` to `true` and provide your own `server` and `site` values in `src/config/site.ts`.
+If you want to enable it, set `comments.enabled` to `true` and provide your own `server` and `site` values in `src/site/config.ts`.

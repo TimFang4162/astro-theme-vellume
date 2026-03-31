@@ -13,6 +13,8 @@ import Footer from "./Footer.astro";
 import Header from "./Header.astro";
 import "medium-zoom/dist/style.css";
 import "../styles/global.css";
+import "../site/theme.css";
+import "../site/custom.css";
 
 interface ArticleMeta {
   publishedTime?: string;
@@ -89,12 +91,12 @@ const seoProps = {
     <meta name="generator" content={Astro.generator}>
     <meta
       name="theme-color"
-      content="#ffffff"
+      content={siteConfig.theme.browserColor.light}
       media="(prefers-color-scheme: light)"
     >
     <meta
       name="theme-color"
-      content="#09090b"
+      content={siteConfig.theme.browserColor.dark}
       media="(prefers-color-scheme: dark)"
     >
     <link rel="alternate" type="application/rss+xml" href="/rss.xml">
