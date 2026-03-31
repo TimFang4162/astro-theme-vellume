@@ -1,7 +1,18 @@
 import { siteOverride } from "../site/config";
-import { createSiteConfig } from "./theme-default";
+import { createSiteConfig, mergeSiteConfig } from "./theme-default";
+import type { SiteConfigInput } from "./theme-default";
 
-export const siteConfig = createSiteConfig(siteOverride);
+function loadEnvOverrides(): SiteConfigInput {
+	const raw = import.meta.env.SITE_CONFIG_OVERRIDES;
+	if (!raw || typeof raw !== "string") return {};
+	try {
+		return JSON.parse(raw) as SiteConfigInput;
+	} catch {
+		return {};
+	}
+}
+
+export const siteConfig = mergeSiteConfig({ ...siteOverride, ...loadEnvOverrides() });
 
 export const siteUrl = new URL(siteConfig.site.url);
 export const siteHost = siteUrl.host;

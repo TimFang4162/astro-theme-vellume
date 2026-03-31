@@ -13,6 +13,8 @@ export interface SiteConfig {
     description: string;
     lang: string;
     locale: string;
+    attribution: string;
+    commitHash: string;
   };
   author: {
     name: string;
@@ -88,6 +90,9 @@ export const defineSiteConfig = <T extends SiteConfigInput>(config: T): T =>
 export const createSiteConfig = (override: SiteConfigInput = {}): SiteConfig =>
   mergeConfigObject(themeDefaultConfig, override) as SiteConfig;
 
+export const mergeSiteConfig = (override: SiteConfigInput): SiteConfig =>
+  mergeConfigObject(createSiteConfig(), override) as SiteConfig;
+
 export const themeDefaultConfig: SiteConfig = {
   site: {
     url: "https://example.com",
@@ -96,6 +101,9 @@ export const themeDefaultConfig: SiteConfig = {
       "An Astro theme for blogs, notes, and long-form writing, with mixed post and series feeds, discovery pages, and reading-focused article layouts.",
     lang: "zh-CN",
     locale: "zh_CN",
+    attribution:
+      'Powered by <a href="https://astro.build" target="_blank" rel="noopener noreferrer" class="text-muted-foreground transition-colors hover:text-primary">Astro</a>',
+    commitHash: "",
   },
   author: {
     name: "Your Name",

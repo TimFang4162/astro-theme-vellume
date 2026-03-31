@@ -40,6 +40,9 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - run: pnpm build
+        env:
+          SITE_CONFIG_OVERRIDES: >-
+            {"comments":{"enabled":true,"server":"${{ secrets.ARTALK_SERVER }}","site":"${{ secrets.ARTALK_SITE }}"},"site":{"commitHash":"${{ github.sha }}"}}
 
       - name: deploy
         uses: peaceiris/actions-gh-pages@v4
