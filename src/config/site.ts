@@ -3,15 +3,15 @@ export const siteConfig = {
     url: "https://example.com",
     title: "Vellume",
     description:
-      "An editorial Astro theme for personal writing, technical notes, and long-form posts.",
+      "An Astro theme for blogs, notes, and long-form writing, with mixed post and series feeds, discovery pages, and reading-focused article layouts.",
     lang: "zh-CN",
     locale: "zh_CN",
   },
   author: {
     name: "Your Name",
     introTitle: "Hi there.",
-    bio: "Vellume is designed for personal writing, technical notes, and long-form posts, with warm typography and a calm editorial layout.",
-    tagline: "A quiet place for thoughtful publishing.",
+    bio: "Vellume is a writing-focused Astro theme for blogs, notes, and essays, with warm typography, structured discovery, and article pages designed for longer reading.",
+    tagline: "A calm structure for writing that lasts.",
     copyrightName: "Your Name",
     avatar: {
       src: "/assets/avatar.png",
