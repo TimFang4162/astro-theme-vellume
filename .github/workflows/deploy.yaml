@@ -44,7 +44,7 @@ jobs:
       - name: deploy
         uses: peaceiris/actions-gh-pages@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
           publish_dir: ./dist
           external_repository: TimFang4162/timfang4162.github.io
           force_orphan: true
