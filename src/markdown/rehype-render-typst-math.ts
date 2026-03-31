@@ -1,7 +1,7 @@
 import type { Element, Root } from "hast";
 import { toString as getNodeText } from "hast-util-to-string";
 import { visit } from "unist-util-visit";
-import { withBasePathUsing } from "../utils/paths";
+import { withBasePathUsing } from "../utils/base-path-core.mjs";
 import { createMathAssetName } from "./math-assets";
 import { createElement } from "./utils";
 

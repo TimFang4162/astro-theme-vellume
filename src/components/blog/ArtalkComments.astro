@@ -38,7 +38,7 @@ import type { ArtalkConfig } from "artalk";
 import Artalk from "artalk";
 import { runOnPageLoad } from "../../scripts/ui/page-load";
 
-let cleanup: (() => void) | undefined;
+let cleanupAll: (() => void) | undefined;
 
 type PageVoteState = {
   pageId: number;
@@ -105,16 +105,11 @@ const syncPageVoteUi = (
   downBtn.toggleAttribute("aria-pressed", storedVote === "down");
 };
 
-const initArtalkComments = () => {
-  cleanup?.();
-
-  const host = document.querySelector<HTMLElement>("[data-artalk-comments]");
-  const root = host?.querySelector<HTMLElement>("[data-artalk-root]");
-
-  if (!host || !root) {
-    return;
+const initArtalkCommentsHost = (host: HTMLElement) => {
+  const root = host.querySelector<HTMLElement>("[data-artalk-root]");
+  if (!root) {
+    return undefined;
   }
-
   root.replaceChildren();
 
   const pageKey = host.dataset.pageKey ?? window.location.pathname;
@@ -124,7 +119,7 @@ const initArtalkComments = () => {
     pageTitle: host.dataset.pageTitle ?? document.title,
     server: host.dataset.server ?? "",
     site: host.dataset.site ?? "",
-    pvEl: ".artalk-pv-count",
+    pvEl: `.artalk-pv-count[data-page-key="${CSS.escape(pageKey)}"]`,
     statPageKeyAttr: "data-page-key",
   } satisfies Partial<ArtalkConfig>;
 
@@ -198,18 +193,34 @@ const initArtalkComments = () => {
     attributeFilter: ["data-theme"],
   });
 
-  cleanup = () => {
+  return () => {
     observer.disconnect();
     upBtn?.removeEventListener("click", onVoteUpClick);
     downBtn?.removeEventListener("click", onVoteDownClick);
     artalk.destroy();
-    cleanup = undefined;
+  };
+};
+
+const initArtalkComments = () => {
+  cleanupAll?.();
+
+  const cleanups = Array.from(
+    document.querySelectorAll<HTMLElement>("[data-artalk-comments]"),
+  )
+    .map((host) => initArtalkCommentsHost(host))
+    .filter((cleanup): cleanup is () => void => Boolean(cleanup));
+
+  cleanupAll = () => {
+    cleanups.forEach((cleanup) => {
+      cleanup();
+    });
+    cleanupAll = undefined;
   };
 };
 
 runOnPageLoad("blog:artalk-comments", initArtalkComments);
 document.addEventListener("astro:before-swap", () => {
-  cleanup?.();
+  cleanupAll?.();
 });
 </script>
 

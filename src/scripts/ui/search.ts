@@ -43,6 +43,7 @@ export function initSearch() {
   currentController = controller;
   let previousFocusedElement: HTMLElement | null = null;
   let previousBodyOverflow = "";
+  let searchRequestId = 0;
 
   let pf: PagefindAPI | null = null;
 
@@ -100,7 +101,11 @@ export function initSearch() {
     resultsEl.appendChild(hint);
   }
 
-  async function renderResults(search: PagefindSearch) {
+  async function renderResults(
+    search: PagefindSearch,
+    requestId: number,
+    expectedQuery: string,
+  ) {
     if (!resultsEl || !search) return;
     resultsEl.textContent = "";
 
@@ -129,13 +134,20 @@ export function initSearch() {
 
     const dataArr = await Promise.all(items.map((r) => r.data()));
 
+    if (
+      requestId !== searchRequestId ||
+      input?.value.trim() !== expectedQuery
+    ) {
+      return;
+    }
+
     for (let idx = 0; idx < dataArr.length; idx++) {
       const data = dataArr[idx];
       const a = anchors[idx];
       a.href = data.url;
       const titleDiv = a.querySelector<HTMLElement>(".search-result-title");
       if (!titleDiv) continue;
-      titleDiv.innerHTML = data.meta?.title ?? data.url;
+      titleDiv.textContent = data.meta?.title ?? data.url;
       if (data.excerpt) {
         const excerptDiv = document.createElement("div");
         excerptDiv.className = "search-result-excerpt";
@@ -149,13 +161,22 @@ export function initSearch() {
   async function onInput() {
     const query = input?.value.trim();
     if (!query) {
+      searchRequestId += 1;
       resetResults();
       return;
     }
 
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(async () => {
+      const requestId = ++searchRequestId;
+      const expectedQuery = query;
       const instance = await loadPagefind();
+      if (
+        requestId !== searchRequestId ||
+        input?.value.trim() !== expectedQuery
+      ) {
+        return;
+      }
       if (!instance) {
         if (resultsEl) {
           resultsEl.textContent = "";
@@ -166,8 +187,14 @@ export function initSearch() {
         }
         return;
       }
-      const results = await instance.search(query);
-      renderResults(results);
+      const results = await instance.search(expectedQuery);
+      if (
+        requestId !== searchRequestId ||
+        input?.value.trim() !== expectedQuery
+      ) {
+        return;
+      }
+      renderResults(results, requestId, expectedQuery);
     }, 200);
   }
 

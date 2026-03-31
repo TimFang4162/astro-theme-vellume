@@ -1,7 +1,7 @@
 import type { Code, Html, Root } from "mdast";
 import type { Parent } from "unist";
 import { visitParents } from "unist-util-visit-parents";
-import { withBasePathUsing } from "../utils/paths";
+import { withBasePathUsing } from "../utils/base-path-core.mjs";
 import { createDiagramAssetName } from "./diagram-assets";
 import { escapeHtml } from "./utils";
 
