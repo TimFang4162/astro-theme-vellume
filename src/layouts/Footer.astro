@@ -21,16 +21,18 @@ const year = new Date().getFullYear();
         </div>
         <div class="text-sm leading-relaxed text-muted-foreground">
           <p>&copy; {year} {siteConfig.author.copyrightName}</p>
-          <p>
-            Powered by<a
-              href="https://astro.build"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-muted-foreground transition-colors hover:text-primary"
-            >
-              Astro
-            </a>
-          </p>
+          {siteConfig.links.repository && (
+            <p>
+              源码托管于<a
+                href={siteConfig.links.repository}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-muted-foreground transition-colors hover:text-primary"
+              >
+                GitHub
+              </a>
+            </p>
+          )}
         </div>
       </div>
 
@@ -53,24 +55,20 @@ const year = new Date().getFullYear();
       <div>
         <h3 class="mb-3 text-xs font-sans font-semibold text-strong">链接</h3>
         <ul class="m-0 flex list-none flex-col p-0">
-          {siteConfig.links.repository && (
-            <li>
-              <a
-                href={siteConfig.links.repository}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="text-sm text-muted-foreground transition-colors hover:text-primary"
-              >
-                GitHub 仓库
-              </a>
-            </li>
-          )}
           <li>
             <a
               href={siteConfig.links.rss}
               class="text-sm text-muted-foreground transition-colors hover:text-primary"
             >
               RSS
+            </a>
+          </li>
+          <li>
+            <a
+              href="/sitemap-index.xml"
+              class="text-sm text-muted-foreground transition-colors hover:text-primary"
+            >
+              Sitemap
             </a>
           </li>
         </ul>
