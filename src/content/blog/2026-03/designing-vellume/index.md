@@ -2,9 +2,9 @@
 title: "Vellume 的设计笔记：为什么它不像常见博客模板"
 slug: "designing-vellume"
 description: "记录这个主题在排版、信息架构、动效和内容渲染上的主要设计取舍，以及它为什么更接近在线文集而不是普通博客模板。"
-publishedAt: 2026-03-31
+publishedAt: 2026-03-28
 tags: ["Astro", "主题", "设计", "排版", "阅读体验", "编辑风格"]
-series: "theme-tour"
+# series: "theme-tour"
 visibility: "public"
 ---
 
