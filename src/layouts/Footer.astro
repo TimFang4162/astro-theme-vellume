@@ -21,18 +21,28 @@ const year = new Date().getFullYear();
         </div>
         <div class="text-sm leading-relaxed text-muted-foreground">
           <p>&copy; {year} {siteConfig.author.copyrightName}</p>
-          {siteConfig.links.repository && (
-            <p>
-              源码托管于<a
-                href={siteConfig.links.repository}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="text-muted-foreground transition-colors hover:text-primary"
-              >
-                GitHub
-              </a>
-            </p>
-          )}
+          <p>
+            Powered by<a
+              href="https://astro.build"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-muted-foreground transition-colors hover:text-primary"
+            >
+              Astro
+            </a>
+            {siteConfig.links.repository && (
+              <>
+                {" "}&amp; Theme<a
+                  href={siteConfig.links.repository}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-muted-foreground transition-colors hover:text-primary"
+                >
+                  Vellume
+                </a>
+              </>
+            )}
+          </p>
         </div>
       </div>
 
