@@ -20,13 +20,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22.12.0
+      - uses: actions/setup-node@v6.3.0
 
       - uses: oven-sh/setup-bun@v2.2.0
-        with:
-          bun-version: 1.3.11
 
       - name: install typst
         run: |
