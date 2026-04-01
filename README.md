@@ -97,8 +97,7 @@ The main difference is that diagrams and math are compiled at build time instead
 
 ## Requirements
 
-- Node.js `>= 22.12.0`
-- `pnpm`
+- Bun `>= 1.3.11`
 
 For the advanced sample content included in this repository, you should also have these commands available in `PATH`:
 
@@ -112,8 +111,8 @@ They are used to compile math and diagram assets during the build. If you remove
 ```bash
 git clone git@github.com:TimFang4162/astro-theme-vellume.git
 cd astro-theme-vellume
-pnpm install
-pnpm dev
+bun install
+bun run dev
 ```
 
 Open `http://localhost:4321`.
@@ -121,16 +120,16 @@ Open `http://localhost:4321`.
 ## Useful Commands
 
 ```bash
-pnpm dev
-pnpm build
-pnpm preview
-pnpm generate:favicons
-pnpm check:astro
-pnpm check:biome
-pnpm fix:biome
+bun run dev
+bun run build
+bun run preview
+bun run generate:favicons
+bun run check:astro
+bun run check:biome
+bun run fix:biome
 ```
 
-`pnpm generate:favicons` will rebuild the files under `public/favicons` from `public/assets/favicon.png` using the shared site metadata in `src/site/metadata.mjs`.
+`bun run generate:favicons` will rebuild the files under `public/favicons` from `public/assets/favicon.png` using the shared site metadata in `src/site/metadata.mjs`.
 
 ## Customize The Site
 
@@ -197,9 +196,9 @@ git remote add upstream <theme-repository-url>
 git fetch upstream
 git checkout main
 git merge upstream/main
-pnpm install
-pnpm check:astro
-pnpm build
+bun install
+bun run check:astro
+bun run build
 ```
 
 When merge conflicts happen, resolve them with these ownership rules in mind:
