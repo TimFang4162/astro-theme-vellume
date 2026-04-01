@@ -15,9 +15,7 @@ import Button from "../ui/Button.astro";
   <div class="search-dialog surface-card" tabindex="-1">
     <div class="search-input-wrapper">
       <Icon name="material-symbols:search-rounded" class="search-input-icon" />
-      <label class="search-input-label" for="search-modal-input"
-        >搜索内容</label
-      >
+      <label class="sr-only" for="search-modal-input">搜索内容</label>
       <input
         id="search-modal-input"
         type="text"
@@ -89,18 +87,6 @@ import Button from "../ui/Button.astro";
   flex-shrink: 0;
   font-size: 1.125rem;
   color: var(--muted-foreground);
-}
-
-#search-modal .search-input-label {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
 }
 
 #search-modal .search-input {

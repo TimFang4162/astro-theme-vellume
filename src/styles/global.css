@@ -216,19 +216,6 @@
     color: var(--foreground-strong);
   }
 
-  .site-mark {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--border);
-    border-radius: 9999px;
-    background: var(--accent);
-    color: var(--primary);
-    font-family: var(--font-serif);
-    font-size: 0.875rem;
-    font-weight: 700;
-  }
-
   .page-title {
     @apply text-4xl font-sans font-bold md:text-5xl;
   }
@@ -349,16 +336,6 @@
     opacity: 0.92;
   }
 
-  .inline-link {
-    @apply text-sm font-semibold;
-
-    color: var(--primary);
-  }
-
-  .inline-link:hover {
-    color: color-mix(in srgb, var(--primary) 82%, transparent);
-  }
-
   .drawer-nav-link {
     display: flex;
     align-items: center;
@@ -436,7 +413,7 @@
     display: flex;
     gap: 0.75rem;
     border-radius: 1rem;
-    padding: 0.625rem 0.75rem;
+    padding: 0.5rem 0.75rem;
     font-size: 0.875rem;
     transition:
       color 0.2s ease,
@@ -816,30 +793,10 @@
     background-color: transparent !important;
   }
 
-  [data-theme="light"] code-block {
-    background: var(--code-block-surface);
-    border-color: var(--code-block-border);
-  }
-
-  [data-theme="light"] .code-block__header {
-    background-color: transparent !important;
-    border-bottom-color: var(--code-block-header-border);
-  }
-
   @media not print {
     [data-theme="dark"] .astro-code {
       background-color: transparent !important;
       color: var(--shiki-dark) !important;
-    }
-
-    [data-theme="dark"] code-block {
-      background: var(--code-block-surface);
-      border-color: var(--code-block-border);
-    }
-
-    [data-theme="dark"] .code-block__header {
-      background-color: transparent !important;
-      border-bottom-color: var(--code-block-header-border);
     }
 
     [data-theme="dark"] .code-block--diagram .code-block__diagram {
