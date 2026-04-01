@@ -867,6 +867,7 @@
     }
 
     .code-block__header {
+      break-after: avoid;
       background-color: transparent !important;
       border-bottom-color: var(--code-block-header-border);
     }
@@ -885,7 +886,7 @@
     }
 
     code-block {
-      break-inside: avoid;
+      /* break-inside: avoid; */
       box-shadow: none;
     }
 
