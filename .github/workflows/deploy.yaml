@@ -22,7 +22,7 @@ jobs:
 
       - uses: actions/setup-node@v6.3.0
         with:
-          node-version: >=22.12.0
+          node-version: 24
 
       - uses: oven-sh/setup-bun@v2.2.0
 
