@@ -531,6 +531,20 @@
     font-size: 0.875rem;
   }
 
+  .rich-prose
+    :where(blockquote p:first-of-type):not(
+      :where([class~="not-prose"], [class~="not-prose"] *)
+    )::before {
+    content: none;
+  }
+
+  .rich-prose
+    :where(blockquote p:last-of-type):not(
+      :where([class~="not-prose"], [class~="not-prose"] *)
+    )::after {
+    content: none;
+  }
+
   .rich-prose :where(figure.article-image) {
     margin: 1rem 0;
   }
