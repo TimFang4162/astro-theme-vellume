@@ -8,6 +8,7 @@ import remarkMath from "remark-math";
 import { siteUrl } from "./src/config/site";
 import { MARKDOWN_PIPELINE_VERSION } from "./src/markdown/pipeline-version";
 import { rehypeHierarchicalHeadingIds } from "./src/markdown/rehype-heading-ids";
+import { rehypeImageCaptions } from "./src/markdown/rehype-image-captions";
 import { rehypeRenderTypstMath } from "./src/markdown/rehype-render-typst-math";
 import { remarkReadingTime } from "./src/markdown/remark-reading-time";
 import { remarkRenderDiagrams } from "./src/markdown/remark-render-diagrams";
@@ -43,6 +44,7 @@ export default defineConfig({
       remarkBreaks,
     ],
     rehypePlugins: [
+      rehypeImageCaptions,
       [
         rehypeRenderTypstMath,
         { version: MARKDOWN_PIPELINE_VERSION, basePath: siteBase },
