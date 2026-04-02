@@ -87,7 +87,7 @@ Blockquotes are useful for quoted passages, references, or side remarks.
 
 This is a local article image:
 
-![](./imgs/showcase-figure.svg)
+![Caption](./imgs/showcase-figure.svg)
 
 ## Other Elements: `abbr`, `sub`, `sup`, `kbd`, `mark`
 

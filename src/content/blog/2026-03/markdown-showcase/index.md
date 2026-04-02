@@ -55,15 +55,15 @@ Itatur? Quiatae cullecum rem ent aut odis in re eossequodi nonsequ idebis ne sap
 
 ## 表格
 
-| 姓名 | 年龄 |
-| ----- | --- |
-| Bob | 27 |
-| Alice | 23 |
+| 姓名  | 年龄 |
+| ----- | ---- |
+| Bob   | 27   |
+| Alice | 23   |
 
 ### 表格内的内联 Markdown
 
-| 斜体 | 粗体 | 代码 |
-| ---- | ------ | ---- |
+| 斜体         | 粗体         | 代码       |
+| ------------ | ------------ | ---------- |
 | _斜体Italic_ | **粗体Bold** | `代码C0de` |
 
 ## 列表
@@ -86,7 +86,8 @@ Itatur? Quiatae cullecum rem ent aut odis in re eossequodi nonsequ idebis ne sap
 ## 图片
 
 这是一张图片
-![](imgs/8791b97590388bca3e739f51a479b67a.jpg)
+
+![这是一张图片](imgs/8791b97590388bca3e739f51a479b67a.jpg)
 
 ## 其他元素 — abbr、sub、sup、kbd、mark
 
