@@ -1,0 +1,25 @@
+# rumdl configuration file
+
+[global]
+exclude = [".git", ".github", "node_modules", "vendor", "dist", "build"]
+respect-gitignore = true
+
+# Disable rules that are noisy for this project:
+# MD013 - line length (Chinese content and URLs routinely exceed 80 chars)
+# MD036 - emphasis as heading (used intentionally in demo posts)
+# MD041 - first line should be a heading (frontmatter comes first in Astro content)
+disable = ["MD013", "MD036", "MD041"]
+
+# Allow inline HTML in showcase demo posts
+[per-file-ignores]
+"src/content/blog/**/markdown-showcase*/**" = ["MD025", "MD033"]
+
+[MD004]
+style = "dash"
+
+[MD007]
+indent = 2
+
+[MD025]
+level = 1
+front-matter-title = "title"

@@ -8,7 +8,7 @@ That gives the theme a calmer, more editorial shape. It is meant for sites that 
 
 ![Vellume preview](./.github/social-preview.png)
 
-Demo: https://timfang4162.github.io/astro-theme-vellume/
+Demo: <https://timfang4162.github.io/astro-theme-vellume/>
 
 ## Why Vellume
 

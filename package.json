@@ -16,7 +16,9 @@
     "astro": "astro",
     "check:astro": "astro check",
     "check:biome": "biome check .",
-    "fix:biome": "biome check --write ."
+    "check:markdown": "rumdl check .",
+    "fix:biome": "biome check --write .",
+    "fix:markdown": "rumdl fmt ."
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.17",

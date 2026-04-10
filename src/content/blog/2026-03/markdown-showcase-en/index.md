@@ -10,13 +10,13 @@ visibility: "public"
 
 This article demonstrates the core Markdown features supported by the theme, including code highlighting, Typst-powered math rendering, Mermaid diagrams, and common content elements used in long-form writing.
 
-# Markdown
+## Markdown
 
 ## Headings
 
 The HTML `<h1>` through `<h6>` elements represent six levels of section headings. `<h1>` is the highest level, while `<h6>` is the lowest.
 
-# Heading 1
+## Heading 1
 
 ## Heading 2
 
@@ -49,6 +49,7 @@ Blockquotes are useful for quoted passages, references, or side remarks.
 **Blockquote with citation**
 
 > Don't communicate by sharing memory, share memory by communicating.
+>
 > - Rob Pike[^cite1]
 
 [^cite1]: This quote is commonly attributed to Rob Pike and was mentioned during Gopherfest on November 18, 2015.
@@ -176,7 +177,7 @@ func main() {
 
 ---
 
-# Signature Features
+## Signature Features
 
 ## Typst Math
 
