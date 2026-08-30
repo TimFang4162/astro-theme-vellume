@@ -3,18 +3,20 @@ import {
   extractMathAssets,
   type MathAsset,
 } from "../../../markdown/math-assets";
+import { resolveAssetVersion } from "../../../markdown/pipeline-version";
 import {
   compileTypstMath,
   createCompileErrorSvg,
 } from "../../../markdown/renderers";
 
 export async function getStaticPaths() {
+  const version = await resolveAssetVersion();
   const entries = await getContentEntries();
 
   const mathAssets = new Map<string, MathAsset>();
 
   for (const entry of entries) {
-    for (const mathAsset of extractMathAssets(entry.body ?? "")) {
+    for (const mathAsset of extractMathAssets(entry.body ?? "", version)) {
       mathAssets.set(mathAsset.asset, mathAsset);
     }
   }

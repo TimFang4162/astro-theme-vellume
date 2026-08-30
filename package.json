@@ -17,6 +17,8 @@
     "check:astro": "astro check",
     "check:biome": "biome check .",
     "check:markdown": "rumdl check .",
+    "check": "bun run check:astro && bun run check:biome && bun run check:markdown",
+    "test": "vitest run",
     "fix:biome": "biome check --write .",
     "fix:markdown": "rumdl fmt ."
   },
@@ -59,6 +61,7 @@
     "shiki": "^4.0.2",
     "typescript": "^5.9.3",
     "unist-util-visit": "^5.1.0",
-    "unist-util-visit-parents": "^6.0.2"
+    "unist-util-visit-parents": "^6.0.2",
+    "vitest": "^4.1.11"
   }
 }

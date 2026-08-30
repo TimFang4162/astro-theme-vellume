@@ -3,6 +3,12 @@ import { toString as getNodeText } from "hast-util-to-string";
 import { visit } from "unist-util-visit";
 import { withBasePathUsing } from "../utils/base-path-core.mjs";
 import { createMathAssetName } from "./math-assets";
+import { resolveAssetVersion } from "./pipeline-version";
+import {
+  compileTypstMath,
+  readSvgIntrinsicSize,
+  type SvgIntrinsicSize,
+} from "./renderers";
 import { createElement } from "./utils";
 
 function hasClass(node: Element, className: string) {
@@ -20,6 +26,7 @@ function createMathNode(
   displayMode: boolean,
   version?: string,
   basePath = process.env.SITE_BASE || "/",
+  size?: SvgIntrinsicSize,
 ) {
   const wrapperTag = displayMode ? "div" : "span";
   const className = displayMode ? "math-block" : "math-inline";
@@ -38,6 +45,7 @@ function createMathNode(
         alt: source,
         loading: "lazy",
         decoding: "async",
+        ...(size ? { width: size.width, height: size.height } : {}),
       }),
     ],
   );
@@ -59,12 +67,27 @@ function getMathSource(node: Element, displayMode: boolean) {
   return codeNode ? getNodeText(codeNode).trim() : "";
 }
 
+async function loadMathSize(
+  source: string,
+  displayMode: boolean,
+): Promise<SvgIntrinsicSize | undefined> {
+  try {
+    const svg = await compileTypstMath(source, displayMode);
+    return readSvgIntrinsicSize(svg);
+  } catch {
+    // The asset endpoint renders a compile-error SVG in this case; the img
+    // is emitted without dimensions so the page still builds.
+    return undefined;
+  }
+}
+
 export function rehypeRenderTypstMath(
   options: { version?: string; basePath?: string } = {},
 ) {
   const basePath = options.basePath ?? process.env.SITE_BASE ?? "/";
 
-  return (tree: Root) => {
+  return async (tree: Root) => {
+    const version = options.version ?? (await resolveAssetVersion());
     const jobs: Array<{
       displayMode: boolean;
       source: string;
@@ -118,11 +141,14 @@ export function rehypeRenderTypstMath(
     });
 
     for (const job of jobs) {
+      const size = await loadMathSize(job.source, job.displayMode);
+
       job.parent.children[job.index] = createMathNode(
         job.source,
         job.displayMode,
-        options.version,
+        version,
         basePath,
+        size,
       );
     }
   };

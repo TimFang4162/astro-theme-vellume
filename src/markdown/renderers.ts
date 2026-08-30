@@ -1,5 +1,10 @@
-import { spawn } from "node:child_process";
 import path from "node:path";
+import {
+  readRenderCache,
+  renderCacheKey,
+  writeRenderCache,
+} from "./render-cache";
+import { runCommand } from "./run-command";
 import { escapeXml, stripXmlPreamble } from "./utils";
 
 const typstCache = new Map<string, string>();
@@ -10,54 +15,93 @@ const mermaidConfigPath = path.resolve(
   "src/markdown/mermaid.config.json",
 );
 
-function runCommand(
-  command: string,
-  args: string[],
-  input: string,
-  timeoutMs = 30_000,
+export interface SvgIntrinsicSize {
+  width: number;
+  height: number;
+}
+
+function parseSvgLength(value: string): number | undefined {
+  const trimmed = value.trim();
+
+  if (!trimmed || trimmed.endsWith("%")) {
+    return undefined;
+  }
+
+  const amount = Number.parseFloat(trimmed);
+
+  if (!Number.isFinite(amount)) {
+    return undefined;
+  }
+
+  // SVG pt units map to CSS px at 96/72.
+  return trimmed.endsWith("pt") ? amount * (96 / 72) : amount;
+}
+
+function readSvgTagAttribute(svgTag: string, name: string) {
+  return new RegExp(`\\b${name}="([^"]*)"`).exec(svgTag)?.[1];
+}
+
+/**
+ * Best-effort intrinsic pixel size of a compiled SVG, used to pre-size
+ * `<img>` elements and avoid layout shift while assets load.
+ */
+export function readSvgIntrinsicSize(
+  svg: string,
+): SvgIntrinsicSize | undefined {
+  const svgTag = /<svg\b[^>]*>/.exec(svg)?.[0];
+
+  if (!svgTag) {
+    return undefined;
+  }
+
+  const round = (value: number) => Math.round(value * 100) / 100;
+  const width = parseSvgLength(readSvgTagAttribute(svgTag, "width") ?? "");
+  const height = parseSvgLength(readSvgTagAttribute(svgTag, "height") ?? "");
+
+  if (width && height && width > 0 && height > 0) {
+    return { width: round(width), height: round(height) };
+  }
+
+  const viewBoxNumbers = readSvgTagAttribute(svgTag, "viewBox")
+    ?.match(/-?[\d.]+/g)
+    ?.map(Number);
+
+  if (viewBoxNumbers?.length === 4) {
+    const [, , viewBoxWidth, viewBoxHeight] = viewBoxNumbers;
+
+    if (viewBoxWidth > 0 && viewBoxHeight > 0) {
+      return { width: round(viewBoxWidth), height: round(viewBoxHeight) };
+    }
+  }
+
+  return undefined;
+}
+
+async function compileWithCache(
+  kind: string,
+  cacheInput: string,
+  memoryKey: string,
+  memoryCache: Map<string, string>,
+  compile: () => Promise<string>,
 ) {
-  return new Promise<{ stdout: string; stderr: string }>((resolve, reject) => {
-    const child = spawn(command, args, {
-      stdio: ["pipe", "pipe", "pipe"],
-    });
+  const cached = memoryCache.get(memoryKey);
 
-    let stdout = "";
-    let stderr = "";
-    const timeout = setTimeout(() => {
-      child.kill("SIGKILL");
-      reject(new Error(`${command} timed out after ${timeoutMs}ms`));
-    }, timeoutMs);
+  if (cached) {
+    return cached;
+  }
 
-    child.stdout.on("data", (chunk) => {
-      stdout += chunk.toString();
-    });
+  const diskKey = await renderCacheKey(kind, cacheInput);
+  const diskCached = await readRenderCache(diskKey);
 
-    child.stderr.on("data", (chunk) => {
-      stderr += chunk.toString();
-    });
+  if (diskCached) {
+    memoryCache.set(memoryKey, diskCached);
+    return diskCached;
+  }
 
-    child.on("error", (error) => {
-      clearTimeout(timeout);
-      reject(error);
-    });
-
-    child.on("close", (code) => {
-      clearTimeout(timeout);
-
-      if (code === 0) {
-        resolve({ stdout, stderr });
-        return;
-      }
-
-      reject(
-        new Error(
-          `${command} exited with code ${code}${stderr ? `: ${stderr.trim()}` : ""}`,
-        ),
-      );
-    });
-
-    child.stdin.end(input);
-  });
+  const svg = await compile();
+  memoryCache.set(memoryKey, svg);
+  await writeRenderCache(diskKey, svg);
+  return svg;
 }
 
 export function createCompileErrorSvg(title: string, detail: string) {
@@ -92,66 +136,59 @@ export function createCompileErrorSvg(title: string, detail: string) {
 }
 
 export async function compileTypst(code: string) {
-  const cacheKey = `typst:${code}`;
-  const cached = typstCache.get(cacheKey);
-
-  if (cached) {
-    return cached;
-  }
-
   const typstPreamble = [
     "#set page(width: 720pt, height: auto, margin: 8pt, fill: white)",
     "#set text(size: 14pt)",
   ].join("\n");
-  const { stdout } = await runCommand(
+
+  return compileWithCache(
     "typst",
-    ["compile", "--features", "html", "--format", "svg", "-", "-"],
-    `${typstPreamble}\n${code}`,
+    code,
+    `typst:${code}`,
+    typstCache,
+    async () => {
+      const { stdout } = await runCommand(
+        "typst",
+        ["compile", "--features", "html", "--format", "svg", "-", "-"],
+        `${typstPreamble}\n${code}`,
+      );
+      return stripXmlPreamble(stdout);
+    },
   );
-  const svg = stripXmlPreamble(stdout);
-  typstCache.set(cacheKey, svg);
-  return svg;
 }
 
 export async function compileTypstMath(
   expression: string,
   displayMode: boolean,
 ) {
-  const cacheKey = `math:${displayMode ? "block" : "inline"}:${expression}`;
-  const cached = typstCache.get(cacheKey);
-
-  if (cached) {
-    return cached;
-  }
-
   const typstPreamble = [
     "#set page(fill: none, width: auto, height: auto, margin: 8pt)",
     "#set text(size: 14pt)",
   ].join("\n");
-  const { stdout } = await runCommand(
-    "typst",
-    ["compile", "--features", "html", "--format", "svg", "-", "-"],
-    `${typstPreamble}\n$${expression}$`,
+
+  return compileWithCache(
+    "typst-math",
+    `${displayMode ? "block" : "inline"}:${expression}`,
+    `math:${displayMode ? "block" : "inline"}:${expression}`,
+    typstCache,
+    async () => {
+      const { stdout } = await runCommand(
+        "typst",
+        ["compile", "--features", "html", "--format", "svg", "-", "-"],
+        `${typstPreamble}\n$${expression}$`,
+      );
+      return stripXmlPreamble(stdout);
+    },
   );
-  const svg = stripXmlPreamble(stdout);
-  typstCache.set(cacheKey, svg);
-  return svg;
 }
 
 export async function compileMermaid(code: string) {
-  const cacheKey = code;
-  const cached = mermaidCache.get(cacheKey);
-
-  if (cached) {
-    return cached;
-  }
-
-  const { stdout } = await runCommand(
-    "mmdr",
-    ["-e", "svg", "-c", mermaidConfigPath],
-    code,
-  );
-  const svg = stripXmlPreamble(stdout);
-  mermaidCache.set(cacheKey, svg);
-  return svg;
+  return compileWithCache("mermaid", code, code, mermaidCache, async () => {
+    const { stdout } = await runCommand(
+      "mmdr",
+      ["-e", "svg", "-c", mermaidConfigPath],
+      code,
+    );
+    return stripXmlPreamble(stdout);
+  });
 }

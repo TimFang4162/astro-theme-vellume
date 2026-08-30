@@ -30,7 +30,10 @@ export function createDiagramAssetName(
   return `${hash}`;
 }
 
-export function extractDiagramAssets(markdown: string) {
+export function extractDiagramAssets(
+  markdown: string,
+  version = MARKDOWN_PIPELINE_VERSION,
+) {
   const assets = new Map<string, DiagramAsset>();
 
   for (const match of markdown.matchAll(DIAGRAM_FENCE_PATTERN)) {
@@ -42,7 +45,7 @@ export function extractDiagramAssets(markdown: string) {
     }
 
     const normalizedSource = normalizeDiagramSource(source);
-    const asset = createDiagramAssetName(language, normalizedSource);
+    const asset = createDiagramAssetName(language, normalizedSource, version);
 
     if (!assets.has(asset)) {
       assets.set(asset, { asset, language, source: normalizedSource });

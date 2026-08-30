@@ -29,11 +29,14 @@ function extractInlineMathSources(markdown: string) {
   const sources: string[] = [];
 
   for (let index = 0; index < markdown.length; index += 1) {
-    if (
-      markdown[index] !== "$" ||
-      markdown[index - 1] === "\\" ||
-      markdown[index + 1] === "$"
-    ) {
+    if (markdown[index] !== "$" || markdown[index - 1] === "\\") {
+      continue;
+    }
+
+    if (markdown[index + 1] === "$") {
+      // Skip `$$` pairs entirely so display-math fences left in prose are
+      // never re-read as an inline `$` opener.
+      index += 1;
       continue;
     }
 
@@ -101,21 +104,21 @@ export function extractMathAssets(
 
   while (match !== null) {
     const source = normalizeMathSource(match[2] ?? "");
-
-    if (!source) {
-      continue;
-    }
-
-    const asset = createMathAssetName(source, true, version);
-    assets.set(asset, {
-      asset,
-      displayMode: true,
-      source,
-    });
-
     const prefixLength = match[1]?.length ?? 0;
     const matchStart = match.index + prefixLength;
     const matchEnd = matchStart + match[0].length - prefixLength;
+
+    if (source) {
+      const asset = createMathAssetName(source, true, version);
+      assets.set(asset, {
+        asset,
+        displayMode: true,
+        source,
+      });
+    }
+
+    // Empty block math produces no asset but must still be masked before the
+    // next exec, otherwise the pattern matches the same span forever.
     sanitizedMarkdown = maskSegment(sanitizedMarkdown, matchStart, matchEnd);
     BLOCK_MATH_PATTERN.lastIndex = matchEnd;
     match = BLOCK_MATH_PATTERN.exec(sanitizedMarkdown);

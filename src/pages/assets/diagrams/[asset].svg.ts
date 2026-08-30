@@ -4,6 +4,7 @@ import {
   type DiagramAsset,
   extractDiagramAssets,
 } from "../../../markdown/diagram-assets";
+import { resolveAssetVersion } from "../../../markdown/pipeline-version";
 import {
   compileMermaid,
   compileTypst,
@@ -11,14 +12,15 @@ import {
 } from "../../../markdown/renderers";
 
 export async function getStaticPaths() {
+  const version = await resolveAssetVersion();
   const entries = await getContentEntries();
 
   const diagrams = new Map<string, DiagramAsset>();
 
   for (const entry of entries) {
-    for (const diagram of extractDiagramAssets(entry.body ?? "")) {
+    for (const diagram of extractDiagramAssets(entry.body ?? "", version)) {
       diagrams.set(
-        createDiagramAssetName(diagram.language, diagram.source),
+        createDiagramAssetName(diagram.language, diagram.source, version),
         diagram,
       );
     }

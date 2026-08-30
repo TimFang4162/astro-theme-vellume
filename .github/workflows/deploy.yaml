@@ -20,11 +20,17 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v6.3.0
-        with:
-          node-version: 24
-
       - uses: oven-sh/setup-bun@v2.2.0
+
+      - name: install rumdl
+        run: pipx install rumdl
+
+      - run: bun install --frozen-lockfile
+
+      - name: quality checks
+        run: |
+          bun run check
+          bun run test
 
       - name: install typst
         run: |

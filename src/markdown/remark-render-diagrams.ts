@@ -3,6 +3,13 @@ import type { Parent } from "unist";
 import { visitParents } from "unist-util-visit-parents";
 import { withBasePathUsing } from "../utils/base-path-core.mjs";
 import { createDiagramAssetName } from "./diagram-assets";
+import { resolveAssetVersion } from "./pipeline-version";
+import {
+  compileMermaid,
+  compileTypst,
+  readSvgIntrinsicSize,
+  type SvgIntrinsicSize,
+} from "./renderers";
 import { escapeHtml } from "./utils";
 
 function renderDiagramHtml(
@@ -10,6 +17,7 @@ function renderDiagramHtml(
   source: string,
   version?: string,
   basePath = process.env.SITE_BASE || "/",
+  size?: SvgIntrinsicSize,
 ) {
   const label = language === "typst" ? "Typst" : "Mermaid";
   const src = withBasePathUsing(
@@ -20,6 +28,9 @@ function renderDiagramHtml(
     )}.svg`,
     basePath,
   );
+  const sizeAttributes = size
+    ? ` width="${size.width}" height="${size.height}"`
+    : "";
 
   return [
     `<code-block class="code-block code-block--diagram" data-language="${language}" data-rendered-diagram>`,
@@ -29,12 +40,29 @@ function renderDiagramHtml(
     "</div>",
     '<div class="code-block__scroller">',
     '<div class="code-block__diagram">',
-    `<img src="${src}" alt="${label} rendered output" loading="lazy" decoding="async" />`,
+    `<img src="${src}" alt="${label} rendered output" loading="lazy" decoding="async"${sizeAttributes} />`,
     "</div>",
     "</div>",
     `<template data-code-source>${escapeHtml(source)}</template>`,
     "</code-block>",
   ].join("");
+}
+
+async function loadDiagramSize(
+  language: "typst" | "mermaid",
+  source: string,
+): Promise<SvgIntrinsicSize | undefined> {
+  try {
+    const svg =
+      language === "typst"
+        ? await compileTypst(source)
+        : await compileMermaid(source);
+    return readSvgIntrinsicSize(svg);
+  } catch {
+    // The asset endpoint renders a compile-error SVG in this case; the img
+    // is emitted without dimensions so the page still builds.
+    return undefined;
+  }
 }
 
 export function remarkRenderDiagrams(
@@ -43,6 +71,7 @@ export function remarkRenderDiagrams(
   const basePath = options.basePath ?? process.env.SITE_BASE ?? "/";
 
   return async (tree: Root) => {
+    const version = options.version ?? (await resolveAssetVersion());
     const jobs: Array<{
       language: "typst" | "mermaid";
       value: string;
@@ -80,13 +109,16 @@ export function remarkRenderDiagrams(
     });
 
     for (const job of jobs) {
+      const size = await loadDiagramSize(job.language, job.value);
+
       const htmlNode: Html = {
         type: "html",
         value: renderDiagramHtml(
           job.language,
           job.value,
-          options.version,
+          version,
           basePath,
+          size,
         ),
       };
 

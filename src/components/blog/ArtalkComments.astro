@@ -35,10 +35,13 @@ const commentsTitleId = `comments-title-${pageKey.replace(/[^a-zA-Z0-9_-]+/g, "-
 
 <script>
 import type { ArtalkConfig } from "artalk";
-import Artalk from "artalk";
 import { runOnPageLoad } from "../../scripts/ui/page-load";
 
+type ArtalkModule = typeof import("artalk");
+type ArtalkDefault = ArtalkModule["default"];
+
 let cleanupAll: (() => void) | undefined;
+let initGeneration = 0;
 
 type PageVoteState = {
   pageId: number;
@@ -105,7 +108,7 @@ const syncPageVoteUi = (
   downBtn.toggleAttribute("aria-pressed", storedVote === "down");
 };
 
-const initArtalkCommentsHost = (host: HTMLElement) => {
+const initArtalkCommentsHost = (Artalk: ArtalkDefault, host: HTMLElement) => {
   const root = host.querySelector<HTMLElement>("[data-artalk-root]");
   if (!root) {
     return undefined;
@@ -201,13 +204,35 @@ const initArtalkCommentsHost = (host: HTMLElement) => {
   };
 };
 
-const initArtalkComments = () => {
+const initArtalkComments = async () => {
   cleanupAll?.();
+  initGeneration += 1;
+  const generation = initGeneration;
 
-  const cleanups = Array.from(
+  const hosts = Array.from(
     document.querySelectorAll<HTMLElement>("[data-artalk-comments]"),
-  )
-    .map((host) => initArtalkCommentsHost(host))
+  );
+
+  if (hosts.length === 0) {
+    return;
+  }
+
+  // Artalk is large (~50KB gzip); load it only when a comments host exists.
+  let Artalk: ArtalkDefault;
+
+  try {
+    Artalk = (await import("artalk")).default;
+  } catch (error) {
+    console.error("Failed to load Artalk comments.", error);
+    return;
+  }
+
+  if (generation !== initGeneration) {
+    return;
+  }
+
+  const cleanups = hosts
+    .map((host) => initArtalkCommentsHost(Artalk, host))
     .filter((cleanup): cleanup is () => void => Boolean(cleanup));
 
   cleanupAll = () => {
@@ -218,9 +243,12 @@ const initArtalkComments = () => {
   };
 };
 
-runOnPageLoad("blog:artalk-comments", initArtalkComments);
+runOnPageLoad("blog:artalk-comments", () => {
+  void initArtalkComments();
+});
 document.addEventListener("astro:before-swap", () => {
   cleanupAll?.();
+  initGeneration += 1;
 });
 </script>
 

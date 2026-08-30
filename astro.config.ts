@@ -6,7 +6,7 @@ import pagefind from "astro-pagefind";
 import remarkBreaks from "remark-breaks";
 import remarkMath from "remark-math";
 import { siteUrl } from "./src/config/site";
-import { MARKDOWN_PIPELINE_VERSION } from "./src/markdown/pipeline-version";
+import { createUnlistedSitemapFilter } from "./src/config/sitemap-filter";
 import { rehypeHierarchicalHeadingIds } from "./src/markdown/rehype-heading-ids";
 import { rehypeImageCaptions } from "./src/markdown/rehype-image-captions";
 import { rehypeRenderTypstMath } from "./src/markdown/rehype-render-typst-math";
@@ -37,18 +37,12 @@ export default defineConfig({
     remarkPlugins: [
       remarkMath,
       remarkReadingTime,
-      [
-        remarkRenderDiagrams,
-        { version: MARKDOWN_PIPELINE_VERSION, basePath: siteBase },
-      ],
+      [remarkRenderDiagrams, { basePath: siteBase }],
       remarkBreaks,
     ],
     rehypePlugins: [
       rehypeImageCaptions,
-      [
-        rehypeRenderTypstMath,
-        { version: MARKDOWN_PIPELINE_VERSION, basePath: siteBase },
-      ],
+      [rehypeRenderTypstMath, { basePath: siteBase }],
       rehypeHierarchicalHeadingIds,
     ],
   },
@@ -73,12 +67,12 @@ export default defineConfig({
   build: {
     assets: "assets",
   },
-  prefetch: {
-    prefetchAll: false,
-    defaultStrategy: "viewport",
-  },
   image: {
     layout: "constrained",
   },
-  integrations: [sitemap(), icon({}), pagefind()],
+  integrations: [
+    sitemap({ serialize: createUnlistedSitemapFilter(siteBase) }),
+    icon({}),
+    pagefind(),
+  ],
 });

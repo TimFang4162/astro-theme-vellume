@@ -8,9 +8,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 bun run dev              # Start dev server (localhost:4321)
 bun run build            # Build + post-build base path integrity check
 bun run preview          # Preview production build
+bun run check            # All checks: astro check + biome + rumdl
 bun run check:astro      # TypeScript type checking (astro check)
 bun run check:biome      # Lint + format check (JS/TS/CSS/HTML)
 bun run check:markdown   # Lint Markdown files (rumdl)
+bun run test             # Unit tests (vitest)
 bun run fix:biome        # Auto-fix lint and formatting
 bun run fix:markdown     # Format Markdown files (rumdl)
 bun run generate:favicons # Regenerate favicons from public/assets/favicon.png
@@ -37,13 +39,15 @@ Bun >= 1.3.11. Do not use npm or yarn.
 
 ### Content Collections (`src/content.config.ts`)
 
-Three glob-loaded collections: `blog`, `series`, `about`. Blog uses `slug` (not file path) as URL identifier. Post visibility: `public` / `unlisted` / `draft`.
+Three glob-loaded collections: `blog`, `series`, `about`. Blog uses `slug` (not file path) as URL identifier — the glob loader reads frontmatter `slug` to build the entry id. Post visibility: `public` / `unlisted` / `draft`. `unlisted` posts get built pages (direct-link reachable) but are excluded from the sitemap via `src/config/sitemap-filter.ts`.
 
 ### Markdown Pipeline (`src/markdown/`)
 
 Remark/rehype plugins handle math, diagrams, reading time, image captions, and heading IDs. Code blocks use a custom `<code-block>` HTML element (not standard HTML) with structured children (header, scroller, template). Shiki transformers + `createCodeBlockChrome` produce this element automatically.
 
-Math (Typst) and diagrams (Typst/Mermaid) are **compiled at build time** to SVG assets, not rendered in-browser. Assets are content-addressed (SHA-256 of `version:language:source`) and served via dynamic routes under `/assets/math/` and `/assets/diagrams/`.
+Math (Typst) and diagrams (Typst/Mermaid) are **compiled at build time** to SVG assets, not rendered in-browser. Asset names are content-addressed (SHA-256 of `version:language:source`), where `version` combines `MARKDOWN_PIPELINE_VERSION` with the probed `typst`/`mmdr` binary versions (`resolveAssetVersion`) — upgrading a renderer automatically changes asset URLs. Assets are served via dynamic routes under `/assets/math/` and `/assets/diagrams/`.
+
+Compile results are cached on disk in `node_modules/.cache/vellume-render` (keyed by toolchain versions + source), so unchanged formulas/diagrams skip re-spawning the binaries across builds. The markdown plugins also compile during transforms to read SVG intrinsic sizes and emit `width`/`height` on `<img>` (prevents layout shift); compile failures fall back to dimension-less imgs and the endpoint then serves an error SVG.
 
 ### Styling
 
@@ -61,7 +65,7 @@ These paths should be preferred for user edits; upstream changes belong everywhe
 
 ### Client Scripts (`src/scripts/`)
 
-All use a `runOnPageLoad` pattern: each script module self-registers a callback keyed by ID on import. `astro:page-load` dispatches all; `astro:before-swap` resets state. Cleanup via `AbortController`.
+All use a `runOnPageLoad` pattern: each script module self-registers a callback keyed by ID on import. `astro:page-load` dispatches all; `astro:before-swap` resets state. Cleanup via `AbortController`. Artalk is dynamically imported only when a comments host exists, so pages with comments disabled never load it.
 
 ### Base Path System
 
