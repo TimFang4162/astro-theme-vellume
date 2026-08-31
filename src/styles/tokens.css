@@ -12,6 +12,9 @@
    < popover 90 < modal 100 < medium-zoom 999. */
 
 :root {
+  /* Declared per theme (dark below) so native UA surfaces — form controls,
+     dialogs, autofill — follow the active theme instead of the OS default. */
+  color-scheme: light;
   --radius: 0.5rem;
   --scroll-offset-block: 5.5rem;
   --background: #ffffff;
@@ -107,6 +110,7 @@
 
 @media not print {
   [data-theme="dark"] {
+    color-scheme: dark;
     --background: #0e1116;
     --foreground: #d7dbe0;
     --foreground-strong: #f4f6f8;
@@ -164,12 +168,35 @@
   }
 }
 
+/* When the user asks for more contrast, raise the quiet greys: muted text
+   clears 7:1 on both backgrounds and borders clear 3:1 (WCAG 1.4.11
+   non-text contrast). --border-subtle re-derives from --border. */
+@media (prefers-contrast: more) {
+  :root {
+    --muted-foreground: #565b62;
+    --border: #8f949a;
+  }
+
+  [data-theme="dark"] {
+    --muted-foreground: #a8afb8;
+    --border: #5d6a7e;
+  }
+}
+
 @theme inline {
+  /* Latin-first stack with an explicit CJK tail so every platform resolves
+     Chinese glyphs deterministically: macOS/iOS PingFang, Windows YaHei,
+     Linux/Android Noto — instead of whatever the generic fallback picks. */
   --font-sans:
     system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Noto Sans SC", sans-serif;
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC",
+    sans-serif;
+  /* Deterministic system mono: every platform gets its native best face and
+     the author's preview matches what visitors actually see (no fonts that
+     only render for people who happen to have them installed). */
   --font-mono:
-    "JetBrains Mono", "Cascadia Mono", Menlo, Monaco, Consolas, monospace;
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Cascadia Mono",
+    "Liberation Mono", monospace;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);

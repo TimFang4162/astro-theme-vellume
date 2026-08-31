@@ -7,6 +7,12 @@
     scroll-padding-top: var(--scroll-offset-block);
   }
 
+  :root {
+    /* Task-list checkboxes and any future native controls pick up the brand
+       accent instead of the UA blue. */
+    accent-color: var(--primary);
+  }
+
   @media (prefers-reduced-motion: no-preference) {
     html {
       scroll-behavior: smooth;
@@ -21,6 +27,16 @@
     background-color: var(--background);
     color: var(--foreground);
     font-family: var(--font-sans);
+    /* CJK↔Latin auto-spacing, progressive in both directions of the spec
+       history: Chrome 128+ understands only `normal` (spacing on) — the
+       granular keywords come later, and per the newer spec `normal` means
+       spacing OFF, so the layering must be normal first, keywords second.
+       Adjacent real spaces suppress insertion, so hand-spaced text is
+       unaffected; unsupported engines drop both lines. */
+    text-autospace: normal;
+    /* biome-ignore lint/suspicious/noDuplicateProperties: deliberate cascade
+       layering — see the comment above. */
+    text-autospace: ideograph-alpha ideograph-numeric;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -34,6 +50,9 @@
   h6 {
     font-family: var(--font-sans);
     letter-spacing: -0.015em;
+    /* Balance wrapped headings so the last line never strands a single
+       glyph — the classic orphan of narrow CJK titles. */
+    text-wrap: balance;
   }
 
   a {
@@ -78,5 +97,19 @@
   ::-webkit-scrollbar-thumb {
     border-radius: 9999px;
     background: var(--scrollbar-thumb);
+  }
+
+  /* Windows High Contrast: the UA forces border/background colors to system
+     values, which flattens elements distinguished only by tonal fills. Give
+     those an explicit CanvasText outline and drop purely decorative ones. */
+  @media (forced-colors: active) {
+    .toc-link.active,
+    .segmented-control [aria-pressed="true"] {
+      border: 1px solid CanvasText;
+    }
+
+    .toc-progress {
+      display: none;
+    }
   }
 }
