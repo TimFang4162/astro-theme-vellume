@@ -135,7 +135,12 @@ const seoProps = {
     >
     <meta name="apple-mobile-web-app-title" content={siteConfig.site.title}>
     <link rel="yandex-tableau-widget" href={yandexManifestHref}>
-    <link rel="alternate" type="application/rss+xml" href={rssHref}>
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={siteConfig.site.title}
+      href={rssHref}
+    >
     <ClientRouter />
     <script is:inline>
     document.addEventListener("astro:before-swap", (e) => {
@@ -163,7 +168,7 @@ const seoProps = {
       <script
         is:inline
         type="application/ld+json"
-        set:html={JSON.stringify(jsonLd)}
+        set:html={JSON.stringify(jsonLd).replace(/</g, "\\u003c")}
       />
     )}
     <script is:inline>
