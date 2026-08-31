@@ -1,5 +1,5 @@
 import { defineSiteConfig } from "../config/theme-default";
-import { siteMetadata } from "./metadata.mjs";
+import { siteMetadata } from "./metadata";
 
 export const siteOverride = defineSiteConfig({
   site: {

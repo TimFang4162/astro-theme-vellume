@@ -1,6 +1,6 @@
 const ABSOLUTE_URL_PATTERN = /^[a-z][a-z\d+.-]*:/i;
 
-export function normalizeBasePath(basePath) {
+export function normalizeBasePath(basePath?: string | null): string {
   if (!basePath || basePath === "/") {
     return "/";
   }
@@ -12,11 +12,11 @@ export function normalizeBasePath(basePath) {
     : withLeadingSlash;
 }
 
-export function isAbsoluteHref(href) {
+export function isAbsoluteHref(href: string): boolean {
   return ABSOLUTE_URL_PATTERN.test(href) || href.startsWith("//");
 }
 
-export function withBasePathUsing(path, basePath) {
+export function withBasePathUsing(path: string, basePath: string): string {
   if (
     !path ||
     isAbsoluteHref(path) ||
@@ -45,7 +45,7 @@ export function withBasePathUsing(path, basePath) {
     : `${normalizedBasePath}${normalizedPath}`;
 }
 
-export function withoutBasePathUsing(path, basePath) {
+export function withoutBasePathUsing(path: string, basePath: string): string {
   if (
     !path ||
     isAbsoluteHref(path) ||

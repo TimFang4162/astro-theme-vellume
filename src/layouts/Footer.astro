@@ -7,9 +7,7 @@ const year = new Date().getFullYear();
 const sitemapHref = withBasePath("/sitemap-index.xml");
 ---
 
-<footer
-  class="mt-16 border-t border-border bg-[color-mix(in_srgb,var(--muted)_50%,transparent)]"
->
+<footer class="mt-16 border-t border-border bg-muted/50">
   <div class="page-frame py-10 sm:py-12">
     <div class="grid grid-cols-1 gap-8 sm:grid-cols-[1.5fr_1fr_1fr]">
       <div class="flex h-full max-w-xs flex-col justify-between gap-4">
@@ -28,7 +26,7 @@ const sitemapHref = withBasePath("/sitemap-index.xml");
       </div>
 
       <nav aria-label="Footer navigation">
-        <h3 class="mb-3 text-xs font-sans font-semibold text-strong">导航</h3>
+        <h2 class="mb-3 text-xs font-sans font-semibold text-strong">导航</h2>
         <ul class="m-0 flex list-none flex-col p-0">
           {footerNavItems.map((item) => (
             <li>
@@ -44,7 +42,7 @@ const sitemapHref = withBasePath("/sitemap-index.xml");
       </nav>
 
       <div>
-        <h3 class="mb-3 text-xs font-sans font-semibold text-strong">链接</h3>
+        <h2 class="mb-3 text-xs font-sans font-semibold text-strong">链接</h2>
         <ul class="m-0 flex list-none flex-col p-0">
           <li>
             <a

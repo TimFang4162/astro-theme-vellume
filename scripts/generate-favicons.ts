@@ -1,12 +1,12 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { favicons } from "favicons";
-import { faviconMetadata, siteMetadata } from "../src/site/metadata.mjs";
+import { type FaviconOptions, favicons } from "favicons";
+import { faviconMetadata, siteMetadata } from "../src/site/metadata";
 
 const source = path.join(process.cwd(), "public/assets/favicon.png");
 const outputDir = path.join(process.cwd(), "public/favicons");
 
-const configuration = {
+const configuration: FaviconOptions = {
   path: "./",
   appName: siteMetadata.title,
   appShortName: siteMetadata.title,
@@ -33,12 +33,12 @@ const configuration = {
   },
 };
 
-async function resetOutputDirectory() {
+async function resetOutputDirectory(): Promise<void> {
   await fs.rm(outputDir, { recursive: true, force: true });
   await fs.mkdir(outputDir, { recursive: true });
 }
 
-async function writeResponse() {
+async function writeResponse(): Promise<void> {
   const response = await favicons(source, configuration);
 
   await Promise.all([

@@ -1,7 +1,7 @@
 import type { Code, Html, Root } from "mdast";
 import type { Parent } from "unist";
 import { visitParents } from "unist-util-visit-parents";
-import { withBasePathUsing } from "../utils/base-path-core.mjs";
+import { withBasePathUsing } from "../utils/base-path-core";
 import { createDiagramAssetName } from "./diagram-assets";
 import { resolveAssetVersion } from "./pipeline-version";
 import {
@@ -18,8 +18,8 @@ const DIAGRAM_COMPILE_CONCURRENCY = 8;
 function renderDiagramHtml(
   language: string,
   source: string,
-  version?: string,
-  basePath = process.env.SITE_BASE || "/",
+  version: string | undefined,
+  basePath: string,
   size?: SvgIntrinsicSize,
 ) {
   const label = language === "typst" ? "Typst" : "Mermaid";
@@ -68,10 +68,11 @@ async function loadDiagramSize(
   }
 }
 
-export function remarkRenderDiagrams(
-  options: { version?: string; basePath?: string } = {},
-) {
-  const basePath = options.basePath ?? process.env.SITE_BASE ?? "/";
+export function remarkRenderDiagrams(options: {
+  version?: string;
+  basePath: string;
+}) {
+  const { basePath } = options;
 
   return async (tree: Root) => {
     const version = options.version ?? (await resolveAssetVersion());

@@ -18,6 +18,13 @@
   --muted: #f3f1ef;
   --muted-foreground: #555555;
   --border: #d8d0cb;
+  --border-subtle: color-mix(in srgb, var(--border) 92%, transparent);
+  --transition-colors: color 0.2s ease, background-color 0.2s ease;
+  --transition-ui:
+    color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  --transition-ui-shadow:
+    color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease,
+    box-shadow 0.2s ease;
   --primary: #904a42;
   --primary-foreground: #fff7f6;
   --accent: #fceae6;
@@ -31,7 +38,7 @@
     0 16px 32px rgb(0 0 0 / 0.08), 0 2px 8px rgb(0 0 0 / 0.05);
   --shadow-floating: 0 18px 48px rgb(0 0 0 / 0.12), 0 2px 8px rgb(0 0 0 / 0.08);
   --code-block-surface: color-mix(in srgb, var(--background) 94%, var(--muted));
-  --code-block-border: color-mix(in srgb, var(--border) 92%, transparent);
+  --code-block-border: var(--border-subtle);
   --code-block-header-border: color-mix(
     in srgb,
     var(--border) 76%,
@@ -168,11 +175,7 @@
   }
 
   a {
-    transition:
-      color 0.2s ease,
-      border-color 0.2s ease,
-      background-color 0.2s ease,
-      box-shadow 0.2s ease;
+    transition: var(--transition-ui-shadow);
   }
 
   :where(
@@ -201,7 +204,7 @@
     top: 1rem;
     z-index: 80;
     transform: translateY(-200%);
-    border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
+    border: 1px solid var(--border-subtle);
     border-radius: 9999px;
     background: var(--background);
     color: var(--foreground-strong);
@@ -288,18 +291,14 @@
   }
 
   .surface-card {
-    border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
+    border: 1px solid var(--border-subtle);
     border-radius: 1.5rem;
     background: color-mix(in srgb, var(--card) 96%, transparent);
     box-shadow: var(--shadow-card);
   }
 
   .surface-card-hover {
-    transition:
-      color 0.2s ease,
-      border-color 0.2s ease,
-      background-color 0.2s ease,
-      box-shadow 0.2s ease;
+    transition: var(--transition-ui-shadow);
   }
 
   .surface-card-hover:hover {
@@ -309,15 +308,12 @@
   }
 
   .surface-chip {
-    border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
+    border: 1px solid var(--border-subtle);
     border-radius: 9999px;
     background: color-mix(in srgb, var(--card) 96%, transparent);
     box-shadow: var(--shadow-card);
     backdrop-filter: blur(16px);
-    transition:
-      color 0.2s ease,
-      border-color 0.2s ease,
-      background-color 0.2s ease;
+    transition: var(--transition-ui);
   }
 
   .surface-chip:hover {
@@ -329,7 +325,7 @@
     display: inline-flex;
     width: fit-content;
     gap: 0.25rem;
-    border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
+    border: 1px solid var(--border-subtle);
     border-radius: 9999px;
     background: color-mix(in srgb, var(--card) 96%, transparent);
     padding: 0.25rem;
@@ -348,9 +344,7 @@
     border-radius: 1rem;
     padding: 0.875rem 1rem;
     font-weight: 500;
-    transition:
-      color 0.2s ease,
-      background-color 0.2s ease;
+    transition: var(--transition-colors);
   }
 
   .drawer-nav-link[aria-current="page"] {
@@ -375,7 +369,7 @@
   }
 
   .popover-card {
-    border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
+    border: 1px solid var(--border-subtle);
     border-radius: 1rem;
     background: var(--popover);
     box-shadow: var(--shadow-floating);
@@ -420,9 +414,7 @@
     border-radius: 1rem;
     padding: 0.5rem 0.75rem;
     font-size: 0.875rem;
-    transition:
-      color 0.2s ease,
-      background-color 0.2s ease;
+    transition: var(--transition-colors);
   }
 
   .sidebar-link:hover {
@@ -447,9 +439,7 @@
   }
 
   .list-row-hover {
-    transition:
-      color 0.2s ease,
-      background-color 0.2s ease;
+    transition: var(--transition-colors);
   }
 
   .group:hover .list-row-hover {
@@ -458,6 +448,12 @@
 
   .view-collection {
     display: block;
+  }
+
+  /* Card/list grids adapt to their actual container (main column, sidebar,
+     drawer) instead of the viewport. */
+  .view-collection-root {
+    container: view-collection / inline-size;
   }
 
   .view-collection[data-view-target="card"] {
@@ -476,7 +472,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
+    border: 1px solid var(--border-subtle);
     border-radius: 1.5rem;
     background: color-mix(in srgb, var(--card) 96%, transparent);
     gap: 0;
@@ -495,7 +491,9 @@
     gap: 0.75rem;
   }
 
-  @media (min-width: 768px) {
+  /* 45rem/68rem are the container-width equivalents of the former 768px/1280px
+     viewport breakpoints on the full-width page frame. */
+  @container view-collection (min-width: 45rem) {
     .view-collection[data-view-target="card"] {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -508,7 +506,7 @@
     }
   }
 
-  @media (min-width: 1280px) {
+  @container view-collection (min-width: 68rem) {
     .view-collection[data-view-target="card"] {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
@@ -668,10 +666,7 @@
     color: var(--code-block-copy-color);
     cursor: pointer;
     font-size: 0.875rem;
-    transition:
-      color 0.2s ease,
-      border-color 0.2s ease,
-      background-color 0.2s ease;
+    transition: var(--transition-ui);
   }
 
   .code-block__copy:hover,
@@ -818,9 +813,7 @@
 
   .astro-code,
   .astro-code span {
-    transition:
-      color 0.2s ease,
-      background-color 0.2s ease;
+    transition: var(--transition-colors);
   }
 
   .astro-code {

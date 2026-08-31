@@ -118,9 +118,9 @@ export function initSearch() {
     }
 
     // Show a plain status line (not placeholder links) while result data loads.
+    // The results container is already aria-live="polite"; no nested live region.
     const loading = document.createElement("p");
     loading.className = "search-hint";
-    loading.setAttribute("role", "status");
     loading.textContent = "正在加载结果…";
     resultsEl.appendChild(loading);
 

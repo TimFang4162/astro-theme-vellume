@@ -13,7 +13,7 @@ import { rehypeRenderTypstMath } from "./src/markdown/rehype-render-typst-math";
 import { remarkReadingTime } from "./src/markdown/remark-reading-time";
 import { remarkRenderDiagrams } from "./src/markdown/remark-render-diagrams";
 import { createShikiTransformers } from "./src/markdown/shiki-transformers";
-import { normalizeBasePath } from "./src/utils/base-path-core.mjs";
+import { normalizeBasePath } from "./src/utils/base-path-core";
 
 const siteBase = normalizeBasePath(process.env.SITE_BASE || "/");
 
@@ -72,7 +72,7 @@ export default defineConfig({
   },
   integrations: [
     sitemap({ serialize: createUnlistedSitemapFilter(siteBase) }),
-    icon({}),
+    icon(),
     pagefind(),
   ],
 });

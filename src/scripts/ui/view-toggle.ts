@@ -97,15 +97,20 @@ export function initViewToggles() {
     root.dataset.viewReady = "true";
     updateView(root, initialView);
 
-    root
-      .querySelectorAll<HTMLButtonElement>("[data-view-btn]")
-      .forEach((button) => {
-        button.addEventListener("click", () => {
-          const view = button.dataset.viewBtn || DEFAULT_VIEW;
+    // One delegated listener per root instead of one per button.
+    root.addEventListener("click", (event) => {
+      const button = (event.target as Element | null)?.closest?.(
+        "[data-view-btn]",
+      ) as HTMLButtonElement | null;
 
-          updateView(root, view);
-          writeStoredView(root, view);
-        });
-      });
+      if (!button || !root.contains(button)) {
+        return;
+      }
+
+      const view = button.dataset.viewBtn || DEFAULT_VIEW;
+
+      updateView(root, view);
+      writeStoredView(root, view);
+    });
   });
 }

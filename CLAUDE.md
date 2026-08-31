@@ -69,7 +69,7 @@ All use a `runOnPageLoad` pattern: each script module self-registers a callback 
 
 ### Base Path System
 
-`src/utils/base-path-core.mjs` provides pure-JS `withBasePath`/`withoutBasePath`. `src/utils/paths.ts` wraps these with Astro's `import.meta.env.BASE_URL`. CI sets `SITE_BASE=/astro-theme-vellume`. Post-build `check:base` script validates output paths.
+`src/utils/base-path-core.ts` provides pure `withBasePathUsing`/`withoutBasePathUsing`. `src/utils/paths.ts` wraps these with Astro's `import.meta.env.BASE_URL`. CI sets `SITE_BASE=/astro-theme-vellume`. Post-build `check:base` script validates output paths.
 
 ### Data Access
 

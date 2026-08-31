@@ -189,11 +189,8 @@ export function mountHomeHeroParticles(hero: HTMLElement, mount: HTMLElement) {
   }
 
   const probeCanvas = document.createElement("canvas");
-  const gl =
-    probeCanvas.getContext("webgl") ??
-    probeCanvas.getContext("experimental-webgl");
 
-  if (!gl) {
+  if (!probeCanvas.getContext("webgl")) {
     return;
   }
 

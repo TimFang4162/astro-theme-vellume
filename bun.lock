@@ -8,6 +8,7 @@
         "@astrojs/rss": "^4.0.17",
         "@astrojs/sitemap": "^3.7.2",
         "@shikijs/transformers": "^4.0.2",
+        "@tailwindcss/typography": "^0.5.19",
         "@tailwindcss/vite": "^4.2.2",
         "artalk": "^2.9.1",
         "astro": "6.1.1",
@@ -17,7 +18,6 @@
         "astro-pagefind": "^1.8.6",
         "astro-seo": "^1.1.0",
         "astro-theme-toggle": "^0.8.0",
-        "canvaskit-wasm": "^0.41.0",
         "hast-util-to-string": "^3.0.1",
         "mdast-util-to-string": "^4.0.0",
         "medium-zoom": "^1.1.0",
@@ -37,7 +37,6 @@
         "@biomejs/biome": "2.4.8",
         "@iconify-json/material-symbols": "^1.2.63",
         "@iconify-json/ri": "^1.2.10",
-        "@tailwindcss/typography": "^0.5.19",
         "@types/hast": "^3.0.4",
         "@types/mdast": "^4.0.4",
         "@types/qrcode": "^1.5.6",
@@ -490,7 +489,7 @@
 
     "camelcase": ["camelcase@5.3.1", "https://registry.npmmirror.com/camelcase/-/camelcase-5.3.1.tgz", {}, "sha512-L28STB170nwWS63UjtlEOE3dldQApaJXZkOI1uMFfzf3rRuPegHaHesyee+YxQ+W6SvRDQV6UrdOdRiR153wJg=="],
 
-    "canvaskit-wasm": ["canvaskit-wasm@0.41.0", "https://registry.npmmirror.com/canvaskit-wasm/-/canvaskit-wasm-0.41.0.tgz", { "dependencies": { "@webgpu/types": "0.1.21" } }, "sha512-cnbL02NFB3yOYMF/MtxViZHgD1vh55Pvy+zR8q4JuFvyCPejZP3eClkt2GuZ0S7jOmGMCJXaHBasbMChbR9JZg=="],
+    "canvaskit-wasm": ["canvaskit-wasm@0.40.0", "https://registry.npmmirror.com/canvaskit-wasm/-/canvaskit-wasm-0.40.0.tgz", { "dependencies": { "@webgpu/types": "0.1.21" } }, "sha512-Od2o+ZmoEw9PBdN/yCGvzfu0WVqlufBPEWNG452wY7E9aT8RBE+ChpZF526doOlg7zumO4iCS+RAeht4P0Gbpw=="],
 
     "ccount": ["ccount@2.0.1", "https://registry.npmmirror.com/ccount/-/ccount-2.0.1.tgz", {}, "sha512-eyrF0jiFpY+3drT6383f1qhkbGsLSifNAjA61IUjZjmLCWjItY6LB9ft9YhoDgwfmclB2zhu51Lc7+95b8NRAg=="],
 
@@ -1228,8 +1227,6 @@
 
     "anymatch/picomatch": ["picomatch@2.3.2", "https://registry.npmmirror.com/picomatch/-/picomatch-2.3.2.tgz", {}, "sha512-V7+vQEJ06Z+c5tSye8S+nHUfI51xoXIXjHQ99cQtKUkQqqO1kO/KCJUfZXuB47h/YBlDhah2H3hdUGXn8ie0oA=="],
 
-    "astro-og-canvas/canvaskit-wasm": ["canvaskit-wasm@0.40.0", "https://registry.npmmirror.com/canvaskit-wasm/-/canvaskit-wasm-0.40.0.tgz", { "dependencies": { "@webgpu/types": "0.1.21" } }, "sha512-Od2o+ZmoEw9PBdN/yCGvzfu0WVqlufBPEWNG452wY7E9aT8RBE+ChpZF526doOlg7zumO4iCS+RAeht4P0Gbpw=="],
-
     "canvaskit-wasm/@webgpu/types": ["@webgpu/types@0.1.21", "https://registry.npmmirror.com/@webgpu/types/-/types-0.1.21.tgz", {}, "sha512-pUrWq3V5PiSGFLeLxoGqReTZmiiXwY3jRkIG5sLLKjyqNxrwm/04b4nw7LSmGWJcKk59XOM/YRTUwOzo4MMlow=="],
 
     "csso/css-tree": ["css-tree@2.2.1", "https://registry.npmmirror.com/css-tree/-/css-tree-2.2.1.tgz", { "dependencies": { "mdn-data": "2.0.28", "source-map-js": "^1.0.1" } }, "sha512-OA0mILzGc1kCOCSJerOeqDxDQ4HOh+G8NbOJFOTgOCzpw7fCBubk0fEyxp8AgOL/jvLgYA/uV0cMbe43ElF1JA=="],
@@ -1263,8 +1260,6 @@
     "@iconify/tools/svgo/commander": ["commander@7.2.0", "https://registry.npmmirror.com/commander/-/commander-7.2.0.tgz", {}, "sha512-QrWXB+ZQSVPmIWIhtEO9H+gwHaMGYiF5ChvoJ+K9ZGHG/sVsa6yiesAD1GC/x46sET00Xlwo1u49RVVVzvcSkw=="],
 
     "@iconify/tools/svgo/css-tree": ["css-tree@2.3.1", "https://registry.npmmirror.com/css-tree/-/css-tree-2.3.1.tgz", { "dependencies": { "mdn-data": "2.0.30", "source-map-js": "^1.0.1" } }, "sha512-6Fv1DV/TYw//QF5IzQdqsNDjx/wc8TrMBZsqjL9eW01tWb7R7k/mq+/VXfJCl7SoD5emsJop9cOByJZfs8hYIw=="],
-
-    "astro-og-canvas/canvaskit-wasm/@webgpu/types": ["@webgpu/types@0.1.21", "https://registry.npmmirror.com/@webgpu/types/-/types-0.1.21.tgz", {}, "sha512-pUrWq3V5PiSGFLeLxoGqReTZmiiXwY3jRkIG5sLLKjyqNxrwm/04b4nw7LSmGWJcKk59XOM/YRTUwOzo4MMlow=="],
 
     "csso/css-tree/mdn-data": ["mdn-data@2.0.28", "https://registry.npmmirror.com/mdn-data/-/mdn-data-2.0.28.tgz", {}, "sha512-aylIc7Z9y4yzHYAJNuESG3hfhC+0Ibp/MAMiaOZgNv4pmEdFyfZhhhny4MNiAfWdBQ1RQ2mfDWmM1x8SvGyp8g=="],
 

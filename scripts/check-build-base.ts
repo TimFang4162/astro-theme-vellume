@@ -1,9 +1,9 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { normalizeBasePath } from "../src/utils/base-path-core.mjs";
+import { normalizeBasePath } from "../src/utils/base-path-core";
 
-function collectAbsolutePaths(content) {
-  const matches = [];
+function collectAbsolutePaths(content: string): string[] {
+  const matches: string[] = [];
   const pattern = /\b(?:href|src|content)=["'](\/[^"'?#]*)[^"']*["']/g;
 
   for (const match of content.matchAll(pattern)) {
@@ -19,7 +19,7 @@ function collectAbsolutePaths(content) {
   return matches;
 }
 
-function isAllowedAbsolutePath(value, basePath) {
+function isAllowedAbsolutePath(value: string, basePath: string): boolean {
   if (basePath === "/") {
     return true;
   }
@@ -27,9 +27,9 @@ function isAllowedAbsolutePath(value, basePath) {
   return value === basePath || value.startsWith(`${basePath}/`);
 }
 
-async function walkHtmlFiles(directory) {
+async function walkHtmlFiles(directory: string): Promise<string[]> {
   const entries = await fs.readdir(directory, { withFileTypes: true });
-  const files = [];
+  const files: string[] = [];
 
   for (const entry of entries) {
     const entryPath = path.join(directory, entry.name);
@@ -47,7 +47,7 @@ async function walkHtmlFiles(directory) {
   return files;
 }
 
-async function main() {
+async function main(): Promise<void> {
   const basePath = normalizeBasePath(process.env.SITE_BASE);
 
   if (basePath === "/") {
@@ -61,7 +61,7 @@ async function main() {
     path.join(distDir, "rss.xml"),
     path.join(distDir, "sitemap-index.xml"),
   ];
-  const failures = [];
+  const failures: Array<{ filePath: string; invalidPaths: string[] }> = [];
 
   for (const filePath of filesToCheck) {
     try {

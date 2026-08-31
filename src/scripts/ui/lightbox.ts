@@ -1,5 +1,4 @@
 import mediumZoom from "medium-zoom/dist/pure";
-import "medium-zoom/dist/style.css";
 
 let instance: ReturnType<typeof mediumZoom> | null = null;
 

@@ -8,10 +8,8 @@ function canHydrateHomeHeroParticles() {
   }
 
   const probeCanvas = document.createElement("canvas");
-  return !!(
-    probeCanvas.getContext("webgl") ??
-    probeCanvas.getContext("experimental-webgl")
-  );
+
+  return !!probeCanvas.getContext("webgl");
 }
 
 async function hydrateHomeHero(hero: HTMLElement) {

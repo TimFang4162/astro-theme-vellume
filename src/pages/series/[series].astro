@@ -8,21 +8,22 @@ import {
   getPublicBlogPosts,
   getSeriesEntries,
   getSeriesMeta,
-  getSeriesPosts,
 } from "../../lib/blog";
 
 export async function getStaticPaths() {
   const publicPosts = await getPublicBlogPosts();
   const seriesEntries = await getSeriesEntries();
 
+  // Serialize the precomputed series bundle only; passing `publicPosts` here
+  // would inline every post body into every series page's props.
   return getSeriesMeta(seriesEntries, publicPosts).map((seriesItem) => ({
     params: { series: seriesItem.entry.id },
-    props: { series: seriesItem.entry, publicPosts },
+    props: { seriesItem },
   }));
 }
 
-const { series, publicPosts } = Astro.props;
-const seriesPosts = getSeriesPosts(publicPosts, series.id);
+const { seriesItem } = Astro.props;
+const { entry: series, posts: seriesPosts } = seriesItem;
 const { Content } = await render(series);
 ---
 

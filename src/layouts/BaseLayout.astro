@@ -57,9 +57,6 @@ const manifestHref = withBasePath(`${faviconBasePath}/manifest.webmanifest`);
 const appleTouchIconHref = withBasePath(
   `${faviconBasePath}/apple-touch-icon.png`,
 );
-const appleTouchIconPrecomposedHref = withBasePath(
-  `${faviconBasePath}/apple-touch-icon-precomposed.png`,
-);
 const yandexManifestHref = withBasePath(
   `${faviconBasePath}/yandex-browser-manifest.json`,
 );
@@ -123,11 +120,6 @@ const seoProps = {
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="application-name" content={siteConfig.site.title}>
     <link rel="apple-touch-icon" sizes="180x180" href={appleTouchIconHref}>
-    <link
-      rel="apple-touch-icon"
-      sizes="180x180"
-      href={appleTouchIconPrecomposedHref}
-    >
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta
       name="apple-mobile-web-app-status-bar-style"

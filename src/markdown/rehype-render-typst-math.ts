@@ -1,7 +1,7 @@
 import type { Element, Root } from "hast";
 import { toString as getNodeText } from "hast-util-to-string";
 import { visit } from "unist-util-visit";
-import { withBasePathUsing } from "../utils/base-path-core.mjs";
+import { withBasePathUsing } from "../utils/base-path-core";
 import { createMathAssetName } from "./math-assets";
 import { resolveAssetVersion } from "./pipeline-version";
 import {
@@ -27,8 +27,8 @@ function hasClass(node: Element, className: string) {
 function createMathNode(
   source: string,
   displayMode: boolean,
-  version?: string,
-  basePath = process.env.SITE_BASE || "/",
+  version: string | undefined,
+  basePath: string,
   size?: SvgIntrinsicSize,
 ) {
   const wrapperTag = displayMode ? "div" : "span";
@@ -83,10 +83,11 @@ async function loadMathSize(
   }
 }
 
-export function rehypeRenderTypstMath(
-  options: { version?: string; basePath?: string } = {},
-) {
-  const basePath = options.basePath ?? process.env.SITE_BASE ?? "/";
+export function rehypeRenderTypstMath(options: {
+  version?: string;
+  basePath: string;
+}) {
+  const { basePath } = options;
 
   return async (tree: Root) => {
     const version = options.version ?? (await resolveAssetVersion());

@@ -3,7 +3,7 @@ import {
   normalizeBasePath,
   withBasePathUsing,
   withoutBasePathUsing,
-} from "./base-path-core.mjs";
+} from "./base-path-core";
 
 export { isAbsoluteHref, normalizeBasePath, withBasePathUsing };
 

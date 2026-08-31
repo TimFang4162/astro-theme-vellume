@@ -297,11 +297,7 @@ function initTocInstance(toc: Element) {
     }
 
     event.preventDefault();
-    history.pushState(
-      null,
-      target.textContent || "",
-      link.getAttribute("href"),
-    );
+    history.pushState(null, "", link.getAttribute("href"));
     const targetTop =
       window.scrollY +
       target.getBoundingClientRect().top -

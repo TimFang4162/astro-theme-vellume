@@ -23,19 +23,23 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      # Third-party actions are pinned to commit SHAs; the comment records the
+      # version each SHA corresponds to.
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
-      - uses: oven-sh/setup-bun@v2.2.0
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version-file: package.json
 
       - name: cache bun packages
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: ~/.bun/install/cache
           key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
           restore-keys: bun-${{ runner.os }}-
 
       - name: cache rumdl (pipx)
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: |
             ~/.local/pipx
@@ -52,24 +56,13 @@ jobs:
           bun run check
           bun run test
 
-      - name: cache typst
-        uses: actions/cache@v4
-        with:
-          path: ~/.typst
-          key: typst-${{ env.TYPST_VERSION }}-${{ runner.os }}
-
       - name: install typst
-        run: |
-          if [ ! -x "$HOME/.typst/typst" ]; then
-            curl -L "https://github.com/typst/typst/releases/download/v${TYPST_VERSION}/typst-x86_64-unknown-linux-musl.tar.xz" -o typst.tar.xz
-            tar -xf typst.tar.xz
-            mv typst-x86_64-unknown-linux-musl "$HOME/.typst"
-            rm -f typst.tar.xz
-          fi
-          echo "$HOME/.typst" >> "$GITHUB_PATH"
+        uses: typst-community/setup-typst@48aeee7543d37f01afd1ffb27307dc277387ba13 # v4
+        with:
+          typst-version: "${{ env.TYPST_VERSION }}"
 
       - name: cache mmdr
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: ~/.local/bin/mmdr
           key: mmdr-${{ env.MMDR_VERSION }}-${{ runner.os }}
@@ -87,41 +80,24 @@ jobs:
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: cache vellume render cache
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: node_modules/.cache/vellume-render
           key: vellume-render-${{ runner.os }}-${{ hashFiles('bun.lock') }}
           restore-keys: vellume-render-${{ runner.os }}-
 
       - name: write site config overrides
-        run: |
-          python3 -c "
-          import json, os
-          short_sha = os.environ['GITHUB_SHA'][:7]
-          overrides = {
-            'comments': {
-              'enabled': True,
-              'server': os.environ['ARTALK_SERVER'],
-              'site': os.environ['ARTALK_SITE']
-            },
-            'site': {
-              'url': 'https://timfang4162.github.io/astro-theme-vellume',
-              'attribution': f'Powered by <a href=\"https://astro.build\" target=\"_blank\" class=\"text-muted-foreground transition-colors hover:text-primary\">Astro</a> &amp; Theme <a href=\"https://github.com/TimFang4162/astro-theme-vellume\" target=\"_blank\" class=\"text-muted-foreground transition-colors hover:text-primary\">Vellume</a><br>Commit <a href=\"https://github.com/TimFang4162/astro-theme-vellume/commit/{os.environ[\"GITHUB_SHA\"]}\" target=\"_blank\" class=\"text-muted-foreground transition-colors hover:text-primary\">{short_sha}</a>'
-            }
-          }
-          with open(os.environ['GITHUB_ENV'], 'a') as f:
-            f.write(f'SITE_CONFIG_OVERRIDES={json.dumps(overrides)}\n')
-          "
+        run: bun ./scripts/write-site-overrides.ts
         env:
           ARTALK_SERVER: ${{ secrets.ARTALK_SERVER }}
           ARTALK_SITE: ${{ secrets.ARTALK_SITE }}
-          GITHUB_SHA: ${{ github.sha }}
+          SITE_URL: https://timfang4162.github.io/astro-theme-vellume
 
       - run: bun run build
         env:
           SITE_BASE: /astro-theme-vellume
 
-      - uses: actions/upload-pages-artifact@v4
+      - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
         with:
           path: dist
 
@@ -132,6 +108,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/configure-pages@v6
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6
       - id: deployment
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5
