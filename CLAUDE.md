@@ -53,6 +53,8 @@ Compile results are cached on disk in `node_modules/.cache/vellume-render` (keye
 
 Tailwind CSS v4 with `@import "tailwindcss"` syntax. Main stylesheet: `src/styles/global.css`. Dark mode uses `[data-theme="dark"]` attribute (not `prefers-color-scheme`), toggled via `astro-theme-toggle`. Design tokens defined as CSS custom properties and mapped to Tailwind's `--color-*`/`--font-*` namespaces via `@theme inline`. User overrides go in `src/site/theme.css`.
 
+Token conventions: colors follow the shadcn semantic set (`background/foreground/muted/border/primary/accent/card/popover/secondary/input/ring/destructive`); radii use the derived ladder `--radius-tight/control/inner/card/hero` (badges → buttons → rows → cards → hero panels) — pick the step by element role, never a raw value; focus rings go through `--ring`.
+
 ### User-Owned Customization Surface
 
 These paths should be preferred for user edits; upstream changes belong everywhere else:

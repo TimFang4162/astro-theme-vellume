@@ -21,12 +21,7 @@ const monthsWithPosts = new Set(
 
 <Layout title="文章" description="按时间回看全部文章">
   <div class="page-stack">
-    <SectionIntro
-      title="文章"
-      fontStyle="reading"
-      backHref="/discovery"
-      backLabel="返回发现页"
-    />
+    <SectionIntro title="文章" backHref="/discovery" backLabel="返回发现页" />
     <div class="metric-grid">
       <StatsCard
         title="总文章数"
@@ -49,11 +44,6 @@ const monthsWithPosts = new Set(
         icon="material-symbols:table-chart-view-outline-rounded"
       />
     </div>
-    <PostArchiveSections
-      posts={allPosts}
-      headingTag="h2"
-      defaultView="list"
-      fontStyle="reading"
-    />
+    <PostArchiveSections posts={allPosts} headingTag="h2" defaultView="list" />
   </div>
 </Layout>

@@ -7,7 +7,6 @@ interface Props {
   description?: string;
   titleTag?: "h1" | "h2" | "h3";
   tone?: "page" | "section";
-  fontStyle?: "ui" | "reading";
   backHref?: string;
   backLabel?: string;
   class?: string;
@@ -18,7 +17,6 @@ const {
   description,
   titleTag = "h1",
   tone = "page",
-  fontStyle = "ui",
   backHref,
   backLabel,
   class: className,
@@ -46,13 +44,7 @@ const hasActions = Astro.slots.has("actions");
       {title && (
           <TitleTag
             class:list={[
-              tone === "page"
-                ? fontStyle === "reading"
-                  ? "page-title-reading"
-                  : "page-title"
-                : fontStyle === "reading"
-                  ? "section-title-reading"
-                  : "section-title",
+              tone === "page" ? "page-title" : "section-title",
               "text-strong",
             ]}
           >

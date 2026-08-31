@@ -10,7 +10,6 @@ interface Props {
   description?: string;
   titleTag?: "h1" | "h2" | "h3";
   tone?: "section" | "page";
-  fontStyle?: "ui" | "reading";
   /** Stable key used to persist the chosen view in localStorage. */
   viewKey?: string;
   class?: string;
@@ -23,7 +22,6 @@ const {
   description,
   titleTag = "h2",
   tone = "section",
-  fontStyle,
   viewKey,
   class: className,
 } = Astro.props;
@@ -41,7 +39,6 @@ const {
       description={description}
       titleTag={titleTag}
       tone={tone}
-      fontStyle={fontStyle}
     >
       {showViewToggle && <ViewToggle slot="actions" currentView={defaultView} />}
     </SectionIntro>

@@ -27,11 +27,7 @@ const seriesList = getSeriesMeta(await getSeriesEntries(), allPosts);
 
 <Layout title={pageTitle} description={pageDescription}>
   <div class="page-stack">
-    <SectionIntro
-      title={pageTitle}
-      description={pageDescription}
-      fontStyle="reading"
-    />
+    <SectionIntro title={pageTitle} description={pageDescription} />
 
     <div
       class="grid gap-8 lg:grid-cols-[minmax(0,1.7fr)_minmax(18rem,0.95fr)] lg:[grid-template-areas:'main_sidebar']"
@@ -39,7 +35,7 @@ const seriesList = getSeriesMeta(await getSeriesEntries(), allPosts);
       <div class="page-stack lg:[grid-area:main]">
         <section class="space-y-3">
           <div class="heading-row">
-            <h2 class="section-title-reading text-strong">文章目录</h2>
+            <h2 class="section-title text-strong">文章目录</h2>
             <Button
               href="/posts"
               variant="ghost"
@@ -56,7 +52,6 @@ const seriesList = getSeriesMeta(await getSeriesEntries(), allPosts);
           posts={allPosts}
           headingTag="h3"
           defaultView="list"
-          fontStyle="reading"
         />
       </div>
 
@@ -68,7 +63,7 @@ const seriesList = getSeriesMeta(await getSeriesEntries(), allPosts);
       >
         <section class="p-1">
           <div class="heading-row mb-5">
-            <h2 class="section-title-reading text-strong">
+            <h2 class="section-title text-strong">
               系列 · {seriesList.length}
             </h2>
             <Button
@@ -97,9 +92,7 @@ const seriesList = getSeriesMeta(await getSeriesEntries(), allPosts);
 
         <section class="p-1">
           <div class="heading-row mb-5">
-            <h2 class="section-title-reading text-strong">
-              标签 · {totalTagCount}
-            </h2>
+            <h2 class="section-title text-strong">标签 · {totalTagCount}</h2>
             <Button
               href="/tags"
               variant="ghost"

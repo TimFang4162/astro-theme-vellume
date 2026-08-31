@@ -7,7 +7,6 @@ interface Props {
   posts: CollectionEntry<"blog">[];
   headingTag?: "h2" | "h3";
   defaultView?: "card" | "list";
-  fontStyle?: "ui" | "reading";
   class?: string;
   viewKey?: string;
 }
@@ -16,7 +15,6 @@ const {
   posts,
   headingTag = "h2",
   defaultView = "list",
-  fontStyle = "ui",
   class: className,
   viewKey = "posts-archive",
 } = Astro.props;
@@ -34,12 +32,7 @@ const HeadingTag = headingTag;
   )}
   {sortedMonths.map((month) => (
     <section class="space-y-4">
-      <HeadingTag
-        class:list={[
-          fontStyle === "reading" ? "section-title-reading" : "section-title",
-          "text-strong",
-        ]}
-      >
+      <HeadingTag class:list={["section-title", "text-strong"]}>
         {month}
       </HeadingTag>
       <PostList
