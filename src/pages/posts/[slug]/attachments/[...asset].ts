@@ -51,11 +51,7 @@ export async function getStaticPaths() {
   return paths;
 }
 
-export async function GET({
-  params,
-}: {
-  params: AttachmentParams;
-}) {
+export async function GET({ params }: { params: AttachmentParams }) {
   const posts = await getAccessibleBlogPosts();
   const post = posts.find((entry) => entry.id === params.slug);
 

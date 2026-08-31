@@ -52,11 +52,6 @@
   },
   "overrides": [
     {
-      // Astro named slots require `<Fragment slot="...">` wrappers; Biome does
-      // not model Astro slots and reports them as useless fragments (error
-      // severity, would fail CI). Template correctness is covered by
-      // `astro check`. Note: rule-level overrides apply to .astro files, but
-      // `linter.enabled: false` does not (Biome 2.4 limitation).
       "includes": ["**/*.astro"],
       "linter": {
         "rules": {

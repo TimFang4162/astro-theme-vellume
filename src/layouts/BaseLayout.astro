@@ -131,8 +131,8 @@ const seoProps = {
       href={rssHref}
     >
     <ClientRouter />
-    {/* Theme bootstrap: these handlers must run before first paint, so they
-        stay inline instead of living in a bundled module. */}
+    <!-- Theme bootstrap: these handlers must run before first paint, so they
+        stay inline instead of living in a bundled module. -->
     <script is:inline>
     document.addEventListener("astro:before-swap", (e) => {
       const current = document.documentElement.dataset.theme;
@@ -162,8 +162,8 @@ const seoProps = {
         set:html={JSON.stringify(jsonLd).replace(/</g, "\\u003c")}
       />
     )}
-    {/* Legacy migration shim for the pre-astro-theme-toggle `theme` key.
-        Remove once migrated keys are no longer expected in the wild. */}
+    <!-- Legacy migration shim for the pre-astro-theme-toggle "theme" key.
+        Remove once migrated keys are no longer expected in the wild. -->
     <script is:inline>
     if (localStorage.getItem("theme")) {
       localStorage.setItem("theme-toggle", localStorage.getItem("theme"));

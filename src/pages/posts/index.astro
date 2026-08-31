@@ -3,11 +3,7 @@ import PostArchiveSections from "../../components/blog/PostArchiveSections.astro
 import StatsCard from "../../components/blog/StatsCard.astro";
 import SectionIntro from "../../components/ui/SectionIntro.astro";
 import Layout from "../../layouts/BaseLayout.astro";
-import {
-  getMonthKey,
-  getPublicBlogPosts,
-  getTagCounts,
-} from "../../lib/blog";
+import { getMonthKey, getPublicBlogPosts, getTagCounts } from "../../lib/blog";
 import { estimateWordCount } from "../../utils/text";
 
 const allPosts = await getPublicBlogPosts();

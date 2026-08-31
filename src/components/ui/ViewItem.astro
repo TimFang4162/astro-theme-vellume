@@ -11,6 +11,7 @@ interface Props {
 const { href, view = "card" } = Astro.props;
 ---
 
+<!-- biome-ignore lint/a11y/useAnchorContent: accessible content renders through the named slots -->
 <a
   href={href}
   data-view-item={view}
