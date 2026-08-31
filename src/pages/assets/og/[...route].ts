@@ -30,13 +30,10 @@ export const { getStaticPaths, GET } = await OGImageRoute({
     title: page.title,
     description: page.description,
     dir: "ltr",
-    bgGradient: [
-      [24, 24, 27],
-      [9, 9, 11],
-    ],
+    bgGradient: siteConfig.og.backgroundGradient,
     border: {
-      color: [254, 180, 169],
-      width: 8,
+      color: siteConfig.og.border.color,
+      width: siteConfig.og.border.width,
       side: "inline-start",
     },
     logo: {
@@ -46,23 +43,23 @@ export const { getStaticPaths, GET } = await OGImageRoute({
     padding: 40,
     font: {
       title: {
-        color: [254, 180, 169],
+        color: siteConfig.og.accent,
         size: 60,
         weight: "Bold",
         lineHeight: 1.2,
-        families: ["Noto Serif SC"],
+        families: [siteConfig.og.fonts.title.family],
       },
       description: {
-        color: [139, 148, 158],
+        color: siteConfig.og.description,
         size: 36,
         weight: "Normal",
         lineHeight: 1.4,
-        families: ["Noto Sans SC"],
+        families: [siteConfig.og.fonts.description.family],
       },
     },
     fonts: [
-      "./src/assets/fonts/NotoSerifSC-Bold.ttf",
-      "./src/assets/fonts/NotoSansSC-Regular.ttf",
+      siteConfig.og.fonts.title.file,
+      siteConfig.og.fonts.description.file,
     ],
   }),
 });

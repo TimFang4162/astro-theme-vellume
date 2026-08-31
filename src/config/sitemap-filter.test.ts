@@ -25,6 +25,18 @@ beforeAll(async () => {
     path.join(blogDir, "draft.md"),
     "---\ntitle: Draft\nslug: draft-post\npublishedAt: 2026-01-03\nvisibility: draft\n---\n",
   );
+  // No explicit slug: the id must derive from the path exactly like Astro's
+  // glob loader does (extension stripped, trailing /index collapsed).
+  await mkdir(path.join(blogDir, "2026/03"), { recursive: true });
+  await writeFile(
+    path.join(blogDir, "2026/03/path-id.md"),
+    "---\ntitle: Path id\npublishedAt: 2026-03-01\nvisibility: unlisted\n---\n",
+  );
+  await mkdir(path.join(blogDir, "folder-index"), { recursive: true });
+  await writeFile(
+    path.join(blogDir, "folder-index/index.md"),
+    "---\ntitle: Folder index\npublishedAt: 2026-03-02\nvisibility: unlisted\n---\n",
+  );
 
   process.chdir(tempDir);
   vi.resetModules();
@@ -49,6 +61,17 @@ describe("createUnlistedSitemapFilter", () => {
     expect(
       await filter({ url: "https://example.com/posts/draft-post/" }),
     ).toEqual({ url: "https://example.com/posts/draft-post/" });
+  });
+
+  it("derives slug-less unlisted ids from the path like the glob loader", async () => {
+    const filter = createUnlistedSitemapFilter("/");
+
+    expect(
+      await filter({ url: "https://example.com/posts/2026/03/path-id/" }),
+    ).toBeUndefined();
+    expect(
+      await filter({ url: "https://example.com/posts/folder-index/" }),
+    ).toBeUndefined();
   });
 
   it("strips the configured base path before matching", async () => {

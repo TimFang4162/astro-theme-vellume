@@ -54,6 +54,22 @@ export interface SiteConfig {
       dark: string;
     };
   };
+  og: {
+    /** Two RGB stops for the astro-og-canvas background gradient. */
+    backgroundGradient: [[number, number, number], [number, number, number]];
+    /** Brand accent; mirrors the dark-theme `--primary` token. */
+    accent: [number, number, number];
+    /** Description text; mirrors the dark-theme `--muted-foreground` token. */
+    description: [number, number, number];
+    border: {
+      color: [number, number, number];
+      width: number;
+    };
+    fonts: {
+      title: { file: string; family: string };
+      description: { file: string; family: string };
+    };
+  };
 }
 
 export type SiteConfigInput = DeepPartial<SiteConfig>;
@@ -143,6 +159,25 @@ const themeDefaultConfig: SiteConfig = {
     browserColor: {
       light: "#ffffff",
       dark: "#09090b",
+    },
+  },
+  og: {
+    backgroundGradient: [
+      [24, 24, 27],
+      [9, 9, 11],
+    ],
+    accent: [254, 180, 169],
+    description: [139, 148, 158],
+    border: {
+      color: [254, 180, 169],
+      width: 8,
+    },
+    fonts: {
+      title: { file: "./src/assets/fonts/NotoSerifSC-Bold.ttf", family: "Noto Serif SC" },
+      description: {
+        file: "./src/assets/fonts/NotoSansSC-Regular.ttf",
+        family: "Noto Sans SC",
+      },
     },
   },
 };

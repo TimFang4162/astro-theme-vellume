@@ -19,8 +19,12 @@ function parseFrontmatter(frontmatter: string): Record<string, unknown> {
 }
 
 /**
- * Mirrors Astro's glob loader id rule: frontmatter `slug` wins, otherwise the
- * path with the extension stripped and a trailing `/index` collapsed.
+ * Mirrors Astro's glob loader id rule (as of Astro 6, see
+ * `generateIdDefault` in astro/dist/content/loaders/glob.js — the helper is
+ * not exported): frontmatter `slug` wins, otherwise the path with the
+ * extension stripped and a trailing `/index` collapsed. Re-verify this
+ * function after Astro major upgrades or loader changes in
+ * src/content.config.ts, or post ids and sitemap paths will diverge.
  */
 function toEntryId(relativePath: string, data: Record<string, unknown>) {
   const slug = typeof data.slug === "string" ? data.slug.trim() : "";

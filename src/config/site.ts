@@ -7,7 +7,11 @@ function loadEnvOverrides(): SiteConfigInput {
   if (!raw || typeof raw !== "string") return {};
   try {
     return JSON.parse(raw) as SiteConfigInput;
-  } catch {
+  } catch (error) {
+    console.warn(
+      "[vellume] SITE_CONFIG_OVERRIDES is not valid JSON; ignoring env overrides.",
+      error,
+    );
     return {};
   }
 }
