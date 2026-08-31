@@ -14,6 +14,11 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
+env:
+  RUMDL_VERSION: "0.1.68"
+  TYPST_VERSION: "0.14.2"
+  MMDR_VERSION: "0.2.1"
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -22,8 +27,23 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2.2.0
 
+      - name: cache bun packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+
+      - name: cache rumdl (pipx)
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.local/pipx
+            ~/.local/bin/rumdl
+          key: pipx-rumdl-${{ env.RUMDL_VERSION }}-${{ runner.os }}
+
       - name: install rumdl
-        run: pipx install rumdl
+        run: pipx install "rumdl==${RUMDL_VERSION}"
 
       - run: bun install --frozen-lockfile
 
@@ -32,31 +52,52 @@ jobs:
           bun run check
           bun run test
 
+      - name: cache typst
+        uses: actions/cache@v4
+        with:
+          path: ~/.typst
+          key: typst-${{ env.TYPST_VERSION }}-${{ runner.os }}
+
       - name: install typst
         run: |
-          curl -L https://github.com/typst/typst/releases/download/v0.14.2/typst-x86_64-unknown-linux-musl.tar.xz -o typst.tar.xz
-          tar -xf typst.tar.xz
-          mv typst-x86_64-unknown-linux-musl "$HOME/.typst"
-          rm -f typst.tar.xz
+          if [ ! -x "$HOME/.typst/typst" ]; then
+            curl -L "https://github.com/typst/typst/releases/download/v${TYPST_VERSION}/typst-x86_64-unknown-linux-musl.tar.xz" -o typst.tar.xz
+            tar -xf typst.tar.xz
+            mv typst-x86_64-unknown-linux-musl "$HOME/.typst"
+            rm -f typst.tar.xz
+          fi
           echo "$HOME/.typst" >> "$GITHUB_PATH"
+
+      - name: cache mmdr
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/bin/mmdr
+          key: mmdr-${{ env.MMDR_VERSION }}-${{ runner.os }}
 
       - name: install mmdr
         run: |
-          curl -L https://github.com/1jehuang/mermaid-rs-renderer/releases/download/v0.2.1/mmdr-x86_64-unknown-linux-gnu.tar.gz -o mmdr.tar.gz
-          tar -xzf mmdr.tar.gz
-          mkdir -p "$HOME/.local/bin"
-          mv mmdr "$HOME/.local/bin/mmdr"
-          chmod +x "$HOME/.local/bin/mmdr"
-          rm -f mmdr.tar.gz
+          if [ ! -x "$HOME/.local/bin/mmdr" ]; then
+            curl -L "https://github.com/1jehuang/mermaid-rs-renderer/releases/download/v${MMDR_VERSION}/mmdr-x86_64-unknown-linux-gnu.tar.gz" -o mmdr.tar.gz
+            tar -xzf mmdr.tar.gz
+            mkdir -p "$HOME/.local/bin"
+            mv mmdr "$HOME/.local/bin/mmdr"
+            chmod +x "$HOME/.local/bin/mmdr"
+            rm -f mmdr.tar.gz
+          fi
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
-      - run: bun install --frozen-lockfile
+      - name: cache vellume render cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules/.cache/vellume-render
+          key: vellume-render-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: vellume-render-${{ runner.os }}-
 
       - name: write site config overrides
         run: |
-          SHORT_SHA="${GITHUB_SHA:0:7}"
           python3 -c "
           import json, os
+          short_sha = os.environ['GITHUB_SHA'][:7]
           overrides = {
             'comments': {
               'enabled': True,
@@ -65,7 +106,7 @@ jobs:
             },
             'site': {
               'url': 'https://timfang4162.github.io/astro-theme-vellume',
-              'attribution': f'Powered by <a href=\"https://astro.build\" target=\"_blank\" class=\"text-muted-foreground transition-colors hover:text-primary\">Astro</a> &amp; Theme <a href=\"https://github.com/TimFang4162/astro-theme-vellume\" target=\"_blank\" class=\"text-muted-foreground transition-colors hover:text-primary\">Vellume</a><br>Commit <a href=\"https://github.com/TimFang4162/astro-theme-vellume/commit/{os.environ[\"GITHUB_SHA\"]}\" target=\"_blank\" class=\"text-muted-foreground transition-colors hover:text-primary\">{os.environ[\"SHORT_SHA\"]}</a>'
+              'attribution': f'Powered by <a href=\"https://astro.build\" target=\"_blank\" class=\"text-muted-foreground transition-colors hover:text-primary\">Astro</a> &amp; Theme <a href=\"https://github.com/TimFang4162/astro-theme-vellume\" target=\"_blank\" class=\"text-muted-foreground transition-colors hover:text-primary\">Vellume</a><br>Commit <a href=\"https://github.com/TimFang4162/astro-theme-vellume/commit/{os.environ[\"GITHUB_SHA\"]}\" target=\"_blank\" class=\"text-muted-foreground transition-colors hover:text-primary\">{short_sha}</a>'
             }
           }
           with open(os.environ['GITHUB_ENV'], 'a') as f:
@@ -75,7 +116,6 @@ jobs:
           ARTALK_SERVER: ${{ secrets.ARTALK_SERVER }}
           ARTALK_SITE: ${{ secrets.ARTALK_SITE }}
           GITHUB_SHA: ${{ github.sha }}
-          SHORT_SHA: ${{ github.sha }}
 
       - run: bun run build
         env:
