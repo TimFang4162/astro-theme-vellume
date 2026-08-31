@@ -21,8 +21,10 @@
   --tw-prose-kbd: var(--foreground-strong);
   --tw-prose-kbd-shadows: rgb(0 0 0 / 0.12);
   --tw-prose-code: var(--foreground-strong);
-  --tw-prose-pre-code: #f4f4f5;
-  --tw-prose-pre-bg: #111111;
+  /* Bare `pre` fallback surfaces route through the same tokens as the
+     code-block chrome so unenhanced blocks can never drift off-palette. */
+  --tw-prose-pre-code: var(--foreground);
+  --tw-prose-pre-bg: var(--code-block-surface);
   --tw-prose-th-borders: var(--border);
   --tw-prose-td-borders: color-mix(in srgb, var(--border) 86%, transparent);
   --tw-prose-invert-body: var(--foreground);
@@ -47,8 +49,8 @@
   --tw-prose-invert-kbd: var(--foreground-strong);
   --tw-prose-invert-kbd-shadows: rgb(255 255 255 / 0.18);
   --tw-prose-invert-code: var(--foreground-strong);
-  --tw-prose-invert-pre-code: #f4f4f5;
-  --tw-prose-invert-pre-bg: #0d0d0f;
+  --tw-prose-invert-pre-code: var(--foreground);
+  --tw-prose-invert-pre-bg: var(--code-block-surface);
   --tw-prose-invert-th-borders: var(--border);
   --tw-prose-invert-td-borders: color-mix(
     in srgb,

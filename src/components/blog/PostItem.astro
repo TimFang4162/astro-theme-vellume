@@ -36,7 +36,7 @@ const seriesLabel = seriesTitle ?? data.series?.id;
           as="time"
           datetime={publishedAtIso}
           icon="material-symbols:calendar-today-outline-rounded"
-          class="font-mono"
+          class="tabular-nums"
         >
           {publishedAtLabel}
         </MetaItem>
@@ -50,7 +50,7 @@ const seriesLabel = seriesTitle ?? data.series?.id;
   <Fragment slot="list">
     <time
       datetime={publishedAtIso}
-      class="text-sm font-mono text-muted-foreground"
+      class="text-sm tabular-nums text-muted-foreground"
     >
       {publishedAtLabel}
     </time>

@@ -1,8 +1,8 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import { formatDate } from "../../utils/date";
-import { slugifyId } from "../../utils/id";
 import { withBasePath } from "../../utils/paths";
+import Button from "../ui/Button.astro";
 
 interface Props {
   prev?: CollectionEntry<"blog">;
@@ -13,57 +13,35 @@ interface Props {
 const { prev, next, pageKey, showFeedback = true } = Astro.props;
 const prevHref = prev ? withBasePath(`/posts/${prev.id}`) : undefined;
 const nextHref = next ? withBasePath(`/posts/${next.id}`) : undefined;
-const wavePatternId = `post-nav-wave-${slugifyId(pageKey)}`;
 ---
 
 {(prev || next) && (
-  <nav class="mt-12 space-y-4 pt-2" aria-label="Post navigation">
-    <div class="post-nav-divider" aria-hidden="true">
-      <svg
-        aria-hidden="true"
-        width="100%"
-        height="8"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <defs>
-          <pattern
-            id={wavePatternId}
-            width="24"
-            height="8"
-            patternUnits="userSpaceOnUse"
-          >
-            <path
-              d="M0 4Q6 0 12 4Q18 8 24 4"
-              stroke="currentColor"
-              stroke-linecap="square"
-            />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill={`url(#${wavePatternId})`}></rect>
-      </svg>
-    </div>
+  <nav class="mt-12 border-t border-border pt-8" aria-label="Post navigation">
     <div class="post-nav-content article-column">
       {showFeedback && (
         <div class="post-nav-feedback">
           <span class="eyebrow">这篇文章有帮助吗？</span>
           <div class="post-nav-feedback__actions" data-page-key={pageKey}>
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               type="button"
               class="post-nav-feedback__button post-nav-feedback__button--yes"
               aria-label="这篇文章有帮助"
             >
               <span class="post-nav-feedback__label">是</span>
               <span class="post-nav-feedback__count"></span>
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               type="button"
               class="post-nav-feedback__button post-nav-feedback__button--no"
               aria-label="这篇文章没有帮助"
             >
               <span class="post-nav-feedback__label">否</span>
               <span class="post-nav-feedback__count"></span>
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -77,7 +55,7 @@ const wavePatternId = `post-nav-wave-${slugifyId(pageKey)}`;
             <div class="card-title text-strong">{prev.data.title}</div>
             <time
               datetime={prev.data.publishedAt.toISOString()}
-              class="text-sm font-mono text-muted-foreground"
+              class="text-sm tabular-nums text-muted-foreground"
             >
               {formatDate(prev.data.publishedAt)}
             </time>
@@ -92,7 +70,7 @@ const wavePatternId = `post-nav-wave-${slugifyId(pageKey)}`;
             <div class="card-title text-strong">{next.data.title}</div>
             <time
               datetime={next.data.publishedAt.toISOString()}
-              class="text-sm font-mono text-muted-foreground"
+              class="text-sm tabular-nums text-muted-foreground"
             >
               {formatDate(next.data.publishedAt)}
             </time>
@@ -103,22 +81,12 @@ const wavePatternId = `post-nav-wave-${slugifyId(pageKey)}`;
   </nav>
 )}
 
-<style>
-.post-nav-divider {
-  color: color-mix(in srgb, var(--primary) 30%, var(--border));
-  max-width: 48rem;
-}
-
-.post-nav-divider svg {
-  display: block;
-  height: 8px;
-  width: 100%;
-}
-
+<style is:global>
+/* Global because the vote buttons are rendered by the shared Button
+   component; selectors stay namespaced under .post-nav-*. */
 .post-nav-content {
   display: grid;
   gap: 1rem;
-  max-width: 48rem;
 }
 
 .post-nav-feedback {
@@ -135,39 +103,19 @@ const wavePatternId = `post-nav-wave-${slugifyId(pageKey)}`;
   gap: 0.625rem;
 }
 
-.post-nav-feedback__button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
-  border-radius: 9999px;
-  background: color-mix(in srgb, var(--card) 96%, transparent);
-  padding: 0.55rem 1rem;
-  color: var(--muted-foreground);
-  cursor: pointer;
-  transition: var(--transition-ui-shadow);
+.post-nav-feedback__button .post-nav-feedback__label {
+  font-weight: 600;
 }
 
-.post-nav-feedback__button:hover {
-  background: var(--container-faint);
-  color: var(--primary);
+.post-nav-feedback__count {
+  min-width: 1.25rem;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .post-nav-feedback__button.atk-voted {
   border-color: transparent;
   background: var(--accent);
   color: var(--primary);
-}
-
-.post-nav-feedback__label {
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-.post-nav-feedback__count {
-  min-width: 1.25rem;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
 }
 </style>

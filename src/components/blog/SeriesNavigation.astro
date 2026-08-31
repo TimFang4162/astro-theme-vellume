@@ -66,7 +66,7 @@ const seriesHref = withBasePath(`/series/${series.id}`);
                 ]}
                 data-active={post.id === currentPost.id ? "true" : "false"}
               >
-                <span class="w-6 shrink-0 font-mono font-normal text-sm leading-6">
+                <span class="w-6 shrink-0 font-normal text-sm leading-6 tabular-nums">
                   {String(index + 1).padStart(2, "0")}
                 </span>
                 <span class="leading-6">{post.data.title}</span>

@@ -103,7 +103,6 @@ const displayItems = items.map(getDisplayItem);
   showViewToggle={showViewToggle}
   title={title}
   description={description}
-  fontStyle="reading"
   viewKey="home-feed"
 >
   {displayItems.length === 0 && (
@@ -119,7 +118,7 @@ const displayItems = items.map(getDisplayItem);
           <Badge size="sm" color={item.badgeColor}>{item.kindLabel}</Badge>
           <time
             datetime={item.publishedAtIso}
-            class="text-sm font-mono text-muted-foreground"
+            class="text-sm tabular-nums text-muted-foreground"
           >
             {item.publishedAtLabel}
           </time>
@@ -170,7 +169,7 @@ const displayItems = items.map(getDisplayItem);
       <Fragment slot="list">
         <time
           datetime={item.publishedAtIso}
-          class="text-sm font-mono text-muted-foreground"
+          class="text-sm tabular-nums text-muted-foreground"
         >
           {item.publishedAtLabel}
         </time>
