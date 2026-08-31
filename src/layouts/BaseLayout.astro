@@ -1,13 +1,10 @@
 ---
 import { ClientRouter } from "astro:transitions";
-import { Icon } from "astro-icon/components";
 import LoadingIndicator from "astro-loading-indicator/component";
 import { SEO } from "astro-seo";
 import { ThemeScript } from "astro-theme-toggle";
-import NavLinks from "../components/navigation/NavLinks.astro";
+import MobileDrawer from "../components/navigation/MobileDrawer.astro";
 import SearchModal from "../components/search/SearchModal.astro";
-import Button from "../components/ui/Button.astro";
-import ThemeToggle from "../components/ui/ThemeToggle.astro";
 import { siteConfig } from "../config/site";
 import { toAbsoluteSiteUrl, withBasePath } from "../utils/paths";
 import Footer from "./Footer.astro";
@@ -134,6 +131,8 @@ const seoProps = {
       href={rssHref}
     >
     <ClientRouter />
+    {/* Theme bootstrap: these handlers must run before first paint, so they
+        stay inline instead of living in a bundled module. */}
     <script is:inline>
     document.addEventListener("astro:before-swap", (e) => {
       const current = document.documentElement.dataset.theme;
@@ -163,6 +162,8 @@ const seoProps = {
         set:html={JSON.stringify(jsonLd).replace(/</g, "\\u003c")}
       />
     )}
+    {/* Legacy migration shim for the pre-astro-theme-toggle `theme` key.
+        Remove once migrated keys are no longer expected in the wild. */}
     <script is:inline>
     if (localStorage.getItem("theme")) {
       localStorage.setItem("theme-toggle", localStorage.getItem("theme"));
@@ -175,50 +176,9 @@ const seoProps = {
     <a href="#main-content" class="skip-link">跳到主要内容</a>
     <Header mobileDrawerEnabled={mobileDrawerEnabled} />
     {mobileDrawerEnabled && (
-      <>
-        <div
-          id="mobile-drawer-overlay"
-          class="pointer-events-none fixed inset-0 z-[60] bg-black/40 opacity-0 transition-opacity duration-300 lg:hidden"
-          aria-hidden="true"
-        />
-        <aside
-          id="mobile-drawer"
-          class="pointer-events-none fixed right-0 top-0 z-[61] flex h-dvh w-[min(22.5rem,86vw)] translate-x-full flex-col gap-4 overflow-y-auto border-l border-border bg-background px-4 py-4 shadow-2xl transition-transform duration-300 lg:hidden"
-          aria-hidden="true"
-          aria-labelledby="mobile-drawer-title"
-          aria-modal="true"
-          role="dialog"
-          tabindex="-1"
-        >
-          <div class="flex items-center justify-between">
-            <div>
-              <div class="text-sm text-muted-foreground">导航</div>
-              <div
-                id="mobile-drawer-title"
-                class="font-serif text-lg font-semibold text-strong"
-              >
-                {siteConfig.site.title}
-              </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <ThemeToggle />
-              <Button
-                variant="ghost"
-                shape="circle"
-                size="md"
-                aria-label="关闭侧边栏"
-                data-mobile-drawer-close
-              >
-                <Icon name="material-symbols:close-rounded" size={22} />
-              </Button>
-            </div>
-          </div>
-
-          <NavLinks currentPath={currentPath} variant="drawer" closeOnClick />
-
-          <slot name="mobile-drawer" />
-        </aside>
-      </>
+      <MobileDrawer currentPath={currentPath}>
+        <slot name="mobile-drawer" />
+      </MobileDrawer>
     )}
     <main id="main-content" tabindex="-1" class="page-frame main-frame">
       <slot />

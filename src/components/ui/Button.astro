@@ -1,7 +1,13 @@
 ---
+import type { HTMLAttributes } from "astro/types";
 import { withBasePath } from "../../utils/paths";
 
-interface Props {
+// The component renders `<a>` when `href` is set and `<button>` otherwise,
+// so native attributes from both elements are accepted.
+type NativeAttributes = HTMLAttributes<"a"> & HTMLAttributes<"button">;
+
+export interface Props
+  extends Omit<NativeAttributes, "class" | "href" | "type"> {
   variant?: "primary" | "secondary" | "soft" | "ghost";
   size?: "sm" | "md" | "lg";
   shape?: "pill" | "circle";
@@ -10,7 +16,6 @@ interface Props {
   class?: string;
   type?: "button" | "submit" | "reset";
   active?: boolean;
-  [key: string]: unknown;
 }
 
 const {

@@ -1,6 +1,14 @@
 ---
 import { Icon } from "astro-icon/components";
 
+export interface Props {
+  icon: string;
+  as?: "span" | "time";
+  datetime?: string;
+  class?: string;
+  iconSize?: number;
+}
+
 const {
   icon,
   as = "span",

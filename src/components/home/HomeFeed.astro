@@ -7,6 +7,7 @@ import Badge from "../ui/Badge.astro";
 import MetaItem from "../ui/MetaItem.astro";
 import TagBadgeList from "../ui/TagBadgeList.astro";
 import ViewCollection from "../ui/ViewCollection.astro";
+import ViewItem from "../ui/ViewItem.astro";
 
 interface HomeFeedPostItem {
   type: "post";
@@ -107,16 +108,13 @@ const displayItems = items.map(getDisplayItem);
 >
   {displayItems.length === 0 && (
     <div class="surface-card p-6 text-sm leading-7 text-muted-foreground">
-      No posts yet. Add Markdown files under <code>src/content/blog</code> to populate the home feed.
+      暂无内容。在 <code>src/content/blog</code> 下添加 Markdown
+      文件后，首页信息流会自动展示。
     </div>
   )}
   {displayItems.map((item) => (
-    <a
-      href={withBasePath(item.href)}
-      data-view-item={defaultView}
-      class="view-collection-item group block transition"
-    >
-      <div class="view-collection-card surface-card surface-card-hover flex h-full flex-col p-4">
+    <ViewItem href={withBasePath(item.href)} view={defaultView}>
+      <Fragment slot="card">
         <div class="mb-3 flex items-center justify-between gap-3">
           <Badge size="sm" color={item.badgeColor}>{item.kindLabel}</Badge>
           <time
@@ -167,12 +165,9 @@ const displayItems = items.map(getDisplayItem);
             </MetaItem>
           </div>
         )}
-      </div>
+      </Fragment>
 
-      <div
-        class="view-collection-list list-row-hover px-5 py-4"
-        data-view-list-layout="dated"
-      >
+      <Fragment slot="list">
         <time
           datetime={item.publishedAtIso}
           class="home-feed-list-date text-sm font-mono text-muted-foreground"
@@ -210,7 +205,7 @@ const displayItems = items.map(getDisplayItem);
             </div>
           )}
         </div>
-      </div>
-    </a>
+      </Fragment>
+    </ViewItem>
   ))}
 </ViewCollection>

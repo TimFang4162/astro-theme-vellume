@@ -1,0 +1,56 @@
+---
+import { Icon } from "astro-icon/components";
+import { siteConfig } from "../../config/site";
+import Button from "../ui/Button.astro";
+import ThemeToggle from "../ui/ThemeToggle.astro";
+import NavLinks from "./NavLinks.astro";
+
+interface Props {
+  currentPath: string;
+}
+
+const { currentPath } = Astro.props;
+---
+
+<div
+  id="mobile-drawer-overlay"
+  class="pointer-events-none fixed inset-0 z-[60] bg-black/40 opacity-0 transition-opacity duration-300 lg:hidden"
+  aria-hidden="true"
+/>
+<aside
+  id="mobile-drawer"
+  class="pointer-events-none fixed right-0 top-0 z-[61] flex h-dvh w-[min(22.5rem,86vw)] translate-x-full flex-col gap-4 overflow-y-auto border-l border-border bg-background px-4 py-4 shadow-2xl transition-transform duration-300 lg:hidden"
+  aria-hidden="true"
+  aria-labelledby="mobile-drawer-title"
+  aria-modal="true"
+  role="dialog"
+  tabindex="-1"
+>
+  <div class="flex items-center justify-between">
+    <div>
+      <div class="text-sm text-muted-foreground">导航</div>
+      <div
+        id="mobile-drawer-title"
+        class="font-serif text-lg font-semibold text-strong"
+      >
+        {siteConfig.site.title}
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <ThemeToggle />
+      <Button
+        variant="ghost"
+        shape="circle"
+        size="md"
+        aria-label="关闭侧边栏"
+        data-mobile-drawer-close
+      >
+        <Icon name="material-symbols:close-rounded" size={22} />
+      </Button>
+    </div>
+  </div>
+
+  <NavLinks currentPath={currentPath} variant="drawer" closeOnClick />
+
+  <slot />
+</aside>

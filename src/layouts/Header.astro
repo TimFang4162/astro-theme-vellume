@@ -45,28 +45,28 @@ const homeHref = withBasePath("/");
         ]}
       />
       {mobileDrawerEnabled && (
-          <Button
-            id="mobile-menu-button"
-            variant="ghost"
-            shape="circle"
-            size="md"
-            class="bg-background/90 shadow-sm md:hidden"
-            aria-label="切换侧边栏"
-            aria-controls="mobile-drawer"
-            aria-expanded="false"
-          >
-            <Icon
-              name="material-symbols:menu-rounded"
-              size={24}
-              class="menu-icon"
-            />
-            <Icon
-              name="material-symbols:close-rounded"
-              size={24}
-              class="close-icon hidden"
-            />
-          </Button>
-        )}
+        <Button
+          id="mobile-menu-button"
+          variant="ghost"
+          shape="circle"
+          size="md"
+          class="bg-background/90 shadow-sm md:hidden"
+          aria-label="切换侧边栏"
+          aria-controls="mobile-drawer"
+          aria-expanded="false"
+        >
+          <Icon
+            name="material-symbols:menu-rounded"
+            size={24}
+            class="menu-icon"
+          />
+          <Icon
+            name="material-symbols:close-rounded"
+            size={24}
+            class="close-icon hidden"
+          />
+        </Button>
+      )}
     </div>
   </div>
 </header>

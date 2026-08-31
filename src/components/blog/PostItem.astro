@@ -6,6 +6,7 @@ import { withBasePath } from "../../utils/paths";
 import { estimateReadTime, getEntryReadMinutes } from "../../utils/text";
 import MetaItem from "../ui/MetaItem.astro";
 import TagBadgeList from "../ui/TagBadgeList.astro";
+import ViewItem from "../ui/ViewItem.astro";
 
 interface Props {
   post: CollectionEntry<"blog">;
@@ -19,17 +20,10 @@ const readTime = estimateReadTime(getEntryReadMinutes(post));
 const publishedAtIso = data.publishedAt.toISOString();
 const publishedAtLabel = formatDate(data.publishedAt);
 const seriesLabel = seriesTitle ?? data.series?.id;
-const postHref = withBasePath(`/posts/${id}`);
 ---
 
-<a
-  href={postHref}
-  data-view-item={view}
-  class="view-collection-item group block transition"
->
-  <div
-    class="view-collection-card surface-card surface-card-hover flex h-full flex-col p-4"
-  >
+<ViewItem href={withBasePath(`/posts/${id}`)} view={view}>
+  <Fragment slot="card">
     <h3 class="card-title text-strong transition group-hover:text-primary">
       {data.title}
     </h3>
@@ -50,12 +44,9 @@ const postHref = withBasePath(`/posts/${id}`);
         </MetaItem>
       </div>
     </div>
-  </div>
+  </Fragment>
 
-  <div
-    class="view-collection-list list-row-hover px-5 py-4"
-    data-view-list-layout="dated"
-  >
+  <Fragment slot="list">
     <time
       datetime={publishedAtIso}
       class="text-sm font-mono text-muted-foreground"
@@ -85,5 +76,5 @@ const postHref = withBasePath(`/posts/${id}`);
         <TagBadgeList tags={data.tags} variant="plain" />
       </div>
     </div>
-  </div>
-</a>
+  </Fragment>
+</ViewItem>

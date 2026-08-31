@@ -1,6 +1,7 @@
 ---
 import { Icon } from "astro-icon/components";
 import { siteConfig } from "../../config/site";
+import { slugifyId } from "../../utils/id";
 import QRCode from "../ui/QRCode.astro";
 
 interface Props {
@@ -18,7 +19,7 @@ const {
   wechatQrValue = siteConfig.links.wechatQr,
   idPrefix = "social-links",
 } = Astro.props;
-const normalizedIdPrefix = idPrefix.trim().replace(/[^a-zA-Z0-9_-]+/g, "-");
+const normalizedIdPrefix = slugifyId(idPrefix);
 const wechatPopoverId = `${normalizedIdPrefix || "social-links"}-wechat-popover-panel`;
 ---
 

@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import { formatDate } from "../../utils/date";
+import { slugifyId } from "../../utils/id";
 import { withBasePath } from "../../utils/paths";
 
 interface Props {
@@ -12,7 +13,7 @@ interface Props {
 const { prev, next, pageKey, showFeedback = true } = Astro.props;
 const prevHref = prev ? withBasePath(`/posts/${prev.id}`) : undefined;
 const nextHref = next ? withBasePath(`/posts/${next.id}`) : undefined;
-const wavePatternId = `post-nav-wave-${pageKey.replace(/[^a-zA-Z0-9_-]+/g, "-")}`;
+const wavePatternId = `post-nav-wave-${slugifyId(pageKey)}`;
 ---
 
 {(prev || next) && (
