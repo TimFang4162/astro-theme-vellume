@@ -117,21 +117,14 @@ export function initSearch() {
       return;
     }
 
+    // Show a plain status line (not placeholder links) while result data loads.
+    const loading = document.createElement("p");
+    loading.className = "search-hint";
+    loading.setAttribute("role", "status");
+    loading.textContent = "正在加载结果…";
+    resultsEl.appendChild(loading);
+
     const items = search.results.slice(0, 8);
-
-    const anchors: HTMLAnchorElement[] = [];
-    for (const _r of items) {
-      const a = document.createElement("a");
-      a.href = "#";
-      a.className = "search-result-item";
-      const titleDiv = document.createElement("div");
-      titleDiv.className = "search-result-title";
-      titleDiv.textContent = "加载中...";
-      a.appendChild(titleDiv);
-      resultsEl.appendChild(a);
-      anchors.push(a);
-    }
-
     const dataArr = await Promise.all(items.map((r) => r.data()));
 
     if (
@@ -141,20 +134,29 @@ export function initSearch() {
       return;
     }
 
-    for (let idx = 0; idx < dataArr.length; idx++) {
-      const data = dataArr[idx];
-      const a = anchors[idx];
+    const fragment = document.createDocumentFragment();
+
+    for (const data of dataArr) {
+      const a = document.createElement("a");
       a.href = data.url;
-      const titleDiv = a.querySelector<HTMLElement>(".search-result-title");
-      if (!titleDiv) continue;
+      a.className = "search-result-item";
+      const titleDiv = document.createElement("div");
+      titleDiv.className = "search-result-title";
       titleDiv.textContent = data.meta?.title ?? data.url;
+      a.appendChild(titleDiv);
       if (data.excerpt) {
         const excerptDiv = document.createElement("div");
         excerptDiv.className = "search-result-excerpt";
+        // Pagefind builds excerpts from our own build-time index; treat that
+        // as trusted HTML (it contains <mark> highlights).
         excerptDiv.innerHTML = data.excerpt;
         a.appendChild(excerptDiv);
       }
+      fragment.appendChild(a);
     }
+
+    resultsEl.textContent = "";
+    resultsEl.appendChild(fragment);
   }
 
   let debounceTimer: ReturnType<typeof setTimeout>;
@@ -269,6 +271,7 @@ export function initSearch() {
   document.addEventListener(
     "astro:before-swap",
     () => {
+      clearTimeout(debounceTimer);
       close({ restoreFocus: false });
       controller.abort();
       if (currentController === controller) {

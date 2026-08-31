@@ -179,6 +179,9 @@ function initTocInstance(toc: Element) {
   const scrollRegion = toc.querySelector("[data-toc-scroll]");
   const scrollContainer =
     scrollRegion instanceof HTMLElement ? scrollRegion : toc;
+  const prefersReducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  );
   const mobileDrawer = toc.closest("#mobile-drawer");
   const isInMobileDrawer = mobileDrawer instanceof HTMLElement;
   const article = document.querySelector("article");
@@ -306,7 +309,7 @@ function initTocInstance(toc: Element) {
 
     window.scrollTo({
       top: Math.max(targetTop, 0),
-      behavior: "smooth",
+      behavior: prefersReducedMotion.matches ? "auto" : "smooth",
     });
   };
 

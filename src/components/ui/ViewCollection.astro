@@ -11,6 +11,8 @@ interface Props {
   titleTag?: "h1" | "h2" | "h3";
   tone?: "section" | "page";
   fontStyle?: "ui" | "reading";
+  /** Stable key used to persist the chosen view in localStorage. */
+  viewKey?: string;
   class?: string;
 }
 
@@ -22,6 +24,7 @@ const {
   titleTag = "h2",
   tone = "section",
   fontStyle,
+  viewKey,
   class: className,
 } = Astro.props;
 ---
@@ -30,6 +33,7 @@ const {
   data-view-root
   data-view={defaultView}
   class:list={["view-collection-root space-y-5", className]}
+  {...(viewKey ? { "data-view-key": viewKey } : {})}
 >
   {(title || description || showViewToggle) && (
     <SectionIntro

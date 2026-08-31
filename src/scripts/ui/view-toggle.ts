@@ -1,4 +1,68 @@
 const DEFAULT_VIEW = "card";
+const STORAGE_KEY = "vellume:view-preferences";
+
+function getViewKey(root: HTMLElement) {
+  return root.dataset.viewKey || "";
+}
+
+function readStoredView(root: HTMLElement): string | null {
+  const key = getViewKey(root);
+
+  if (!key) {
+    return null;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+
+    if (!raw) {
+      return null;
+    }
+
+    const parsed: unknown = JSON.parse(raw);
+
+    if (typeof parsed !== "object" || parsed === null) {
+      return null;
+    }
+
+    const view = (parsed as Record<string, unknown>)[key];
+
+    if (typeof view !== "string") {
+      return null;
+    }
+
+    // Only restore a view this root actually offers a button for.
+    const isOffered = Array.from(
+      root.querySelectorAll<HTMLButtonElement>("[data-view-btn]"),
+    ).some((button) => button.dataset.viewBtn === view);
+
+    return isOffered ? view : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredView(root: HTMLElement, view: string) {
+  const key = getViewKey(root);
+
+  if (!key) {
+    return;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : {};
+    const prefs =
+      typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)
+        ? (parsed as Record<string, unknown>)
+        : {};
+
+    prefs[key] = view;
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
+  } catch {
+    // Preferences are best-effort; storage may be unavailable.
+  }
+}
 
 function updateView(root: HTMLElement, view: string) {
   root.dataset.view = view;
@@ -22,7 +86,8 @@ function updateView(root: HTMLElement, view: string) {
 
 export function initViewToggles() {
   document.querySelectorAll<HTMLElement>("[data-view-root]").forEach((root) => {
-    const initialView = root.dataset.view || DEFAULT_VIEW;
+    const storedView = readStoredView(root);
+    const initialView = storedView ?? (root.dataset.view || DEFAULT_VIEW);
 
     if (root.dataset.viewReady === "true") {
       updateView(root, initialView);
@@ -36,7 +101,10 @@ export function initViewToggles() {
       .querySelectorAll<HTMLButtonElement>("[data-view-btn]")
       .forEach((button) => {
         button.addEventListener("click", () => {
-          updateView(root, button.dataset.viewBtn || DEFAULT_VIEW);
+          const view = button.dataset.viewBtn || DEFAULT_VIEW;
+
+          updateView(root, view);
+          writeStoredView(root, view);
         });
       });
   });

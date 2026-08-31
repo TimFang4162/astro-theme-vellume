@@ -139,8 +139,13 @@
   }
 
   html {
-    scroll-behavior: smooth;
     scroll-padding-top: var(--scroll-offset-block);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
 
   body {

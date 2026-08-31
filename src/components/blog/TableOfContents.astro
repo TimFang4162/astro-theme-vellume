@@ -116,8 +116,10 @@ import "../../scripts/ui/table-of-contents";
 </script>
 
 <style>
-:global(.toc-scroll) {
-  scroll-behavior: smooth;
+@media (prefers-reduced-motion: no-preference) {
+  :global(.toc-scroll) {
+    scroll-behavior: smooth;
+  }
 }
 
 :global(.toc-node) {

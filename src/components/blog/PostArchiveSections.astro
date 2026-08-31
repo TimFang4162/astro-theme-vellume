@@ -9,6 +9,7 @@ interface Props {
   defaultView?: "card" | "list";
   fontStyle?: "ui" | "reading";
   class?: string;
+  viewKey?: string;
 }
 
 const {
@@ -17,6 +18,7 @@ const {
   defaultView = "list",
   fontStyle = "ui",
   class: className,
+  viewKey = "posts-archive",
 } = Astro.props;
 
 const groupedPosts = groupPostsByMonth(posts);
@@ -40,7 +42,11 @@ const HeadingTag = headingTag;
       >
         {month}
       </HeadingTag>
-      <PostList posts={groupedPosts[month]} defaultView={defaultView} />
+      <PostList
+        posts={groupedPosts[month]}
+        defaultView={defaultView}
+        viewKey={viewKey}
+      />
     </section>
   ))}
 </div>
