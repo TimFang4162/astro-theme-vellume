@@ -3,7 +3,11 @@ import PostArchiveSections from "../../components/blog/PostArchiveSections.astro
 import StatsCard from "../../components/blog/StatsCard.astro";
 import SectionIntro from "../../components/ui/SectionIntro.astro";
 import Layout from "../../layouts/BaseLayout.astro";
-import { getPublicBlogPosts, getTagCounts } from "../../lib/blog";
+import {
+  getMonthKey,
+  getPublicBlogPosts,
+  getTagCounts,
+} from "../../lib/blog";
 import { estimateWordCount } from "../../utils/text";
 
 const allPosts = await getPublicBlogPosts();
@@ -15,7 +19,7 @@ const totalWords = allPosts.reduce((sum, post) => {
 }, 0);
 const tagCounts = getTagCounts(allPosts);
 const monthsWithPosts = new Set(
-  allPosts.map((post) => post.data.publishedAt.toISOString().slice(0, 7)),
+  allPosts.map((post) => getMonthKey(post.data.publishedAt)),
 );
 ---
 

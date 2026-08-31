@@ -3,29 +3,31 @@ import { type CollectionEntry, getCollection } from "astro:content";
 export type BlogPost = CollectionEntry<"blog">;
 export type SeriesEntry = CollectionEntry<"series">;
 
-let blogPostsPromise: Promise<BlogPost[]> | undefined;
-let seriesEntriesPromise: Promise<SeriesEntry[]> | undefined;
 let publicBlogPostsPromise: Promise<BlogPost[]> | undefined;
 let accessibleBlogPostsPromise: Promise<BlogPost[]> | undefined;
+let allBlogPostsPromise: Promise<BlogPost[]> | undefined;
+let seriesEntriesPromise: Promise<SeriesEntry[]> | undefined;
 let seriesTitleMapPromise: Promise<Map<string, string>> | undefined;
 
-export function sortBlogPosts(posts: BlogPost[]) {
+function sortBlogPosts(posts: BlogPost[]) {
   return [...posts].sort(
     (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf(),
   );
 }
 
-export function isPublicPost(post: BlogPost) {
-  return post.data.visibility === "public";
+function sortSeriesPosts(posts: BlogPost[]) {
+  return [...posts].sort(
+    (a, b) => a.data.publishedAt.valueOf() - b.data.publishedAt.valueOf(),
+  );
 }
 
 export function isAccessiblePost(post: BlogPost) {
   return post.data.visibility !== "draft";
 }
 
-export function getAllBlogPosts() {
-  blogPostsPromise ??= getCollection("blog");
-  return blogPostsPromise;
+function getAllBlogPosts() {
+  allBlogPostsPromise ??= getCollection("blog");
+  return allBlogPostsPromise;
 }
 
 export function getSeriesEntries() {
@@ -35,7 +37,7 @@ export function getSeriesEntries() {
 
 export async function getPublicBlogPosts() {
   publicBlogPostsPromise ??= getAllBlogPosts().then((posts) =>
-    sortBlogPosts(posts.filter(isPublicPost)),
+    sortBlogPosts(posts.filter((post) => post.data.visibility === "public")),
   );
   return publicBlogPostsPromise;
 }
@@ -55,12 +57,6 @@ export async function getSeriesTitleMap() {
   return seriesTitleMapPromise;
 }
 
-export function sortSeriesPosts(posts: BlogPost[]) {
-  return [...posts].sort(
-    (a, b) => a.data.publishedAt.valueOf() - b.data.publishedAt.valueOf(),
-  );
-}
-
 export function getTagCounts(posts: BlogPost[]) {
   return posts.reduce((acc, post) => {
     post.data.tags.forEach((tag) => {
@@ -76,11 +72,15 @@ export function sortTagCounts(tagCounts: Map<string, number>) {
   );
 }
 
+/** Local-time "YYYY-MM" key; must match how archives display months. */
+export function getMonthKey(date: Date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+}
+
 export function groupPostsByMonth(posts: BlogPost[]) {
   return posts.reduce(
     (groups, post) => {
-      const date = new Date(post.data.publishedAt);
-      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+      const key = getMonthKey(post.data.publishedAt);
       groups[key] ??= [];
       groups[key].push(post);
       return groups;
@@ -89,7 +89,7 @@ export function groupPostsByMonth(posts: BlogPost[]) {
   );
 }
 
-export function getSeriesMap(posts: BlogPost[]) {
+function getSeriesMap(posts: BlogPost[]) {
   const seriesMap = posts.reduce((acc, post) => {
     if (!post.data.series) {
       return acc;
@@ -126,9 +126,11 @@ export function getAdjacentPosts(posts: BlogPost[], currentId: string) {
 }
 
 export function getSeriesMeta(seriesEntries: SeriesEntry[], posts: BlogPost[]) {
+  const seriesMap = getSeriesMap(posts);
+
   return seriesEntries
     .map((seriesEntry) => {
-      const seriesPosts = getSeriesPosts(posts, seriesEntry.id);
+      const seriesPosts = seriesMap.get(seriesEntry.id) ?? [];
 
       return {
         entry: seriesEntry,

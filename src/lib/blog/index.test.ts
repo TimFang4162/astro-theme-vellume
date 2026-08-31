@@ -2,19 +2,21 @@ import { describe, expect, it, vi } from "vitest";
 import {
   type BlogPost,
   getAdjacentPosts,
-  getSeriesMap,
+  getMonthKey,
   getSeriesMeta,
   getSeriesPosts,
   getTagCounts,
   groupPostsByMonth,
   isAccessiblePost,
-  isPublicPost,
   type SeriesEntry,
-  sortBlogPosts,
   sortTagCounts,
 } from "./index";
 
-vi.mock("astro:content", () => ({ getCollection: vi.fn() }));
+const getCollectionMock = vi.fn();
+
+vi.mock("astro:content", () => ({
+  getCollection: (...args: unknown[]) => getCollectionMock(...args),
+}));
 
 type BlogData = BlogPost["data"];
 
@@ -45,37 +47,66 @@ function makeSeries(id: string): SeriesEntry {
   } as unknown as SeriesEntry;
 }
 
-describe("sortBlogPosts", () => {
-  it("sorts newest first without mutating the input", () => {
-    const a = makePost("a", { publishedAt: new Date("2026-01-01") });
-    const b = makePost("b", { publishedAt: new Date("2026-03-01") });
-    const c = makePost("c", { publishedAt: new Date("2026-02-01") });
-    const input = [a, b, c];
+/**
+ * The post getters memoize their result at module scope, so each scenario
+ * loads a fresh module instance against a fresh getCollection mock.
+ */
+async function loadBlogModule() {
+  vi.resetModules();
+  getCollectionMock.mockClear();
+  return await import("./index");
+}
 
-    const sorted = sortBlogPosts(input);
+describe("post lists", () => {
+  it("getPublicBlogPosts sorts newest first and keeps only public posts", async () => {
+    const { getPublicBlogPosts } = await loadBlogModule();
+    getCollectionMock.mockResolvedValue([
+      makePost("a", { publishedAt: new Date("2026-01-01") }),
+      makePost("u", {
+        publishedAt: new Date("2026-03-01"),
+        visibility: "unlisted",
+      }),
+      makePost("b", { publishedAt: new Date("2026-02-01") }),
+      makePost("d", {
+        publishedAt: new Date("2026-04-01"),
+        visibility: "draft",
+      }),
+    ]);
 
-    expect(sorted.map((post) => post.id)).toEqual(["b", "c", "a"]);
-    expect(input.map((post) => post.id)).toEqual(["a", "b", "c"]);
+    const posts = await getPublicBlogPosts();
+
+    expect(posts.map((post) => post.id)).toEqual(["b", "a"]);
   });
-});
 
-describe("visibility predicates", () => {
-  it("treats only public posts as public", () => {
-    expect(isPublicPost(makePost("p", { visibility: "public" }))).toBe(true);
-    expect(isPublicPost(makePost("u", { visibility: "unlisted" }))).toBe(false);
-    expect(isPublicPost(makePost("d", { visibility: "draft" }))).toBe(false);
+  it("getAccessibleBlogPosts keeps unlisted posts but drops drafts", async () => {
+    const { getAccessibleBlogPosts } = await loadBlogModule();
+    getCollectionMock.mockResolvedValue([
+      makePost("p", { publishedAt: new Date("2026-01-01") }),
+      makePost("u", {
+        publishedAt: new Date("2026-03-01"),
+        visibility: "unlisted",
+      }),
+      makePost("d", {
+        publishedAt: new Date("2026-04-01"),
+        visibility: "draft",
+      }),
+    ]);
+
+    const posts = await getAccessibleBlogPosts();
+
+    expect(posts.map((post) => post.id)).toEqual(["u", "p"]);
+    expect(posts.every((post) => isAccessiblePost(post))).toBe(true);
   });
 
-  it("treats drafts as inaccessible but unlisted as accessible", () => {
-    expect(isAccessiblePost(makePost("p", { visibility: "public" }))).toBe(
-      true,
-    );
-    expect(isAccessiblePost(makePost("u", { visibility: "unlisted" }))).toBe(
-      true,
-    );
-    expect(isAccessiblePost(makePost("d", { visibility: "draft" }))).toBe(
-      false,
-    );
+  it("memoizes repeated lookups", async () => {
+    const { getPublicBlogPosts } = await loadBlogModule();
+    getCollectionMock.mockResolvedValue([makePost("a")]);
+
+    const first = await getPublicBlogPosts();
+    const second = await getPublicBlogPosts();
+
+    expect(second).toBe(first);
+    expect(getCollectionMock).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -107,8 +138,13 @@ describe("tag counts", () => {
   });
 });
 
-describe("groupPostsByMonth", () => {
-  it("groups by YYYY-MM with zero-padded months", () => {
+describe("month grouping", () => {
+  it("getMonthKey uses local time with zero-padded months", () => {
+    expect(getMonthKey(new Date(2026, 0, 9))).toBe("2026-01");
+    expect(getMonthKey(new Date(2025, 11, 31))).toBe("2025-12");
+  });
+
+  it("groups by YYYY-MM in list order", () => {
     const groups = groupPostsByMonth([
       makePost("a", { publishedAt: new Date("2026-01-09") }),
       makePost("b", { publishedAt: new Date("2026-01-20") }),
@@ -137,18 +173,14 @@ describe("series helpers", () => {
     makePost("loose"),
   ];
 
-  it("sorts series posts chronologically ascending", () => {
-    const seriesMap = getSeriesMap(posts);
-
-    expect(seriesMap.get("alpha")?.map((post) => post.id)).toEqual([
+  it("getSeriesPosts groups by series and sorts chronologically", () => {
+    expect(getSeriesPosts(posts, "alpha").map((post) => post.id)).toEqual([
       "s1-old",
       "s1-new",
     ]);
-    expect(seriesMap.get("beta")?.map((post) => post.id)).toEqual(["s2"]);
-    expect(seriesMap.has("loose")).toBe(false);
-  });
-
-  it("returns an empty list for unknown series", () => {
+    expect(getSeriesPosts(posts, "beta").map((post) => post.id)).toEqual([
+      "s2",
+    ]);
     expect(getSeriesPosts(posts, "missing")).toEqual([]);
   });
 

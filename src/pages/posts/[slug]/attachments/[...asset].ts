@@ -13,9 +13,14 @@ const CONTENT_TYPES: Record<string, string> = {
   ".csv": "text/csv; charset=utf-8",
 };
 
+interface AttachmentParams {
+  slug: string;
+  asset: string;
+}
+
 export async function getStaticPaths() {
   const posts = await getAccessibleBlogPosts();
-  const paths: Array<{ params: { slug: string; asset: string } }> = [];
+  const paths: Array<{ params: AttachmentParams }> = [];
 
   for (const post of posts) {
     if (!post.filePath) {
@@ -49,7 +54,7 @@ export async function getStaticPaths() {
 export async function GET({
   params,
 }: {
-  params: { slug: string; asset: string };
+  params: AttachmentParams;
 }) {
   const posts = await getAccessibleBlogPosts();
   const post = posts.find((entry) => entry.id === params.slug);

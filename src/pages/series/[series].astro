@@ -1,4 +1,5 @@
 ---
+import type { InferGetStaticPropsType } from "astro";
 import { render } from "astro:content";
 import PostList from "../../components/blog/PostList.astro";
 import ProseContent from "../../components/ui/ProseContent.astro";
@@ -22,18 +23,20 @@ export async function getStaticPaths() {
   }));
 }
 
+export type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
 const { seriesItem } = Astro.props;
 const { entry: series, posts: seriesPosts } = seriesItem;
 const { Content } = await render(series);
+const pageTitle = `系列: ${series.data.title}`;
+const pageDescription =
+  series.data.description || `${series.data.title} 系列文章`;
 ---
 
-<Layout
-  title={`系列: ${series.data.title}`}
-  description={series.data.description || `${series.data.title} 系列文章`}
->
+<Layout title={pageTitle} description={pageDescription}>
   <div class="page-stack">
     <SectionIntro
-      title={`系列: ${series.data.title}`}
+      title={pageTitle}
       description="按主题组织的系列文章"
       fontStyle="reading"
       backHref="/series"

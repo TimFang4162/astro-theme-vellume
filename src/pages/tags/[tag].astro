@@ -1,4 +1,5 @@
 ---
+import type { InferGetStaticPropsType } from "astro";
 import PostList from "../../components/blog/PostList.astro";
 import SectionIntro from "../../components/ui/SectionIntro.astro";
 import Layout from "../../layouts/BaseLayout.astro";
@@ -19,13 +20,16 @@ export async function getStaticPaths() {
   }));
 }
 
+export type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
 const { tag, posts } = Astro.props;
+const pageTitle = `标签: ${tag}`;
 ---
 
-<Layout title={`标签: ${tag}`}>
+<Layout title={pageTitle}>
   <div class="page-stack">
     <SectionIntro
-      title={`标签: ${tag}`}
+      title={pageTitle}
       description="按标签归档的相关文章"
       fontStyle="reading"
       backHref="/tags"
