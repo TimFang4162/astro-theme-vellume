@@ -25,6 +25,10 @@ interface PagefindAPI {
   search: (query: string) => Promise<PagefindSearch>;
 }
 
+const SEARCH_DEBOUNCE_MS = 200;
+const SEARCH_RESULT_LIMIT = 8;
+const FOCUS_AFTER_OPEN_MS = 50;
+
 let currentController: AbortController | null = null;
 
 export function initSearch() {
@@ -73,7 +77,7 @@ export function initSearch() {
     modal.classList.add("is-open");
     modal.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
-    setTimeout(() => input?.focus(), 50);
+    setTimeout(() => input?.focus(), FOCUS_AFTER_OPEN_MS);
   };
 
   const close = ({ restoreFocus = true } = {}) => {
@@ -124,7 +128,7 @@ export function initSearch() {
     loading.textContent = "正在加载结果…";
     resultsEl.appendChild(loading);
 
-    const items = search.results.slice(0, 8);
+    const items = search.results.slice(0, SEARCH_RESULT_LIMIT);
     const dataArr = await Promise.all(items.map((r) => r.data()));
 
     if (
@@ -197,7 +201,7 @@ export function initSearch() {
         return;
       }
       renderResults(results, requestId, expectedQuery);
-    }, 200);
+    }, SEARCH_DEBOUNCE_MS);
   }
 
   input?.addEventListener("input", onInput, { signal: controller.signal });

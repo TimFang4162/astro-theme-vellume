@@ -1,0 +1,20 @@
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none !important;
+}
+
+.no-transition,
+.no-transition *,
+.no-transition *::before,
+.no-transition *::after {
+  transition-duration: 0s !important;
+}
+
+.medium-zoom-overlay,
+.medium-zoom-image--opened {
+  z-index: 999;
+}
+
+.medium-zoom-image--hidden {
+  visibility: visible !important;
+}

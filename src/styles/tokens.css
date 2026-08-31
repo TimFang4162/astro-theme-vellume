@@ -1,0 +1,138 @@
+@custom-variant dark {
+  @media not print {
+    &:where([data-theme="dark"], [data-theme="dark"] *) {
+      @slot;
+    }
+  }
+}
+
+:root {
+  --radius: 1rem;
+  --scroll-offset-block: 5.5rem;
+  --background: #ffffff;
+  --foreground: #131313;
+  --foreground-strong: #000000;
+  --muted: #f3f1ef;
+  --muted-foreground: #555555;
+  --border: #d8d0cb;
+  --border-subtle: color-mix(in srgb, var(--border) 92%, transparent);
+  --transition-colors: color 0.2s ease, background-color 0.2s ease;
+  --transition-ui:
+    color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  --transition-ui-shadow:
+    color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease,
+    box-shadow 0.2s ease;
+  --primary: #904a42;
+  --primary-foreground: #fff7f6;
+  --accent: #fceae6;
+  --accent-foreground: #904a42;
+  --card: rgb(255 255 255 / 0.92);
+  --card-foreground: #131313;
+  --popover: #ffffff;
+  --popover-foreground: #131313;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04);
+  --shadow-card-hover:
+    0 16px 32px rgb(0 0 0 / 0.08), 0 2px 8px rgb(0 0 0 / 0.05);
+  --shadow-floating: 0 18px 48px rgb(0 0 0 / 0.12), 0 2px 8px rgb(0 0 0 / 0.08);
+  --code-block-surface: color-mix(in srgb, var(--background) 94%, var(--muted));
+  --code-block-border: var(--border-subtle);
+  --code-block-header-border: color-mix(
+    in srgb,
+    var(--border) 76%,
+    transparent
+  );
+  --code-block-language: color-mix(
+    in srgb,
+    var(--foreground-strong) 78%,
+    var(--muted-foreground)
+  );
+  --code-block-copy-border: color-mix(in srgb, var(--border) 90%, transparent);
+  --code-block-copy-background: transparent;
+  --code-block-copy-color: var(--muted-foreground);
+  --code-block-copy-hover-background: color-mix(
+    in srgb,
+    var(--accent) 72%,
+    transparent
+  );
+  --code-block-copy-hover-color: var(--primary);
+  --code-block-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+}
+
+@media not print {
+  [data-theme="dark"] {
+    --background: #09090b;
+    --foreground: #d7d5d1;
+    --foreground-strong: #f3f3f3;
+    --muted: #161616;
+    --muted-foreground: #8b949e;
+    --border: #222224;
+    --primary: #feb4a9;
+    --primary-foreground: #1e1917;
+    --accent: #1e1917;
+    --accent-foreground: #feb4a9;
+    --card: rgb(16 16 18 / 0.92);
+    --card-foreground: #f3f3f3;
+    --popover: #101012;
+    --popover-foreground: #f3f3f3;
+    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.24);
+    --shadow-card-hover:
+      0 18px 40px rgb(0 0 0 / 0.28), 0 3px 10px rgb(0 0 0 / 0.18);
+    --shadow-floating:
+      0 24px 56px rgb(0 0 0 / 0.4), 0 4px 12px rgb(0 0 0 / 0.24);
+    --code-block-surface: color-mix(in srgb, #0d0d0f 88%, var(--card));
+    --code-block-border: color-mix(in srgb, var(--border) 94%, transparent);
+    --code-block-header-border: color-mix(
+      in srgb,
+      var(--border) 84%,
+      transparent
+    );
+    --code-block-language: color-mix(
+      in srgb,
+      var(--foreground-strong) 84%,
+      var(--muted-foreground)
+    );
+    --code-block-copy-border: color-mix(
+      in srgb,
+      var(--border) 92%,
+      transparent
+    );
+    --code-block-copy-background: transparent;
+    --code-block-copy-color: var(--muted-foreground);
+    --code-block-copy-hover-background: color-mix(
+      in srgb,
+      var(--accent) 84%,
+      transparent
+    );
+    --code-block-copy-hover-color: var(--primary);
+    --code-block-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
+  }
+}
+
+@theme inline {
+  --font-sans:
+    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Noto Sans SC", sans-serif;
+  --font-serif:
+    "Palatino Linotype", "Palatino", "Iowan Old Style", "Book Antiqua", Georgia,
+    "Noto Serif SC", serif;
+  --font-mono:
+    "JetBrains Mono", "Cascadia Mono", Menlo, Monaco, Consolas, monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-foreground-strong: var(--foreground-strong);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 0.5rem);
+}

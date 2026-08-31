@@ -14,18 +14,22 @@ import {
   sortTagCounts,
 } from "../lib/blog";
 
+const FEATURED_TAG_LIMIT = 18;
+
+const pageTitle = "发现";
+const pageDescription = "按系列、标签和时间线浏览文章";
 const allPosts = await getPublicBlogPosts();
 const tagCounts = getTagCounts(allPosts);
 const totalTagCount = tagCounts.size;
-const featuredTags = sortTagCounts(tagCounts).slice(0, 18);
+const featuredTags = sortTagCounts(tagCounts).slice(0, FEATURED_TAG_LIMIT);
 const seriesList = getSeriesMeta(await getSeriesEntries(), allPosts);
 ---
 
-<Layout title="发现" description="按系列、标签和时间线浏览文章">
+<Layout title={pageTitle} description={pageDescription}>
   <div class="page-stack">
     <SectionIntro
-      title="发现"
-      description="按系列、标签和时间线浏览文章"
+      title={pageTitle}
+      description={pageDescription}
       fontStyle="reading"
     />
 

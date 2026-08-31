@@ -1,0 +1,54 @@
+@utility prose-brand {
+  --tw-prose-body: var(--foreground);
+  --tw-prose-headings: var(--foreground-strong);
+  --tw-prose-lead: var(--muted-foreground);
+  --tw-prose-links: var(--primary);
+  --tw-prose-bold: var(--foreground-strong);
+  --tw-prose-counters: var(--muted-foreground);
+  --tw-prose-bullets: color-mix(in srgb, var(--primary) 30%, var(--border));
+  --tw-prose-hr: var(--border);
+  --tw-prose-quotes: var(--foreground-strong);
+  --tw-prose-quote-borders: color-mix(
+    in srgb,
+    var(--primary) 22%,
+    var(--border)
+  );
+  --tw-prose-captions: var(--muted-foreground);
+  --tw-prose-kbd: var(--foreground-strong);
+  --tw-prose-kbd-shadows: rgb(0 0 0 / 0.12);
+  --tw-prose-code: var(--foreground-strong);
+  --tw-prose-pre-code: #f4f4f5;
+  --tw-prose-pre-bg: #111111;
+  --tw-prose-th-borders: var(--border);
+  --tw-prose-td-borders: color-mix(in srgb, var(--border) 86%, transparent);
+  --tw-prose-invert-body: var(--foreground);
+  --tw-prose-invert-headings: var(--foreground-strong);
+  --tw-prose-invert-lead: var(--muted-foreground);
+  --tw-prose-invert-links: var(--primary);
+  --tw-prose-invert-bold: var(--foreground-strong);
+  --tw-prose-invert-counters: var(--muted-foreground);
+  --tw-prose-invert-bullets: color-mix(
+    in srgb,
+    var(--primary) 36%,
+    var(--border)
+  );
+  --tw-prose-invert-hr: var(--border);
+  --tw-prose-invert-quotes: var(--foreground-strong);
+  --tw-prose-invert-quote-borders: color-mix(
+    in srgb,
+    var(--primary) 28%,
+    var(--border)
+  );
+  --tw-prose-invert-captions: var(--muted-foreground);
+  --tw-prose-invert-kbd: var(--foreground-strong);
+  --tw-prose-invert-kbd-shadows: rgb(255 255 255 / 0.18);
+  --tw-prose-invert-code: var(--foreground-strong);
+  --tw-prose-invert-pre-code: #f4f4f5;
+  --tw-prose-invert-pre-bg: #0d0d0f;
+  --tw-prose-invert-th-borders: var(--border);
+  --tw-prose-invert-td-borders: color-mix(
+    in srgb,
+    var(--border) 86%,
+    transparent
+  );
+}

@@ -1,0 +1,17 @@
+@layer utilities {
+  .rich-prose
+    :where(code-block pre):not(
+      :where([class~="not-prose"], [class~="not-prose"] *)
+    ) {
+    @apply m-0 rounded-none border-0 shadow-none;
+
+    padding: 0.875rem 0;
+  }
+
+  .rich-prose
+    :where(code-block img, .math-inline img, .math-block img):not(
+      :where([class~="not-prose"], [class~="not-prose"] *)
+    ) {
+    margin: 0;
+  }
+}

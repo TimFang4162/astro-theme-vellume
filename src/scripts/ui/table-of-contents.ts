@@ -78,12 +78,16 @@ function getOffsetWithinScrollContainer(
   return elementTop - containerTop + scrollContainer.scrollTop;
 }
 
+// Fallback for `--scroll-offset-block` (5.5rem at a 16px root font size,
+// see src/styles/tokens.css) when the custom property is unreadable.
+const FALLBACK_SCROLL_OFFSET_PX = 88;
+
 function getDocumentScrollOffset() {
   const rootStyle = window.getComputedStyle(document.documentElement);
   const rawOffset = rootStyle.getPropertyValue("--scroll-offset-block").trim();
 
   if (!rawOffset) {
-    return 88;
+    return FALLBACK_SCROLL_OFFSET_PX;
   }
 
   if (rawOffset.endsWith("rem")) {
@@ -96,7 +100,7 @@ function getDocumentScrollOffset() {
   }
 
   const pixelValue = Number.parseFloat(rawOffset);
-  return Number.isFinite(pixelValue) ? pixelValue : 88;
+  return Number.isFinite(pixelValue) ? pixelValue : FALLBACK_SCROLL_OFFSET_PX;
 }
 
 function syncActiveLinksIntoView(

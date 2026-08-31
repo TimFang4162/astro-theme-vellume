@@ -1,0 +1,371 @@
+@layer components {
+  .skip-link {
+    position: fixed;
+    left: 1rem;
+    top: 1rem;
+    z-index: 80;
+    transform: translateY(-200%);
+    border: 1px solid var(--border-subtle);
+    border-radius: 9999px;
+    background: var(--background);
+    color: var(--foreground-strong);
+    padding: 0.75rem 1rem;
+    box-shadow: var(--shadow-floating);
+    transition:
+      transform 0.2s ease,
+      background-color 0.2s ease,
+      color 0.2s ease;
+  }
+
+  .skip-link:focus-visible {
+    transform: translateY(0);
+  }
+
+  .text-strong {
+    color: var(--foreground-strong);
+  }
+
+  .page-title {
+    @apply text-4xl font-sans font-bold md:text-5xl;
+  }
+
+  .page-title-reading {
+    @apply text-4xl font-bold md:text-5xl;
+  }
+
+  .section-title {
+    @apply text-2xl font-sans font-bold md:text-3xl;
+  }
+
+  .section-title-reading {
+    @apply text-2xl font-bold md:text-3xl;
+  }
+
+  .display-title {
+    @apply text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl;
+  }
+
+  .article-title {
+    @apply text-4xl font-bold tracking-tight md:text-5xl;
+  }
+
+  .card-title {
+    @apply text-xl font-sans font-bold;
+  }
+
+  .eyebrow {
+    @apply text-sm font-medium;
+
+    color: var(--muted-foreground);
+  }
+
+  .page-frame {
+    @apply mx-auto max-w-6xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .main-frame {
+    @apply pb-16 pt-8 md:pb-20 md:pt-12;
+  }
+
+  .page-stack {
+    @apply space-y-8 md:space-y-10;
+  }
+
+  .content-layout {
+    @apply grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-10;
+  }
+
+  .metric-grid {
+    @apply grid grid-cols-2 gap-4 md:grid-cols-4;
+  }
+
+  .card-grid-2 {
+    @apply grid gap-4 md:grid-cols-2;
+  }
+
+  .heading-row {
+    @apply flex items-center justify-between gap-4;
+  }
+
+  .article-column {
+    @apply min-w-0 max-w-3xl space-y-8;
+  }
+
+  .surface-card {
+    border: 1px solid var(--border-subtle);
+    border-radius: 1.5rem;
+    background: color-mix(in srgb, var(--card) 96%, transparent);
+    box-shadow: var(--shadow-card);
+  }
+
+  .surface-card-hover {
+    transition: var(--transition-ui-shadow);
+  }
+
+  .surface-card-hover:hover {
+    border-color: var(--primary);
+    background: color-mix(in srgb, var(--accent) 72%, var(--card));
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  .surface-chip {
+    border: 1px solid var(--border-subtle);
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--card) 96%, transparent);
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(16px);
+    transition: var(--transition-ui);
+  }
+
+  .surface-chip:hover {
+    border-color: var(--primary);
+    background: color-mix(in srgb, var(--accent) 72%, var(--card));
+  }
+
+  .segmented-control {
+    display: inline-flex;
+    width: fit-content;
+    gap: 0.25rem;
+    border: 1px solid var(--border-subtle);
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--card) 96%, transparent);
+    padding: 0.25rem;
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(16px);
+  }
+
+  .segmented-control :where([data-view-btn]) {
+    opacity: 0.92;
+  }
+
+  .drawer-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-radius: 1rem;
+    padding: 0.875rem 1rem;
+    font-weight: 500;
+    transition: var(--transition-colors);
+  }
+
+  .drawer-nav-link[aria-current="page"] {
+    background: var(--accent);
+    color: var(--primary);
+  }
+
+  .drawer-nav-link:hover {
+    background: var(--accent);
+    color: var(--primary);
+  }
+
+  .social-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.2s ease;
+  }
+
+  .social-link:hover {
+    color: var(--primary);
+  }
+
+  .popover-card {
+    border: 1px solid var(--border-subtle);
+    border-radius: 1rem;
+    background: var(--popover);
+    box-shadow: var(--shadow-floating);
+    backdrop-filter: blur(16px);
+  }
+
+  .rich-prose {
+    @apply prose prose-brand max-w-none prose-img:rounded-2xl prose-code:text-primary prose-a:font-medium dark:prose-invert;
+    overflow-wrap: anywhere;
+  }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.25rem;
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+  }
+
+  .meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .chip-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .sidebar-link {
+    display: flex;
+    gap: 0.75rem;
+    border-radius: 1rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    transition: var(--transition-colors);
+  }
+
+  .sidebar-link:hover {
+    background: color-mix(in srgb, var(--accent) 78%, transparent);
+    color: var(--primary);
+  }
+
+  .sidebar-link[data-active="true"] {
+    background: var(--accent);
+    color: var(--primary);
+    font-weight: 600;
+  }
+
+  .sidebar-panel-sized {
+    min-height: 0;
+  }
+
+  @media (min-width: 1024px) {
+    .sidebar-panel-sized {
+      max-height: calc((100vh - 6rem - 1rem) / 2);
+    }
+  }
+
+  .list-row-hover {
+    transition: var(--transition-colors);
+  }
+
+  .group:hover .list-row-hover {
+    background: color-mix(in srgb, var(--accent) 72%, transparent);
+  }
+
+  .view-collection {
+    display: block;
+  }
+
+  /* Card/list grids adapt to their actual container (main column, sidebar,
+     drawer) instead of the viewport. */
+  .view-collection-root {
+    container: view-collection / inline-size;
+  }
+
+  .view-collection[data-view-target="card"] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .view-collection[data-view-target="card"]
+    .view-collection-item[data-view-item="card"] {
+    height: 100%;
+  }
+
+  .view-collection[data-view-target="list"] {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--border-subtle);
+    border-radius: 1.5rem;
+    background: color-mix(in srgb, var(--card) 96%, transparent);
+    gap: 0;
+  }
+
+  .view-collection-item[data-view-item="card"] > .view-collection-list {
+    display: none !important;
+  }
+
+  .view-collection-item[data-view-item="list"] > .view-collection-card {
+    display: none !important;
+  }
+
+  .view-collection-item[data-view-item="list"] > .view-collection-list {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  /* 45rem/68rem are the container-width equivalents of the former 768px/1280px
+     viewport breakpoints on the full-width page frame. */
+  @container view-collection (min-width: 45rem) {
+    .view-collection[data-view-target="card"] {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .view-collection-item[data-view-item="list"]
+      .view-collection-list[data-view-list-layout="dated"] {
+      grid-template-columns: 8rem minmax(0, 1fr);
+      align-items: start;
+      column-gap: 1.25rem;
+    }
+  }
+
+  @container view-collection (min-width: 68rem) {
+    .view-collection[data-view-target="card"] {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .icon-well {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1rem;
+    background: var(--accent);
+    color: var(--primary);
+  }
+
+  .prose {
+    font-size: 1rem;
+  }
+
+  .prose :where(p, li, blockquote) {
+    font-size: 1rem;
+    line-height: 1.875;
+  }
+
+  .prose :where(figcaption, small, sup, sub) {
+    font-size: 0.875rem;
+  }
+
+  .rich-prose
+    :where(blockquote p:first-of-type):not(
+      :where([class~="not-prose"], [class~="not-prose"] *)
+    )::before {
+    content: none;
+  }
+
+  .rich-prose
+    :where(blockquote p:last-of-type):not(
+      :where([class~="not-prose"], [class~="not-prose"] *)
+    )::after {
+    content: none;
+  }
+
+  .rich-prose :where(figure.article-image) {
+    margin: 1rem 0;
+  }
+
+  .rich-prose :where(figure.article-image > img) {
+    margin-bottom: 0;
+  }
+
+  .rich-prose :where(figure.article-image > figcaption) {
+    margin-top: 0.5rem;
+    text-align: center;
+    line-height: 1.7;
+    color: var(--muted-foreground);
+  }
+
+  .rich-prose :where(h1, h2, h3, h4, h5, h6)[id] {
+    scroll-margin-top: var(--scroll-offset-block);
+    @apply font-bold;
+  }
+}

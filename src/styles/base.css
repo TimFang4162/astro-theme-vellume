@@ -1,0 +1,56 @@
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    scroll-padding-top: var(--scroll-offset-block);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    min-height: 100vh;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-serif);
+  }
+
+  a {
+    transition: var(--transition-ui-shadow);
+  }
+
+  :where(
+      a,
+      button,
+      [role="button"],
+      input,
+      textarea,
+      select,
+      summary
+    ):focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--primary) 72%, transparent);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--primary) 24%, transparent);
+    color: var(--foreground-strong);
+  }
+}
