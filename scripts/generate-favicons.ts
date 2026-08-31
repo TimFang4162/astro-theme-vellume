@@ -45,8 +45,13 @@ async function writeResponse(): Promise<void> {
     ...response.images.map((image) =>
       fs.writeFile(path.join(outputDir, image.name), image.contents),
     ),
+    // Trailing newline keeps the generated text files formatter-stable.
     ...response.files.map((file) =>
-      fs.writeFile(path.join(outputDir, file.name), file.contents, "utf8"),
+      fs.writeFile(
+        path.join(outputDir, file.name),
+        `${file.contents}\n`,
+        "utf8",
+      ),
     ),
   ]);
 }
