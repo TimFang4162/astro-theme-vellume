@@ -1,5 +1,9 @@
 import { withBasePath } from "../../utils/paths";
-import { getFocusableElements } from "./focus";
+import {
+  captureFocusedElement,
+  restoreFocusedElement,
+  trapTabKey,
+} from "./focus";
 
 interface PagefindResultData {
   url: string;
@@ -31,12 +35,11 @@ export function initSearch() {
     currentController = null;
     return;
   }
-  const modalEl = modal;
 
-  const input = modalEl.querySelector<HTMLInputElement>("input");
-  const resultsEl = modalEl.querySelector<HTMLElement>("[data-search-results]");
-  const dialogEl = modalEl.querySelector<HTMLElement>(".search-dialog");
-  const closeTriggers = modalEl.querySelectorAll<HTMLElement>(
+  const input = modal.querySelector<HTMLInputElement>("input");
+  const resultsEl = modal.querySelector<HTMLElement>("[data-search-results]");
+  const dialogEl = modal.querySelector<HTMLElement>(".search-dialog");
+  const closeTriggers = modal.querySelectorAll<HTMLElement>(
     "[data-search-close]",
   );
   const controller = new AbortController();
@@ -62,35 +65,32 @@ export function initSearch() {
     }
   }
 
-  function open() {
-    previousFocusedElement =
-      document.activeElement instanceof HTMLElement
-        ? document.activeElement
-        : null;
+  // Arrow consts (not hoisted function declarations) so the HTMLElement
+  // narrowing on `modal` above flows into these closures.
+  const open = () => {
+    previousFocusedElement = captureFocusedElement();
     previousBodyOverflow = document.body.style.overflow;
-    modalEl.classList.add("is-open");
-    modalEl.setAttribute("aria-hidden", "false");
+    modal.classList.add("is-open");
+    modal.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
     setTimeout(() => input?.focus(), 50);
-  }
+  };
 
-  function close({ restoreFocus = true } = {}) {
-    modalEl.classList.remove("is-open");
-    modalEl.setAttribute("aria-hidden", "true");
+  const close = ({ restoreFocus = true } = {}) => {
+    modal.classList.remove("is-open");
+    modal.setAttribute("aria-hidden", "true");
     document.body.style.overflow = previousBodyOverflow;
     if (input) input.value = "";
     resetResults();
     if (restoreFocus) {
-      (previousFocusedElement?.isConnected
-        ? previousFocusedElement
-        : document.querySelector<HTMLElement>("[data-search-open]")
-      )?.focus({ preventScroll: true });
+      restoreFocusedElement(
+        previousFocusedElement,
+        document.querySelector<HTMLElement>("[data-search-open]"),
+      );
     }
-  }
+  };
 
-  function isOpen() {
-    return modalEl.classList.contains("is-open");
-  }
+  const isOpen = () => modal.classList.contains("is-open");
 
   function resetResults() {
     if (!resultsEl) return;
@@ -235,34 +235,8 @@ export function initSearch() {
         return;
       }
 
-      if (event.key !== "Tab" || !dialogEl) {
-        return;
-      }
-
-      const focusableElements = getFocusableElements(dialogEl);
-
-      if (focusableElements.length === 0) {
-        event.preventDefault();
-        dialogEl.focus({ preventScroll: true });
-        return;
-      }
-
-      const firstFocusable = focusableElements[0];
-      const lastFocusable = focusableElements[focusableElements.length - 1];
-      const activeElement =
-        document.activeElement instanceof HTMLElement
-          ? document.activeElement
-          : null;
-
-      if (event.shiftKey && activeElement === firstFocusable) {
-        event.preventDefault();
-        lastFocusable.focus({ preventScroll: true });
-        return;
-      }
-
-      if (!event.shiftKey && activeElement === lastFocusable) {
-        event.preventDefault();
-        firstFocusable.focus({ preventScroll: true });
+      if (dialogEl) {
+        trapTabKey(event, dialogEl);
       }
     },
     { signal: controller.signal },

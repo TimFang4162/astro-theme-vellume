@@ -1,4 +1,9 @@
-import { getFocusableElements } from "./focus";
+import {
+  captureFocusedElement,
+  getFocusableElements,
+  restoreFocusedElement,
+  trapTabKey,
+} from "./focus";
 
 function setMenuState(
   menuButton: HTMLButtonElement,
@@ -79,10 +84,7 @@ export function initMobileMenu(root: ParentNode = document) {
       pageShell,
       false,
     );
-    (previousFocusedElement?.isConnected
-      ? previousFocusedElement
-      : menuButton
-    ).focus({ preventScroll: true });
+    restoreFocusedElement(previousFocusedElement, menuButton);
   };
 
   const openMenu = () => {
@@ -90,10 +92,7 @@ export function initMobileMenu(root: ParentNode = document) {
       return;
     }
 
-    previousFocusedElement =
-      document.activeElement instanceof HTMLElement
-        ? document.activeElement
-        : null;
+    previousFocusedElement = captureFocusedElement();
     isMenuOpen = true;
     setMenuState(
       menuButton,
@@ -146,39 +145,12 @@ export function initMobileMenu(root: ParentNode = document) {
       }
 
       if (event.key === "Escape") {
+        event.preventDefault();
         closeMenu();
         return;
       }
 
-      if (event.key !== "Tab") {
-        return;
-      }
-
-      const focusableElements = getFocusableElements(mobileDrawer);
-
-      if (focusableElements.length === 0) {
-        event.preventDefault();
-        mobileDrawer.focus({ preventScroll: true });
-        return;
-      }
-
-      const firstFocusable = focusableElements[0];
-      const lastFocusable = focusableElements[focusableElements.length - 1];
-      const activeElement =
-        document.activeElement instanceof HTMLElement
-          ? document.activeElement
-          : null;
-
-      if (event.shiftKey && activeElement === firstFocusable) {
-        event.preventDefault();
-        lastFocusable.focus({ preventScroll: true });
-        return;
-      }
-
-      if (!event.shiftKey && activeElement === lastFocusable) {
-        event.preventDefault();
-        firstFocusable.focus({ preventScroll: true });
-      }
+      trapTabKey(event, mobileDrawer);
     },
     { signal: controller.signal },
   );
