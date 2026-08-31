@@ -49,12 +49,34 @@
       select,
       summary
     ):focus-visible {
-    outline: 2px solid color-mix(in srgb, var(--primary) 72%, transparent);
+    outline: 2px solid var(--ring);
     outline-offset: 3px;
   }
 
   ::selection {
     background: color-mix(in srgb, var(--primary) 24%, transparent);
     color: var(--foreground-strong);
+  }
+
+  /* Slim tool-style scrollbars (Outline-like). Firefox gets the shorthand;
+     WebKit gets the explicit pseudo-element recipe with a transparent
+     track so overlays never paint a gutter. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 0.5rem;
+    height: 0.5rem;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border-radius: 9999px;
+    background: var(--scrollbar-thumb);
   }
 }

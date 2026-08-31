@@ -38,15 +38,27 @@
     color var(--motion-duration) var(--motion-easing),
     border-color var(--motion-duration) var(--motion-easing),
     background-color var(--motion-duration) var(--motion-easing),
-    box-shadow var(--motion-duration) var(--motion-easing);
+    box-shadow var(--motion-duration) var(--motion-easing),
+    transform var(--motion-duration) var(--motion-easing);
   --primary: #2f6fed;
   --primary-foreground: #ffffff;
   --accent: #e8f0fe;
   --accent-foreground: #2f6fed;
   --card: #ffffff;
+  --card-foreground: var(--foreground);
   --popover: #ffffff;
+  --popover-foreground: var(--foreground);
+  --secondary: var(--muted);
+  --secondary-foreground: var(--foreground);
+  --input: var(--border);
+  /* Focus ring color, consumed by the focus-visible recipe in base.css.
+     Derived from --primary so accent swaps re-tune the ring automatically. */
+  --ring: color-mix(in srgb, var(--primary) 72%, transparent);
+  /* Feedback red pair for destructive states. Unused by the core UI today;
+     defined so component CSS and user themes have a canonical slot. */
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
   --shadow-card: 0 1px 2px rgb(0 0 0 / 0.03);
-  --shadow-card-hover: 0 4px 12px rgb(0 0 0 / 0.06);
   --shadow-raised: 0 2px 8px rgb(0 0 0 / 0.05);
   --shadow-floating: 0 8px 24px rgb(0 0 0 / 0.08);
   /* Tonal container ladder (M3-style: state is expressed as tinted fill,
@@ -58,6 +70,10 @@
   --container-faint: color-mix(in srgb, var(--accent) 50%, var(--card));
   --container-faint-tint: color-mix(in srgb, var(--accent) 50%, transparent);
   --container-subtle: color-mix(in srgb, var(--accent) 60%, var(--card));
+  /* Active thumb of segmented controls (shadcn-Tabs style: a raised
+     foreground step on the muted track). Dark mixes a step lighter than
+     --card so the thumb still reads against the low-luminance track. */
+  --control-thumb: var(--card);
   /* Hero particle palette, read by the Three.js runtime via computed style.
      Kept inside the accent family so the canvas can never drift off-brand;
      --hero-particle-three is the neutral that keeps the field from looking
@@ -83,6 +99,10 @@
   --code-block-copy-hover-background: var(--container-faint-tint);
   --code-block-copy-hover-color: var(--primary);
   --code-block-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+  /* Diagram images (mermaid/typst) are baked to SVG with an opaque canvas;
+     the surface must match that canvas or dark mode shows a bright box. */
+  --diagram-surface: #ffffff;
+  --scrollbar-thumb: var(--border);
 }
 
 @media not print {
@@ -98,10 +118,10 @@
     --primary-foreground: #0b1220;
     --accent: #12233a;
     --accent-foreground: #88b6ff;
-    --card: rgb(17 21 27 / 0.92);
+    --card: #11151b;
     --popover: #14181e;
+    --destructive: #e5484d;
     --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3);
-    --shadow-card-hover: 0 4px 14px rgb(0 0 0 / 0.32);
     --shadow-raised: 0 2px 10px rgb(0 0 0 / 0.35);
     --shadow-floating: 0 12px 32px rgb(0 0 0 / 0.4);
     /* Dark containers mix a step stronger than light so the navy tint stays
@@ -109,6 +129,11 @@
     --container-faint: color-mix(in srgb, var(--accent) 64%, var(--card));
     --container-faint-tint: color-mix(in srgb, var(--accent) 64%, transparent);
     --container-subtle: color-mix(in srgb, var(--accent) 72%, var(--card));
+    --control-thumb: color-mix(
+      in srgb,
+      var(--foreground-strong) 8%,
+      var(--muted)
+    );
     --hero-particle-base: #e7eaee;
     --hero-particle-one: #6aa6ff;
     --hero-particle-two: #a9c6ff;
@@ -134,6 +159,8 @@
     --code-block-copy-hover-background: var(--container-faint-tint);
     --code-block-copy-hover-color: var(--primary);
     --code-block-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
+    --diagram-surface: #000000;
+    --scrollbar-thumb: color-mix(in srgb, var(--border) 82%, var(--muted));
   }
 }
 
@@ -141,9 +168,6 @@
   --font-sans:
     system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Noto Sans SC", sans-serif;
-  --font-serif:
-    "Palatino Linotype", "Palatino", "Iowan Old Style", "Book Antiqua", Georgia,
-    "Noto Serif SC", serif;
   --font-mono:
     "JetBrains Mono", "Cascadia Mono", Menlo, Monaco, Consolas, monospace;
 
@@ -153,21 +177,33 @@
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
   --color-container-faint: var(--container-faint);
   --color-container-faint-tint: var(--container-faint-tint);
   --color-container-subtle: var(--container-subtle);
 
   /* Semantic radius ladder, all derived from --radius so a site-level
      --radius override rescales every surface proportionally:
-     tight = inline code / result rows, inner = popovers and nav rows,
-     card = cards and the feed list shell, hero = full-bleed panels. */
+     tight   = badges, inline code, kbd
+     control = buttons, inputs, small icon toggles
+     inner   = rows, chips, popovers, nav items
+     card    = cards, dialog panels, the feed list shell
+     hero    = full-bleed panels. */
   --radius-tight: calc(var(--radius) * 0.5);
+  --radius-control: calc(var(--radius) * 0.75);
   --radius-inner: var(--radius);
   --radius-card: calc(var(--radius) * 1.5);
   --radius-hero: calc(var(--radius) * 2);

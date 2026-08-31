@@ -10,12 +10,15 @@ page background substantially.
 :root {
   --primary: #2f6fed;
   --accent: #eaf2ff;
+  --destructive: #dc2626;
+  --radius: 0.5rem;
 }
 
 @media not print {
   [data-theme="dark"] {
     --primary: #8fb4ff;
     --accent: #111827;
+    --destructive: #e5484d;
   }
 }
 */
