@@ -92,6 +92,18 @@
     transition: var(--transition-ui);
   }
 
+  /* Sticky header hairline that only materializes once the page scrolls
+     (data-scrolled is toggled by scripts/ui/header-scroll.ts), so the
+     resting top-of-page view stays seamless. */
+  .site-header {
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--motion-duration) var(--motion-easing);
+  }
+
+  .site-header[data-scrolled] {
+    border-bottom-color: var(--border);
+  }
+
   .surface-card-hover:hover {
     background: var(--container-faint);
   }

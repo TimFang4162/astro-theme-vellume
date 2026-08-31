@@ -108,12 +108,36 @@ import Button from "../ui/Button.astro";
   padding: 0.5rem;
 }
 
-#search-modal .search-hint,
-#search-modal .search-empty {
+#search-modal .search-hint {
   padding: 2rem 1rem;
   text-align: center;
   color: var(--muted-foreground);
   font-size: 0.875rem;
+}
+
+#search-modal .search-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: var(--muted-foreground);
+}
+
+#search-modal .search-empty svg {
+  margin-bottom: 0.5rem;
+  opacity: 0.5;
+}
+
+#search-modal .search-empty-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+#search-modal .search-empty-hint {
+  font-size: 0.75rem;
 }
 
 #search-modal .search-result-item {

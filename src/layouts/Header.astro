@@ -15,7 +15,7 @@ const currentPath = Astro.url.pathname;
 const homeHref = withBasePath("/");
 ---
 
-<header class="sticky top-0 z-50 border-b border-border/80 bg-background">
+<header class="site-header sticky top-0 z-50 bg-background" data-site-header>
   <div
     class="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8"
   >
@@ -70,8 +70,10 @@ const homeHref = withBasePath("/");
 </header>
 
 <script>
+import { initHeaderScroll } from "../scripts/ui/header-scroll";
 import { initMobileMenu } from "../scripts/ui/mobile-menu";
 import { runOnPageLoad } from "../scripts/ui/page-load";
 
 runOnPageLoad("layout:mobile-menu", initMobileMenu);
+runOnPageLoad("layout:header-scroll", initHeaderScroll);
 </script>
