@@ -1,10 +1,10 @@
 # Vellume
 
-An editorial Astro theme for personal writing, technical notes, and long-form posts.
+A calm, document-first Astro theme for personal writing, technical notes, and long-form posts.
 
 Vellume is an Astro theme for blogs, notes, and essays. In code, it is built around a few concrete ideas: posts and series are both first-class content types, the homepage can mix them in one feed, discovery is organized by series, tags, and archive, and article pages keep metadata, table of contents, and navigation close at hand.
 
-That gives the theme a calmer, more editorial shape. It is meant for sites that will keep growing over time, not just for a front page with a reverse-chronological post list.
+The result reads like a well-made tool rather than a decorated page. It is meant for sites that will keep growing over time, not just for a front page with a reverse-chronological post list.
 
 ![Vellume preview](./.github/social-preview.png)
 
@@ -14,7 +14,7 @@ Demo: <https://timfang4162.github.io/astro-theme-vellume/>
 
 Vellume is designed for a different content structure than the usual "all posts in one timeline" blog. Its default shape is:
 
-- warm, paper-like color and typography
+- a neutral, document-first surface with a single blue accent
 - a homepage that can show both standalone posts and series
 - a discovery flow built around series, tags, and archive browsing
 - article pages that support longer reading sessions
@@ -24,9 +24,9 @@ If you want a personal site that treats structure and readability as core featur
 
 ## Highlights
 
-- Editorial homepage with a mixed feed of standalone posts and series
+- Document-first homepage with a mixed feed of standalone posts and series
 - Discovery page for browsing by series, tags, and archive timeline
-- Reading-focused article pages with word count, reading time, table of contents, and series navigation
+- Reading-focused article pages with word count, reading time, table of contents, series navigation, and hover-revealed heading permalinks
 - Local full-text search powered by Pagefind
 - RSS, sitemap, favicons, SEO metadata, and generated Open Graph images
 - Light and dark theme support with smooth page transitions
@@ -56,7 +56,15 @@ The design is built around a few simple decisions:
 - Visual identity should be present, but it should never overpower the article itself.
 - Motion should be restrained and atmospheric, not decorative noise.
 
-That is why the theme keeps a calm, tool-like visual system: a neutral, document-first surface in the spirit of Notion, a single blue accent with tinted active states in the spirit of Outline, and component conventions borrowed from shadcn/ui and HeroUI — a complete semantic token set (`ring`, `secondary`, `destructive`, …), rectangular controls on a five-step radius ladder, quiet underlined text links, and soft tonal fills for hover/selected/emphasis states whose feedback never relies on border flips or lift effects. Every radius, color, shadow, and interaction timing derives from the token ladder in `src/styles/tokens.css`, so the whole system rescales from a single override point.
+That is why the theme keeps a calm, tool-like visual system in the spirit of Notion, Outline, shadcn/ui, and HeroUI: a neutral, document-first surface; a single blue accent with tinted active states; and quiet rectangular controls whose feedback comes from tonal fills rather than border flips, shadows, or lift effects.
+
+Concretely, that means:
+
+- **Semantic token system** — the full shadcn set (`background/foreground/muted/border/primary/accent/card/popover/secondary/input/ring/destructive`) defined in `src/styles/tokens.css` and mapped into Tailwind via `@theme inline`. Override `--radius` alone and the whole five-step radius ladder (tight → control → inner → card → hero) rescales; swap `--primary` and the ring, selection, and hero particles follow.
+- **Chinese-first typography** — explicit PingFang SC / Hiragino Sans GB / Microsoft YaHei resolution per platform, `text-autospace` for CJK↔Latin breathing, `text-wrap: balance` on headings and `pretty` on prose to kill orphan lines.
+- **Themed Markdown throughout** — star-shaped list markers with staggered rotation, chip-style inline code and `kbd`, Notion-style collapsibles, hairline footnotes, task lists on the brand accent, and horizontal-rule tables.
+- **Quiet affordances** — borderless utility buttons (copy, TOC actions, toggles) that tint on hover, hover-revealed `#` heading anchors, a scroll-revealed header hairline, and a one-shot `:target` flash when jumping to a heading.
+- **Accessibility as tokens** — `color-scheme` follows the theme, `prefers-contrast: more` raises the quiet greys past WCAG thresholds, and `forced-colors` restores outlines where tonal fills are the only signal.
 
 ## Content Model
 
@@ -84,11 +92,12 @@ This makes the theme suitable for ongoing publishing instead of a one-off conten
 
 ## Writing Features
 
-Vellume supports standard Markdown plus a few features that matter in technical writing and longer articles:
+Vellume supports standard Markdown (GFM) plus a few features that matter in technical writing and longer articles:
 
-- syntax-highlighted code blocks
+- syntax-highlighted code blocks with a themed copy control
+- task lists, footnotes, and collapsible blocks, all styled to match the theme
+- automatic heading ids, an article table of contents, and hover-revealed heading permalinks
 - reading time estimation
-- automatic heading ids and article table of contents
 - responsive images stored next to the article
 - Typst-rendered math
 - Mermaid and Typst diagrams rendered as static SVG

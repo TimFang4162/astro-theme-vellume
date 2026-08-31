@@ -51,9 +51,11 @@ Compile results are cached on disk in `node_modules/.cache/vellume-render` (keye
 
 ### Styling
 
-Tailwind CSS v4 with `@import "tailwindcss"` syntax. Main stylesheet: `src/styles/global.css`. Dark mode uses `[data-theme="dark"]` attribute (not `prefers-color-scheme`), toggled via `astro-theme-toggle`. Design tokens defined as CSS custom properties and mapped to Tailwind's `--color-*`/`--font-*` namespaces via `@theme inline`. User overrides go in `src/site/theme.css`.
+Tailwind CSS v4 with `@import "tailwindcss"` syntax. Main stylesheet: `src/styles/global.css`, which imports the concern partials in cascade order (tokens → base → components → prose → code-block → transitions → utilities → toc → print; toc/transitions/print are deliberately unlayered so they outrank layered rules). Dark mode uses `[data-theme="dark"]` attribute (not `prefers-color-scheme`), toggled via `astro-theme-toggle`; `color-scheme` is declared per theme in tokens.css and mirrored inline by the swap handler in BaseLayout. Design tokens are CSS custom properties mapped to Tailwind's `--color-*`/`--font-*` namespaces via `@theme inline`. User overrides go in `src/site/theme.css`.
 
-Token conventions: colors follow the shadcn semantic set (`background/foreground/muted/border/primary/accent/card/popover/secondary/input/ring/destructive`); radii use the derived ladder `--radius-tight/control/inner/card/hero` (badges → buttons → rows → cards → hero panels) — pick the step by element role, never a raw value; focus rings go through `--ring`.
+Token conventions: colors follow the shadcn semantic set (`background/foreground/muted/border/primary/accent/card/popover/secondary/input/ring/destructive`); radii use the derived ladder `--radius-tight/control/inner/card/hero` (badges → buttons → rows → cards → hero panels) — pick the step by element role, never a raw value; focus rings go through `--ring`. State feedback is a tonal fill (`--container-faint*`/`--container-subtle`), never a border flip or shadow lift — borderless is the default for utility controls (copy, TOC actions, toggles, heading anchors); outline variants are for content actions (votes, segmented tracks).
+
+Typography conventions: CJK↔Latin auto-spacing via the two-line `text-autospace` layering in base.css (do not collapse it — the order carries the cross-implementation fallback); headings use `text-wrap: balance`, prose paragraphs use `pretty`; `--font-mono` is the canonical system stack, reserve mono for code, language labels, and the `#` heading anchors. The prose wrapper only ever has the class `rich-prose` (never a literal `prose` class), so `.prose`-prefixed rules are dead — style prose elements under `.rich-prose` in utilities.css; rules conflicting with the typography plugin double the class (`.rich-prose.rich-prose`) to win on specificity.
 
 ### User-Owned Customization Surface
 
@@ -67,7 +69,7 @@ These paths should be preferred for user edits; upstream changes belong everywhe
 
 ### Client Scripts (`src/scripts/`)
 
-All use a `runOnPageLoad` pattern: each script module self-registers a callback keyed by ID on import. `astro:page-load` dispatches all; `astro:before-swap` resets state. Cleanup via `AbortController`. Artalk is dynamically imported only when a comments host exists, so pages with comments disabled never load it.
+All use a `runOnPageLoad` pattern: each script module self-registers a callback keyed by ID on import. `astro:page-load` dispatches all; `astro:before-swap` resets state. Cleanup via `AbortController`. Artalk is dynamically imported only when a comments host exists, so pages with comments disabled never load it. Presentation-only injectors follow the same pattern — `heading-anchors.ts` adds `.heading-anchor` permalinks into `.rich-prose` headings (their styles live in utilities.css; the elements exist only after hydration).
 
 ### Base Path System
 
