@@ -203,33 +203,16 @@
     text-decoration: none;
   }
 
-  /* Collapsible blocks — a nod to Notion's toggle. The chevron is a masked
-     SVG so it follows theme colors; rotating it on [open] is the only
-     motion. */
+  /* Collapsible blocks stay plain — no box, no fill. The one affordance is
+     the collapse arrow: a quiet icon button (chip appears on hover, glyph
+     turns primary) whose rotation on [open] is the only motion. */
   .rich-prose
-  :where(details):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
-    border: 1px solid var(--border);
-    border-radius: var(--radius-inner);
-    background-color: var(--card);
-    padding: 0.25rem 0.875rem 0.375rem;
-  }
-
-  .rich-prose
-    :where(summary):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    margin-block: 0.125rem;
-    padding: 0.375rem 0.5rem;
-    border-radius: var(--radius-tight);
-    font-weight: 500;
+  :where(summary):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+    position: relative;
+    display: block;
+    padding-inline-start: 1.75rem;
     cursor: pointer;
     list-style: none;
-    transition: var(--transition-colors);
-  }
-
-  .rich-prose :where(summary):hover {
-    background-color: var(--container-faint-tint);
   }
 
   .rich-prose :where(summary)::-webkit-details-marker {
@@ -238,22 +221,43 @@
 
   .rich-prose :where(summary)::before {
     content: "";
-    flex-shrink: 0;
-    width: 1rem;
-    height: 1rem;
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0.2em;
+    width: 1.375rem;
+    height: 1.375rem;
+    border-radius: var(--radius-control);
+    background-color: transparent;
+    transition: background-color var(--motion-duration) var(--motion-easing);
+  }
+
+  .rich-prose :where(summary)::after {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0.3125rem;
+    top: calc(0.2em + 0.3125rem);
+    width: 0.75rem;
+    height: 0.75rem;
     background-color: var(--muted-foreground);
     mask:
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z'/%3E%3C/svg%3E")
       center / contain no-repeat;
-    transition: transform var(--motion-duration) var(--motion-easing);
+    transform-origin: center;
+    transition:
+      transform var(--motion-duration) var(--motion-easing),
+      background-color var(--motion-duration) var(--motion-easing);
   }
 
-  .rich-prose :where(details[open] > summary)::before {
+  .rich-prose :where(summary):hover::before {
+    background-color: var(--container-faint-tint);
+  }
+
+  .rich-prose :where(summary):hover::after {
+    background-color: var(--primary);
+  }
+
+  .rich-prose :where(details[open] > summary)::after {
     transform: rotate(90deg);
-  }
-
-  .rich-prose :where(details[open] > summary) {
-    margin-block-end: 0.5rem;
   }
 
   /* Jumping to a heading (TOC click, shared #anchor link) flashes a soft
@@ -278,10 +282,10 @@
     }
   }
 
-  /* Heading permalinks (injected by scripts/ui/heading-anchors.ts):
-     hover/focus-revealed link icon parked in the left gutter, Notion/Outline
-     style. Gated to ≥sm where the page-frame gutter is wide enough to host
-     it; touch-first widths rely on the TOC instead. */
+  /* Heading permalinks (injected by scripts/ui/heading-anchors.ts): a
+     hover/focus-revealed `#` glyph parked in the left gutter, markdown
+     native. Gated to ≥sm where the page-frame gutter is wide enough to
+     host it; touch-first widths rely on the TOC instead. */
   @media (min-width: 640px) {
     .rich-prose
       :where(h2, h3, h4, h5, h6):not(
@@ -298,6 +302,10 @@
       height: 100%;
       align-items: center;
       color: var(--muted-foreground);
+      font-family: var(--font-mono);
+      font-size: 0.8em;
+      font-weight: 500;
+      line-height: 1;
       text-decoration: none;
       opacity: 0;
       transition:
