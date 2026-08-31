@@ -24,4 +24,114 @@
     ) {
     margin: 0;
   }
+
+  /* —— Prose refinements ——
+     Selectors mirror the plugin's `.rich-prose :where(...)` shape because
+     the prose wrapper never carries a literal `prose` class. Rules that
+     directly conflict with the plugin (same layer, which injects last via
+     @plugin in global.css) double the class to (0,2,0) so specificity —
+     not source order — decides in our favor. */
+
+  /* Inline code: a quiet rounded background chip (Notion/shadcn style) —
+     no border, and none of the plugin's fake `` quote pseudo-elements.
+     Block code inside `pre` keeps its transparent reset via the plugin. */
+  .rich-prose
+  :where(code):not(pre code):not(
+    :where([class~="not-prose"], [class~="not-prose"] *)
+  ) {
+    border-radius: var(--radius-tight);
+    background-color: var(--muted);
+    padding: 0.2rem 0.4rem;
+  }
+
+  .rich-prose.rich-prose
+    :where(code):not(
+      :where([class~="not-prose"], [class~="not-prose"] *)
+    )::before,
+  .rich-prose.rich-prose
+    :where(code):not(
+      :where([class~="not-prose"], [class~="not-prose"] *)
+    )::after {
+    content: none;
+  }
+
+  /* Blockquotes read as calm Notion-style pull quotes, not italics. */
+  .rich-prose.rich-prose
+  :where(blockquote):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+    font-style: normal;
+  }
+
+  /* `mark` highlights follow the accent pair instead of browser yellow. */
+  .rich-prose
+  :where(mark):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+    border-radius: var(--radius-tight);
+    background-color: var(--accent);
+    color: var(--accent-foreground);
+    padding: 0.1em 0.2em;
+  }
+
+  /* M3-expressive list bullets: a small four-point star per item, rotated
+     in 36° steps whose value staggers across siblings via --star-rotation
+     so neighbors never point the same way. Static by design — no hover or
+     looping motion. Masked SVG follows theme colors; replacement keeps the
+     plugin's gutter padding intact. */
+  .rich-prose.rich-prose
+  :where(ul):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+    list-style: none;
+  }
+
+  .rich-prose
+    :where(ul)
+    > li:not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+    --star-rotation: 1;
+    position: relative;
+  }
+
+  .rich-prose :where(ul) > li:nth-child(2) {
+    --star-rotation: 2;
+  }
+
+  .rich-prose :where(ul) > li:nth-child(3n) {
+    --star-rotation: 5;
+  }
+
+  .rich-prose :where(ul) > li:nth-child(3n + 1) {
+    --star-rotation: 7;
+  }
+
+  .rich-prose :where(ul) > li:nth-child(3n + 2) {
+    --star-rotation: 4;
+  }
+
+  .rich-prose :where(ul) > li:nth-child(4n) {
+    --star-rotation: 9;
+  }
+
+  .rich-prose :where(ul) > li:nth-child(4n + 1) {
+    --star-rotation: 6;
+  }
+
+  .rich-prose :where(ul) > li:nth-child(4n + 3) {
+    --star-rotation: 3;
+  }
+
+  .rich-prose
+    :where(ul)
+    > li:not(:where([class~="not-prose"], [class~="not-prose"] *))::before {
+    content: "";
+    position: absolute;
+    top: 0.6em;
+    left: -1em;
+    width: 0.5rem;
+    height: 0.5rem;
+    background-color: color-mix(
+      in srgb,
+      var(--primary) 70%,
+      var(--muted-foreground)
+    );
+    mask:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M4.95843 0.279933C5.5378 -0.353974 6.58452 0.173492 6.41974 1.01632L6.05454 2.88412C5.99767 3.17501 6.09646 3.47451 6.31525 3.67447L7.72007 4.95843C8.35397 5.5378 7.82651 6.58452 6.98368 6.41974L5.11588 6.05454C4.82499 5.99767 4.52549 6.09646 4.32553 6.31525L3.04157 7.72007C2.4622 8.35397 1.41548 7.82651 1.58026 6.98368L1.94545 5.11588C2.00233 4.82499 1.90354 4.52549 1.68475 4.32553L0.279933 3.04157C-0.353974 2.4622 0.173492 1.41548 1.01632 1.58026L2.88412 1.94545C3.17501 2.00233 3.47451 1.90354 3.67447 1.68475L4.95843 0.279933Z'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+    transform: rotate(calc(var(--star-rotation) * 36deg));
+  }
 }

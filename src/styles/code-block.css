@@ -144,47 +144,9 @@
     transition: filter var(--motion-duration) var(--motion-easing);
   }
 
-  .prose :where(code) {
-    border: 1px solid var(--border);
-    border-radius: var(--radius-tight);
-    background: var(--muted);
-    padding: 0.2rem 0.4rem;
-    margin: 0.2rem;
-  }
-
-  .prose :where(code-block) {
-    max-width: none;
-  }
-
-  .prose :where(code-block pre) {
-    @apply leading-5;
-
-    margin: 0;
-    /* Padding for the prose context lives in utilities.css, whose layer
-       outranks the typography plugin. */
-    background: transparent;
-    color: inherit;
-    overflow: visible;
-  }
-
-  .prose :where(code-block code) {
-    @apply text-sm leading-5 whitespace-normal;
-
-    background: transparent;
-    border-radius: 0;
-    padding: 0;
-    color: inherit;
-    font-weight: 400;
-  }
-
-  .prose :where(code-block code)::before,
-  .prose :where(code-block code)::after {
-    content: none;
-  }
-
-  .prose :where(code-block img) {
-    margin: 0;
-  }
+  /* Prose-context resets for inline/block code and code-block images live
+     in utilities.css under `.rich-prose` (the prose wrapper has no literal
+     `prose` class, so `.prose`-prefixed rules here never matched). */
 
   .astro-code,
   .astro-code span {
