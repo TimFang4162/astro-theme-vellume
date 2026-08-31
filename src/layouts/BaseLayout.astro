@@ -187,11 +187,13 @@ const seoProps = {
     <SearchModal />
     <script>
     import { initCodeCopy } from "../scripts/ui/code-copy";
+    import { initHeadingAnchors } from "../scripts/ui/heading-anchors";
     import { initLightbox } from "../scripts/ui/lightbox";
     import { runOnPageLoad } from "../scripts/ui/page-load";
     import { initSearch } from "../scripts/ui/search";
 
     runOnPageLoad("layout:code-copy", initCodeCopy);
+    runOnPageLoad("layout:heading-anchors", initHeadingAnchors);
     runOnPageLoad("layout:lightbox", initLightbox);
     runOnPageLoad("layout:search", initSearch);
     </script>

@@ -79,6 +79,19 @@ Itatur? Quiatae cullecum rem ent aut odis in re eossequodi nonsequ idebis ne sap
 - 无序的
 - 凑数
 
+## 任务列表与折叠块
+
+- [x] 支持 GFM 任务列表
+- [ ] 星芒列表标记与任务列表共存
+- [ ] 折叠块内渲染 Markdown
+
+<details>
+<summary>点开查看折叠内容</summary>
+
+折叠块内部是正常的段落，**粗体**、`行内代码` 与[链接](https://example.com/)都按正文规则渲染。
+
+</details>
+
 ## 链接
 
 [Vellume](https://example.com/)
