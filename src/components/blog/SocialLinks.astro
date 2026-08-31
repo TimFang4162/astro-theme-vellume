@@ -97,8 +97,8 @@ const wechatPopoverId = `${normalizedIdPrefix || "social-links"}-wechat-popover-
 @media (prefers-reduced-motion: no-preference) {
   .wechat-popover__panel {
     transition:
-      opacity 0.2s ease,
-      transform 0.2s ease;
+      opacity var(--motion-duration) var(--motion-easing),
+      transform var(--motion-duration) var(--motion-easing);
   }
 }
 

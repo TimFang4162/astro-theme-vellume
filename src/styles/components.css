@@ -12,7 +12,7 @@
     padding: 0.75rem 1rem;
     box-shadow: var(--shadow-floating);
     transition:
-      transform 0.2s ease,
+      transform var(--motion-duration) var(--motion-easing),
       var(--transition-colors);
   }
 
@@ -101,8 +101,7 @@
   }
 
   .surface-card-hover:hover {
-    border-color: color-mix(in srgb, var(--primary) 40%, var(--border));
-    background: color-mix(in srgb, var(--muted) 60%, var(--card));
+    background: var(--container-faint);
   }
 
   .surface-chip {
@@ -113,8 +112,7 @@
   }
 
   .surface-chip:hover {
-    border-color: color-mix(in srgb, var(--primary) 40%, var(--border));
-    background: color-mix(in srgb, var(--muted) 60%, var(--card));
+    background: var(--container-faint);
   }
 
   .segmented-control {
@@ -123,7 +121,9 @@
     gap: 0.25rem;
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-inner);
-    background: var(--card);
+    /* M3 surface-container track: the resting surface is already tinted so
+       the active thumb reads as a tonal step, not a border change. */
+    background: var(--muted);
     padding: 0.25rem;
   }
 
@@ -147,7 +147,7 @@
   }
 
   .drawer-nav-link:hover {
-    background: var(--accent);
+    background: var(--container-faint);
     color: var(--primary);
   }
 
@@ -211,7 +211,7 @@
   }
 
   .sidebar-link:hover {
-    background: var(--surface-hover-tint);
+    background: var(--container-faint-tint);
     color: var(--primary);
   }
 
@@ -236,7 +236,14 @@
   }
 
   .group:hover .list-row-hover {
-    background: var(--surface-hover-tint);
+    background: var(--container-faint-tint);
+  }
+
+  /* Persistent emphasis box nested inside a card (e.g. the series "latest
+     post" preview). Tinted container, never a border or shadow. */
+  .container-box {
+    border-radius: var(--radius-inner);
+    background: var(--container-subtle);
   }
 
   .view-collection {

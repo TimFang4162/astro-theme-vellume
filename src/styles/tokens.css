@@ -22,12 +22,23 @@
   --border: #e5e7ea;
   --border-subtle: color-mix(in srgb, var(--border) 92%, transparent);
   --overlay: rgb(0 0 0 / 0.5);
-  --transition-colors: color 0.2s ease, background-color 0.2s ease;
+  /* Single source for interaction timing; every transition recipe (and the
+     one-off opacity/transform/filter transitions in partials) derives from
+     these two values so timing can never drift between files. */
+  --motion-duration: 0.2s;
+  --motion-easing: ease;
+  --transition-colors:
+    color var(--motion-duration) var(--motion-easing),
+    background-color var(--motion-duration) var(--motion-easing);
   --transition-ui:
-    color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+    color var(--motion-duration) var(--motion-easing),
+    border-color var(--motion-duration) var(--motion-easing),
+    background-color var(--motion-duration) var(--motion-easing);
   --transition-ui-shadow:
-    color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease,
-    box-shadow 0.2s ease;
+    color var(--motion-duration) var(--motion-easing),
+    border-color var(--motion-duration) var(--motion-easing),
+    background-color var(--motion-duration) var(--motion-easing),
+    box-shadow var(--motion-duration) var(--motion-easing);
   --primary: #2f6fed;
   --primary-foreground: #ffffff;
   --accent: #e8f0fe;
@@ -38,10 +49,23 @@
   --shadow-card-hover: 0 4px 12px rgb(0 0 0 / 0.06);
   --shadow-raised: 0 2px 8px rgb(0 0 0 / 0.05);
   --shadow-floating: 0 8px 24px rgb(0 0 0 / 0.08);
-  /* Shared hover recipes: solid surfaces mix accent into the card color,
-     rows inside a surface tint over transparent. */
-  --surface-hover: color-mix(in srgb, var(--accent) 72%, var(--card));
-  --surface-hover-tint: color-mix(in srgb, var(--accent) 72%, transparent);
+  /* Tonal container ladder (M3-style: state is expressed as tinted fill,
+     never as border or shadow changes):
+     faint       transient hover fill — rows tint over transparent,
+                 solid surfaces mix accent into the card color
+     subtle      persistent emphasis boxes nested inside cards
+     selected    full --accent (primary-container), used directly. */
+  --container-faint: color-mix(in srgb, var(--accent) 50%, var(--card));
+  --container-faint-tint: color-mix(in srgb, var(--accent) 50%, transparent);
+  --container-subtle: color-mix(in srgb, var(--accent) 60%, var(--card));
+  /* Hero particle palette, read by the Three.js runtime via computed style.
+     Kept inside the accent family so the canvas can never drift off-brand;
+     --hero-particle-three is the neutral that keeps the field from looking
+     like a solid wash of blue. */
+  --hero-particle-base: #1f2328;
+  --hero-particle-one: #2f6fed;
+  --hero-particle-two: #7fa8f6;
+  --hero-particle-three: #c6d3e6;
   --code-block-surface: color-mix(in srgb, var(--background) 94%, var(--muted));
   --code-block-border: var(--border-subtle);
   --code-block-header-border: color-mix(
@@ -56,11 +80,7 @@
   );
   --code-block-copy-border: color-mix(in srgb, var(--border) 90%, transparent);
   --code-block-copy-color: var(--muted-foreground);
-  --code-block-copy-hover-background: color-mix(
-    in srgb,
-    var(--accent) 72%,
-    transparent
-  );
+  --code-block-copy-hover-background: var(--container-faint-tint);
   --code-block-copy-hover-color: var(--primary);
   --code-block-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
 }
@@ -84,8 +104,15 @@
     --shadow-card-hover: 0 4px 14px rgb(0 0 0 / 0.32);
     --shadow-raised: 0 2px 10px rgb(0 0 0 / 0.35);
     --shadow-floating: 0 12px 32px rgb(0 0 0 / 0.4);
-    --surface-hover: color-mix(in srgb, var(--accent) 72%, var(--card));
-    --surface-hover-tint: color-mix(in srgb, var(--accent) 72%, transparent);
+    /* Dark containers mix a step stronger than light so the navy tint stays
+       legible against the low-luminance card surface. */
+    --container-faint: color-mix(in srgb, var(--accent) 64%, var(--card));
+    --container-faint-tint: color-mix(in srgb, var(--accent) 64%, transparent);
+    --container-subtle: color-mix(in srgb, var(--accent) 72%, var(--card));
+    --hero-particle-base: #e7eaee;
+    --hero-particle-one: #6aa6ff;
+    --hero-particle-two: #a9c6ff;
+    --hero-particle-three: #3f4a5c;
     --code-block-surface: color-mix(in srgb, #0d0d0f 88%, var(--card));
     --code-block-border: color-mix(in srgb, var(--border) 94%, transparent);
     --code-block-header-border: color-mix(
@@ -104,11 +131,7 @@
       transparent
     );
     --code-block-copy-color: var(--muted-foreground);
-    --code-block-copy-hover-background: color-mix(
-      in srgb,
-      var(--accent) 84%,
-      transparent
-    );
+    --code-block-copy-hover-background: var(--container-faint-tint);
     --code-block-copy-hover-color: var(--primary);
     --code-block-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
   }
@@ -136,6 +159,9 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-card: var(--card);
   --color-popover: var(--popover);
+  --color-container-faint: var(--container-faint);
+  --color-container-faint-tint: var(--container-faint-tint);
+  --color-container-subtle: var(--container-subtle);
 
   /* Semantic radius ladder, all derived from --radius so a site-level
      --radius override rescales every surface proportionally:

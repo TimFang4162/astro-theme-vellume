@@ -37,13 +37,31 @@ const config = {
     rotationJitter: 0.2,
     cursorFollowStrength: 1,
     oscillationFactor: 1,
-    colorBaseLight: "#000000",
-    colorBaseDark: "#f3f3f3",
-    colorOne: "#4285f5",
-    colorTwo: "#eb4236",
-    colorThree: "#faba03",
   },
 } as const;
+
+/* Particle colors live in tokens.css (`--hero-particle-*`) so the canvas
+   follows the theme; these are only used if the custom properties are
+   missing. */
+const FALLBACK_COLORS = {
+  base: "#1f2328",
+  one: "#2f6fed",
+  two: "#7fa8f6",
+  three: "#c6d3e6",
+} as const;
+
+function readParticleColors(hero: HTMLElement) {
+  const styles = getComputedStyle(hero);
+  const read = (name: string, fallback: string) =>
+    styles.getPropertyValue(name).trim() || fallback;
+
+  return {
+    base: read("--hero-particle-base", FALLBACK_COLORS.base),
+    one: read("--hero-particle-one", FALLBACK_COLORS.one),
+    two: read("--hero-particle-two", FALLBACK_COLORS.two),
+    three: read("--hero-particle-three", FALLBACK_COLORS.three),
+  };
+}
 
 const vertexShader = `
 uniform float uTime;
@@ -210,6 +228,8 @@ export function mountHomeHeroParticles(hero: HTMLElement, mount: HTMLElement) {
   renderer.domElement.style.height = "100%";
   mount.appendChild(renderer.domElement);
 
+  const particleColors = readParticleColors(hero);
+
   const uniforms = {
     uTime: { value: 0 },
     uMouse: { value: new Vector2(0, 0) },
@@ -231,12 +251,12 @@ export function mountHomeHeroParticles(hero: HTMLElement, mount: HTMLElement) {
     uParticleRotationJitter: { value: config.particles.rotationJitter },
     uParticleOscillationFactor: { value: config.particles.oscillationFactor },
     uParticleColorBase: {
-      value: new Color(config.particles.colorBaseLight),
+      value: new Color(particleColors.base),
     },
-    uParticleColorOne: { value: new Color(config.particles.colorOne) },
-    uParticleColorTwo: { value: new Color(config.particles.colorTwo) },
+    uParticleColorOne: { value: new Color(particleColors.one) },
+    uParticleColorTwo: { value: new Color(particleColors.two) },
     uParticleColorThree: {
-      value: new Color(config.particles.colorThree),
+      value: new Color(particleColors.three),
     },
   };
 
@@ -313,11 +333,13 @@ export function mountHomeHeroParticles(hero: HTMLElement, mount: HTMLElement) {
   };
 
   const updateTheme = () => {
-    const isDark =
-      document.documentElement.getAttribute("data-theme") === "dark";
-    uniforms.uParticleColorBase.value.set(
-      isDark ? config.particles.colorBaseDark : config.particles.colorBaseLight,
-    );
+    /* Re-read from computed style: the custom properties re-resolve under
+       [data-theme="dark"], so this one path serves both themes. */
+    const colors = readParticleColors(hero);
+    uniforms.uParticleColorBase.value.set(colors.base);
+    uniforms.uParticleColorOne.value.set(colors.one);
+    uniforms.uParticleColorTwo.value.set(colors.two);
+    uniforms.uParticleColorThree.value.set(colors.three);
   };
 
   const getScenePointFromClient = (clientX: number, clientY: number) => {

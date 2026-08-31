@@ -56,7 +56,7 @@ The design is built around a few simple decisions:
 - Visual identity should be present, but it should never overpower the article itself.
 - Motion should be restrained and atmospheric, not decorative noise.
 
-That is why the theme uses serif headings, wider spacing, soft borders, muted cards, and a warmer palette than the default look many technical blogs end up with.
+That is why the theme keeps a calm, tool-like visual system: a neutral, document-first surface in the spirit of Notion, a single blue accent with tinted active states in the spirit of Outline, and Material 3 Expressive showing up only where it helps — soft tonal "container" fills for hover/selected/emphasis states and flat components whose feedback never relies on border flips, shadows, or lift effects. Every radius, color, shadow, and interaction timing derives from the token ladder in `src/styles/tokens.css`, so the whole system rescales from a single override point.
 
 ## Content Model
 

@@ -113,7 +113,7 @@
     width: auto;
     max-width: none;
     height: auto;
-    transition: filter 0.2s ease;
+    transition: filter var(--motion-duration) var(--motion-easing);
   }
 
   .math-inline {
@@ -126,7 +126,7 @@
     width: auto;
     max-width: none;
     height: auto;
-    transition: filter 0.2s ease;
+    transition: filter var(--motion-duration) var(--motion-easing);
   }
 
   .math-block {
@@ -141,7 +141,7 @@
     width: auto;
     max-width: none;
     height: auto;
-    transition: filter 0.2s ease;
+    transition: filter var(--motion-duration) var(--motion-easing);
   }
 
   .prose :where(code) {

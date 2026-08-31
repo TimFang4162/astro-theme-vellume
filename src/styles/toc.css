@@ -23,7 +23,7 @@
     transparent var(--toc-progress-active-end) 100%
   );
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--motion-duration) var(--motion-easing);
 }
 
 .toc-progress.has-progress {
@@ -49,8 +49,7 @@
 }
 
 .toc-toggle:hover {
-  border-color: color-mix(in srgb, var(--border) 92%, transparent);
-  background: var(--surface-hover-tint);
+  background: var(--container-faint-tint);
   color: var(--primary);
 }
 
@@ -60,7 +59,7 @@
   font-weight: 700;
   line-height: 1;
   transform: rotate(90deg);
-  transition: transform 0.2s ease;
+  transition: transform var(--motion-duration) var(--motion-easing);
 }
 
 .toc-node[data-collapsed="true"] .toc-toggle-glyph {
@@ -91,8 +90,7 @@
 }
 
 .toc-action:hover {
-  border-color: var(--primary);
-  background: var(--surface-hover-tint);
+  background: var(--container-faint-tint);
   color: var(--primary);
 }
 
@@ -111,7 +109,7 @@
 }
 
 .toc-link:hover {
-  background: var(--surface-hover-tint);
+  background: var(--container-faint-tint);
   color: var(--primary);
 }
 

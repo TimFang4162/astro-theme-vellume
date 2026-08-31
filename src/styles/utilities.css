@@ -1,6 +1,6 @@
-/* Standard interactive fade: theme-token colors + shadow at 0.2s ease.
-   Decorative transitions are additionally disabled for reduced motion in
-   transitions.css. */
+/* Standard interactive fade: theme-token colors + shadow at the shared
+   motion duration. Decorative transitions are additionally disabled for
+   reduced motion in transitions.css. */
 @utility transition-ui {
   transition: var(--transition-ui-shadow);
 }

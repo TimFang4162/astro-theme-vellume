@@ -46,15 +46,15 @@ const resolvedHref = href ? withBasePath(href) : undefined;
       "size-12 text-lg": shape === "circle" && size === "lg",
       "border border-transparent bg-primary text-primary-foreground hover:brightness-95":
         variant === "primary",
-      "border border-border bg-card text-strong hover:border-primary hover:bg-accent":
+      "border border-border bg-card text-strong hover:bg-container-faint":
         variant === "secondary",
       "border border-transparent bg-accent/70 text-primary hover:bg-accent active:shadow-none":
         variant === "soft",
-      "border border-border/80 bg-transparent text-muted-foreground hover:border-primary hover:bg-accent hover:text-primary active:shadow-none aria-pressed:border-primary/50 aria-pressed:bg-accent aria-pressed:text-primary":
+      "border border-border/80 bg-transparent text-muted-foreground hover:bg-container-faint hover:text-primary active:shadow-none aria-pressed:border-transparent aria-pressed:bg-accent aria-pressed:text-primary":
         variant === "ghost" && !segmented,
-      "border border-transparent bg-transparent text-muted-foreground shadow-none hover:border-transparent hover:bg-accent hover:text-primary active:shadow-none aria-pressed:border-primary/50 aria-pressed:bg-accent aria-pressed:text-primary":
+      "border border-transparent bg-transparent text-muted-foreground shadow-none hover:bg-container-faint hover:text-primary active:shadow-none aria-pressed:border-transparent aria-pressed:bg-accent aria-pressed:text-primary":
         variant === "ghost" && segmented,
-      "border-primary/50 bg-accent text-primary":
+      "border-transparent bg-accent text-primary":
         active && variant !== "primary",
     },
     className,
