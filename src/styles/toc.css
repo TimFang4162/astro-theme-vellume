@@ -15,12 +15,13 @@
   height: 90%;
   --toc-progress-read-end: 0%;
   --toc-progress-active-end: 0%;
+  /* Solid two-segment progress: primary fill for the read portion on a
+     border-colored rail. Hard gradient stops keep the script-driven fill
+     without any color-blend effect. */
   background: linear-gradient(
     to bottom,
-    color-mix(in srgb, var(--border) 92%, transparent) 0
-      var(--toc-progress-read-end),
-    var(--primary) var(--toc-progress-read-end) var(--toc-progress-active-end),
-    transparent var(--toc-progress-active-end) 100%
+    var(--primary) 0 var(--toc-progress-read-end),
+    var(--border) var(--toc-progress-read-end) 100%
   );
   opacity: 0;
   transition: opacity var(--motion-duration) var(--motion-easing);
@@ -41,7 +42,7 @@
   align-items: center;
   justify-content: center;
   border: 1px solid transparent;
-  border-radius: 9999px;
+  border-radius: var(--radius-control);
   background: transparent;
   color: color-mix(in srgb, var(--foreground) 56%, transparent);
   cursor: pointer;
@@ -81,8 +82,8 @@
   align-items: center;
   justify-content: center;
   border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
-  border-radius: 9999px;
-  background: color-mix(in srgb, var(--accent) 36%, var(--card));
+  border-radius: var(--radius-control);
+  background: var(--card);
   color: color-mix(in srgb, var(--foreground) 76%, transparent);
   line-height: 0;
   cursor: pointer;

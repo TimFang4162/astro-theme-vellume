@@ -34,7 +34,7 @@
     align-items: center;
     justify-content: center;
     border: 1px solid var(--code-block-copy-border);
-    border-radius: 9999px;
+    border-radius: var(--radius-tight);
     background: transparent;
     padding: 0.2rem 0.875rem;
     color: var(--code-block-copy-color);
@@ -104,7 +104,7 @@
     display: block;
     width: max-content;
     min-width: 100%;
-    background: #fff;
+    background: var(--diagram-surface);
     padding: 0.25rem;
   }
 
@@ -145,11 +145,11 @@
   }
 
   .prose :where(code) {
-    border: 1px solid;
+    border: 1px solid var(--border);
     border-radius: var(--radius-tight);
-    padding: 0.2rem;
+    background: var(--muted);
+    padding: 0.2rem 0.4rem;
     margin: 0.2rem;
-    border-color: color-mix(in srgb, var(--primary) 50%, transparent);
   }
 
   .prose :where(code-block) {
@@ -199,10 +199,6 @@
     [data-theme="dark"] .astro-code {
       background-color: transparent !important;
       color: var(--shiki-dark) !important;
-    }
-
-    [data-theme="dark"] .code-block--diagram .code-block__diagram {
-      background: #000;
     }
 
     [data-theme="dark"] .code-block--diagram[data-language="mermaid"] img,

@@ -26,7 +26,7 @@ const commentsTitleId = `comments-title-${pageKey.replace(/[^a-zA-Z0-9_-]+/g, "-
     data-server={server}
     data-site={site}
   >
-    <h2 id={commentsTitleId} class="section-title-reading text-strong">评论</h2>
+    <h2 id={commentsTitleId} class="section-title text-strong">评论</h2>
     <div class="mt-5 min-h-40" data-artalk-root>
       <p class="text-sm text-muted-foreground">评论加载中…</p>
     </div>
@@ -282,13 +282,13 @@ document.addEventListener("astro:before-swap", () => {
 }
 
 [data-artalk-comments] .artalk .atk-send-btn {
-  border-radius: 9999px;
+  border-radius: var(--radius-control);
   background: var(--primary);
   color: var(--primary-foreground);
 }
 
 [data-artalk-comments] .artalk .atk-send-btn:hover {
-  background: color-mix(in srgb, var(--primary) 88%, black);
+  background: color-mix(in srgb, var(--primary) 90%, transparent);
 }
 
 [data-artalk-comments] .artalk .atk-list-footer {

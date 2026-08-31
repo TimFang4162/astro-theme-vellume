@@ -6,7 +6,7 @@
     z-index: 80;
     transform: translateY(-200%);
     border: 1px solid var(--border-subtle);
-    border-radius: 9999px;
+    border-radius: var(--radius-control);
     background: var(--background);
     color: var(--foreground-strong);
     padding: 0.75rem 1rem;
@@ -28,16 +28,8 @@
     @apply text-4xl font-sans font-semibold md:text-5xl;
   }
 
-  .page-title-reading {
-    @apply text-4xl font-semibold md:text-5xl;
-  }
-
   .section-title {
     @apply text-2xl font-sans font-semibold md:text-3xl;
-  }
-
-  .section-title-reading {
-    @apply text-2xl font-semibold md:text-3xl;
   }
 
   .display-title {
@@ -92,7 +84,7 @@
 
   .surface-card {
     border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-inner);
+    border-radius: var(--radius-card);
     background: var(--card);
   }
 
@@ -170,8 +162,25 @@
   }
 
   .rich-prose {
-    @apply prose prose-brand max-w-none prose-img:rounded-inner prose-code:text-primary prose-a:font-medium dark:prose-invert;
+    @apply prose prose-brand max-w-none prose-img:rounded-inner dark:prose-invert;
     overflow-wrap: anywhere;
+  }
+
+  /* Notion-style text links: quiet underline that darkens to primary on
+     hover. Written as explicit rules so the underline targets the links,
+     not the prose container. */
+  .rich-prose :where(a) {
+    text-decoration-line: underline;
+    text-decoration-color: color-mix(
+      in srgb,
+      var(--border) 70%,
+      var(--muted-foreground)
+    );
+    text-underline-offset: 4px;
+  }
+
+  .rich-prose :where(a:hover) {
+    text-decoration-color: var(--primary);
   }
 
   .meta-row {
@@ -273,7 +282,7 @@
     flex-direction: column;
     overflow: hidden;
     border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-inner);
+    border-radius: var(--radius-card);
     background: var(--card);
     gap: 0;
   }

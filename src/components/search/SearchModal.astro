@@ -70,7 +70,7 @@ import Button from "../ui/Button.astro";
   max-height: min(70vh, 32rem);
   display: flex;
   flex-direction: column;
-  border-radius: var(--radius-inner);
+  border-radius: var(--radius-card);
   box-shadow: var(--shadow-floating);
   overflow: hidden;
 }
@@ -131,7 +131,7 @@ import Button from "../ui/Button.astro";
 /* Negative offset keeps the ring inside the scrollable results list;
    color and width follow the global focus recipe in base.css. */
 #search-modal .search-result-item:focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--primary) 72%, transparent);
+  outline: 2px solid var(--ring);
   outline-offset: -2px;
   background: var(--container-faint);
 }
