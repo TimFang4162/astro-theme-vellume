@@ -5,7 +5,7 @@
 
 export function initHeadingAnchors() {
   const headings = document.querySelectorAll<HTMLElement>(
-    ".rich-prose :is(h2, h3, h4, h5, h6)[id]",
+    ".rich-prose :is(h1, h2, h3, h4, h5, h6)[id]",
   );
 
   for (const heading of headings) {

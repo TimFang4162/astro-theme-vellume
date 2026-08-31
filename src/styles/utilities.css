@@ -264,7 +264,7 @@
      accent band that fades out — the reader keeps their place. Pure CSS:
      :target + one-shot animation, no script involvement. */
   .rich-prose
-  :where(h2, h3, h4, h5, h6):not(
+  :where(h1, h2, h3, h4, h5, h6):not(
     :where([class~="not-prose"], [class~="not-prose"] *)
   ):target {
     animation: prose-target-flash 1.6s var(--motion-easing) 1;
@@ -283,12 +283,13 @@
   }
 
   /* Heading permalinks (injected by scripts/ui/heading-anchors.ts): a
-     hover/focus-revealed `#` glyph parked in the left gutter, markdown
-     native. Gated to ≥sm where the page-frame gutter is wide enough to
-     host it; touch-first widths rely on the TOC instead. */
+     hover/focus-revealed `#` rendered as the same quiet icon button as the
+     collapse arrow — glyph only while revealed, chip + primary on hover.
+     Gated to ≥sm where the page-frame gutter is wide enough to host it;
+     touch-first widths rely on the TOC instead. */
   @media (min-width: 640px) {
     .rich-prose
-      :where(h2, h3, h4, h5, h6):not(
+      :where(h1, h2, h3, h4, h5, h6):not(
         :where([class~="not-prose"], [class~="not-prose"] *)
       ) {
       position: relative;
@@ -297,28 +298,35 @@
     .heading-anchor {
       position: absolute;
       inset-inline-start: -1.5rem;
-      top: 0;
+      top: 50%;
       display: inline-flex;
-      height: 100%;
+      width: 1.375rem;
+      height: 1.375rem;
       align-items: center;
+      justify-content: center;
+      margin-top: -0.6875rem;
+      border-radius: var(--radius-control);
+      background-color: transparent;
       color: var(--muted-foreground);
       font-family: var(--font-mono);
-      font-size: 0.8em;
+      font-size: 0.8125rem;
       font-weight: 500;
       line-height: 1;
       text-decoration: none;
       opacity: 0;
       transition:
         opacity var(--motion-duration) var(--motion-easing),
-        color var(--motion-duration) var(--motion-easing);
+        color var(--motion-duration) var(--motion-easing),
+        background-color var(--motion-duration) var(--motion-easing);
     }
 
-    .rich-prose :where(h2, h3, h4, h5, h6):hover > .heading-anchor,
+    .rich-prose :where(h1, h2, h3, h4, h5, h6):hover > .heading-anchor,
     .heading-anchor:focus-visible {
       opacity: 1;
     }
 
     .heading-anchor:hover {
+      background-color: var(--container-faint-tint);
       color: var(--primary);
     }
   }
