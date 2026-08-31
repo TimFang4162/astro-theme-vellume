@@ -28,7 +28,7 @@ const hasActions = Astro.slots.has("actions");
 
 <section class:list={["space-y-4", className]}>
   {backHref && backLabel && (
-      <Button href={backHref} variant="ghost" size="sm">
+      <Button href={backHref} variant="borderless" size="sm">
         <Icon name="material-symbols:arrow-back-rounded" size={18} />
         {backLabel}
       </Button>

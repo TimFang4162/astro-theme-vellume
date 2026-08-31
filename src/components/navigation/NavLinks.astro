@@ -22,7 +22,7 @@ const { currentPath, variant = "desktop", closeOnClick = false } = Astro.props;
         return (
           <Button
             href={item.href}
-            variant={isActive ? "soft" : "ghost"}
+            variant={isActive ? "soft" : "borderless"}
             size="sm"
             aria-current={isActive ? "page" : undefined}
           >

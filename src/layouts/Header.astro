@@ -28,7 +28,7 @@ const homeHref = withBasePath("/");
     <div class="flex items-center gap-2">
       <NavLinks currentPath={currentPath} />
       <Button
-        variant="ghost"
+        variant="borderless"
         shape="circle"
         size="md"
         aria-label="搜索"
@@ -45,7 +45,7 @@ const homeHref = withBasePath("/");
       {mobileDrawerEnabled && (
         <Button
           id="mobile-menu-button"
-          variant="ghost"
+          variant="borderless"
           shape="circle"
           size="md"
           class="md:hidden"
