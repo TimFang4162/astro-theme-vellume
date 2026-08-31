@@ -10,7 +10,10 @@ import {
   readSvgIntrinsicSize,
   type SvgIntrinsicSize,
 } from "./renderers";
-import { escapeHtml } from "./utils";
+import { escapeHtml, mapWithConcurrency } from "./utils";
+
+/** Diagram compiles spawn external binaries; keep a modest fan-out. */
+const DIAGRAM_COMPILE_CONCURRENCY = 8;
 
 function renderDiagramHtml(
   language: string,
@@ -108,9 +111,29 @@ export function remarkRenderDiagrams(
       });
     });
 
-    for (const job of jobs) {
-      const size = await loadDiagramSize(job.language, job.value);
+    // Dedupe identical sources so parallel workers never compile the same
+    // diagram twice within one tree.
+    const sizePromises = new Map<
+      string,
+      Promise<SvgIntrinsicSize | undefined>
+    >();
+    const sizes = await mapWithConcurrency(
+      jobs,
+      DIAGRAM_COMPILE_CONCURRENCY,
+      (job) => {
+        const key = `${job.language}\u0000${job.value}`;
+        let size = sizePromises.get(key);
 
+        if (!size) {
+          size = loadDiagramSize(job.language, job.value);
+          sizePromises.set(key, size);
+        }
+
+        return size;
+      },
+    );
+
+    for (const [jobIndex, job] of jobs.entries()) {
       const htmlNode: Html = {
         type: "html",
         value: renderDiagramHtml(
@@ -118,7 +141,7 @@ export function remarkRenderDiagrams(
           job.value,
           version,
           basePath,
-          size,
+          sizes[jobIndex],
         ),
       };
 

@@ -1,8 +1,10 @@
 import { OGImageRoute } from "astro-og-canvas";
 import { siteConfig, siteHost } from "../../../config/site";
-import { getPublicBlogPosts } from "../../../lib/blog";
+import { getAccessibleBlogPosts } from "../../../lib/blog";
 
-const publicPosts = await getPublicBlogPosts();
+// Accessible (public + unlisted) posts all embed an OG image on their page, so
+// each of them needs one; drafts are never built and don't.
+const accessiblePosts = await getAccessibleBlogPosts();
 
 const pages: Record<string, { title: string; description?: string }> = {
   index: {
@@ -10,7 +12,7 @@ const pages: Record<string, { title: string; description?: string }> = {
     description: siteConfig.site.description,
   },
   ...Object.fromEntries(
-    publicPosts.map(({ id, data }) => [
+    accessiblePosts.map(({ id, data }) => [
       id,
       {
         title: data.title,

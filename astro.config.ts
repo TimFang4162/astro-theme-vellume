@@ -57,7 +57,7 @@ export default defineConfig({
               // path names relative to `outDir`
               entryFileNames: "assets/js/[hash].js",
               chunkFileNames: "assets/js/[hash].js",
-              assetFileNames: "assets/static/[name]1-[hash][extname]",
+              assetFileNames: "assets/static/[name]-[hash][extname]",
             },
           },
         },

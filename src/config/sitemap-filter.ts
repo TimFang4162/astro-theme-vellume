@@ -1,24 +1,29 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
+import { parse } from "yaml";
 
 const CONTENT_DIR = path.resolve(process.cwd(), "src/content/blog");
 const MARKDOWN_EXTENSION_PATTERN = /\.mdx?$/;
 const FRONTMATTER_PATTERN = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/;
 
-function parseFrontmatterField(frontmatter: string, field: string) {
-  const match = frontmatter.match(
-    new RegExp(`^${field}:[ \\t]*["']?([^"'\\n\\r]+?)["']?[ \\t]*$`, "m"),
-  );
+function parseFrontmatter(frontmatter: string): Record<string, unknown> {
+  try {
+    const data: unknown = parse(frontmatter);
 
-  return match?.[1]?.trim();
+    return typeof data === "object" && data !== null && !Array.isArray(data)
+      ? (data as Record<string, unknown>)
+      : {};
+  } catch {
+    return {};
+  }
 }
 
 /**
  * Mirrors Astro's glob loader id rule: frontmatter `slug` wins, otherwise the
  * path with the extension stripped and a trailing `/index` collapsed.
  */
-function toEntryId(relativePath: string, frontmatter: string) {
-  const slug = parseFrontmatterField(frontmatter, "slug");
+function toEntryId(relativePath: string, data: Record<string, unknown>) {
+  const slug = typeof data.slug === "string" ? data.slug.trim() : "";
 
   if (slug) {
     return slug;
@@ -70,9 +75,11 @@ async function loadUnlistedPostPaths(): Promise<Set<string>> {
         continue;
       }
 
-      if (parseFrontmatterField(frontmatter, "visibility") === "unlisted") {
+      const data = parseFrontmatter(frontmatter);
+
+      if (data.visibility === "unlisted") {
         const relativePath = path.relative(CONTENT_DIR, file);
-        paths.add(`posts/${toEntryId(relativePath, frontmatter)}`);
+        paths.add(`posts/${toEntryId(relativePath, data)}`);
       }
     } catch {
       // Unreadable files fall back to staying in the sitemap.

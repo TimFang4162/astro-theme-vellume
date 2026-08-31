@@ -9,7 +9,10 @@ import {
   readSvgIntrinsicSize,
   type SvgIntrinsicSize,
 } from "./renderers";
-import { createElement } from "./utils";
+import { createElement, mapWithConcurrency } from "./utils";
+
+/** Math compiles spawn external binaries; keep a modest fan-out. */
+const MATH_COMPILE_CONCURRENCY = 8;
 
 function hasClass(node: Element, className: string) {
   const { className: property } = node.properties;
@@ -37,7 +40,6 @@ function createMathNode(
     {
       className: [className],
       "data-rendered-math": displayMode ? "block" : "inline",
-      "aria-label": source,
     },
     [
       createElement("img", {
@@ -140,15 +142,35 @@ export function rehypeRenderTypstMath(
       });
     });
 
-    for (const job of jobs) {
-      const size = await loadMathSize(job.source, job.displayMode);
+    // Dedupe identical sources so parallel workers never compile the same
+    // formula twice within one tree.
+    const sizePromises = new Map<
+      string,
+      Promise<SvgIntrinsicSize | undefined>
+    >();
+    const sizes = await mapWithConcurrency(
+      jobs,
+      MATH_COMPILE_CONCURRENCY,
+      (job) => {
+        const key = `${job.displayMode ? "block" : "inline"}\u0000${job.source}`;
+        let size = sizePromises.get(key);
 
+        if (!size) {
+          size = loadMathSize(job.source, job.displayMode);
+          sizePromises.set(key, size);
+        }
+
+        return size;
+      },
+    );
+
+    for (const [jobIndex, job] of jobs.entries()) {
       job.parent.children[job.index] = createMathNode(
         job.source,
         job.displayMode,
         version,
         basePath,
-        size,
+        sizes[jobIndex],
       );
     }
   };
