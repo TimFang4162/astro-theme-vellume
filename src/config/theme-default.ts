@@ -173,7 +173,10 @@ const themeDefaultConfig: SiteConfig = {
       width: 8,
     },
     fonts: {
-      title: { file: "./src/assets/fonts/NotoSerifSC-Bold.ttf", family: "Noto Serif SC" },
+      title: {
+        file: "./src/assets/fonts/NotoSerifSC-Bold.ttf",
+        family: "Noto Serif SC",
+      },
       description: {
         file: "./src/assets/fonts/NotoSansSC-Regular.ttf",
         family: "Noto Sans SC",

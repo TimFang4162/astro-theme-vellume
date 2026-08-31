@@ -124,12 +124,16 @@ bun run dev
 bun run build
 bun run preview
 bun run generate:favicons
+bun run check
+bun run test
 bun run check:astro
 bun run check:biome
 bun run fix:biome
 ```
 
-`bun run generate:favicons` will rebuild the files under `public/favicons` from `public/assets/favicon.png` using the shared site metadata in `src/site/metadata.mjs`.
+`bun run generate:favicons` will rebuild the files under `public/favicons` from `public/assets/favicon.png` using the shared site metadata in `src/site/metadata.ts`.
+
+`bun run check` runs Astro type checking, Biome, and rumdl (Markdown lint/format) together. rumdl is not an npm package; install it separately, e.g. `pipx install rumdl==0.1.68`.
 
 ## Customize The Site
 
@@ -149,6 +153,7 @@ The usual starting points are:
 ```text
 .
 ├── public/
+├── scripts/
 ├── src/
 │   ├── assets/
 │   ├── components/
@@ -157,14 +162,14 @@ The usual starting points are:
 │   │   ├── about/
 │   │   ├── blog/
 │   │   └── series/
-│   ├── data/
 │   ├── layouts/
 │   ├── lib/
 │   ├── markdown/
 │   ├── pages/
-│   ├── site/
 │   ├── scripts/
-│   └── styles/
+│   ├── site/
+│   ├── styles/
+│   └── utils/
 ├── astro.config.ts
 ├── package.json
 └── tsconfig.json
@@ -205,7 +210,7 @@ When merge conflicts happen, resolve them with these ownership rules in mind:
 
 - Prefer your edits in `src/content/**` and `src/site/**`.
 - Prefer upstream changes in theme implementation files such as `src/components/**`, `src/layouts/**`, `src/pages/**`, `src/lib/**`, and `src/styles/**`.
-- Keep `src/config/site.ts` as a thin merge layer and `src/data/navigation.ts` as a compatibility re-export so they stay easy to reconcile.
+- Keep `src/config/site.ts` as a thin merge layer between the theme defaults in `src/config/theme-default.ts` and your `src/site/config.ts` overrides so it stays easy to reconcile.
 
 ## Who This Theme Is For
 

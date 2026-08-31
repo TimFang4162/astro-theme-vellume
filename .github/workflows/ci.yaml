@@ -1,0 +1,57 @@
+name: CI
+
+# Pull-request gate for the same quality checks the deploy workflow runs.
+# Pushes to main are covered by deploy.yaml, which runs the identical checks
+# before building, so this workflow intentionally does not also trigger on
+# push (that would duplicate every main-branch run).
+
+on:
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  RUMDL_VERSION: "0.1.68"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      # Third-party actions are pinned to commit SHAs; the comment records the
+      # version each SHA corresponds to.
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version-file: package.json
+
+      - name: cache bun packages
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+
+      - name: cache rumdl (pipx)
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            ~/.local/pipx
+            ~/.local/bin/rumdl
+          key: pipx-rumdl-${{ env.RUMDL_VERSION }}-${{ runner.os }}
+
+      - name: install rumdl
+        run: pipx install "rumdl==${RUMDL_VERSION}"
+
+      - run: bun install --frozen-lockfile
+
+      - name: quality checks
+        run: |
+          bun run check
+          bun run test

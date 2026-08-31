@@ -1,8 +1,6 @@
 /* Entry stylesheet. Concern-specific partials are imported in cascade
  * order; keep the order stable when adding files. */
 @import "tailwindcss";
-@plugin "@tailwindcss/typography";
-
 @import "./tokens.css";
 @import "./base.css";
 @import "./components.css";
@@ -11,3 +9,5 @@
 @import "./transitions.css";
 @import "./utilities.css";
 @import "./toc.css";
+
+@plugin "@tailwindcss/typography";

@@ -62,7 +62,7 @@
       }
     },
     {
-      "includes": ["src/styles/global.css"],
+      "includes": ["src/styles/**/*.css"],
       "linter": {
         "rules": {
           "complexity": {
