@@ -22,6 +22,7 @@ yarn-error.log*
 # editor and agent metadata
 .claude/
 .vscode/
+.zcode/
 
 # jetbrains setting folder
 .idea/

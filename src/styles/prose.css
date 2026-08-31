@@ -1,4 +1,8 @@
 @utility prose-brand {
+  /* Light-theme prose palette. The --tw-prose-invert-* block below mirrors
+     the full set on purpose: `dark:prose-invert` swaps to it wholesale, and
+     without explicit values the typography plugin's gray defaults would
+     apply instead of these theme tokens. Keep both sets in sync. */
   --tw-prose-body: var(--foreground);
   --tw-prose-headings: var(--foreground-strong);
   --tw-prose-lead: var(--muted-foreground);

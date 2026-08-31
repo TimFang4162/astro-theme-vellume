@@ -4,6 +4,7 @@ import { Icon } from "astro-icon/components";
 import { formatDate } from "../../utils/date";
 import { withBasePath } from "../../utils/paths";
 import { estimateReadTime, getEntryReadMinutes } from "../../utils/text";
+import Badge from "../ui/Badge.astro";
 import MetaItem from "../ui/MetaItem.astro";
 import TagBadgeList from "../ui/TagBadgeList.astro";
 import ViewItem from "../ui/ViewItem.astro";
@@ -24,7 +25,7 @@ const seriesLabel = seriesTitle ?? data.series?.id;
 
 <ViewItem href={withBasePath(`/posts/${id}`)} view={view}>
   <Fragment slot="card">
-    <h3 class="card-title text-strong transition group-hover:text-primary">
+    <h3 class="card-title text-strong transition-ui group-hover:text-primary">
       {data.title}
     </h3>
 
@@ -56,7 +57,7 @@ const seriesLabel = seriesTitle ?? data.series?.id;
 
     <div class="min-w-0 space-y-2">
       <div
-        class="text-base font-medium text-strong transition group-hover:text-primary"
+        class="text-base font-medium text-strong transition-ui group-hover:text-primary"
       >
         {data.title}
       </div>
@@ -65,13 +66,13 @@ const seriesLabel = seriesTitle ?? data.series?.id;
           预计阅读 {readTime}
         </MetaItem>
         {seriesLabel && (
-          <span class="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-accent px-2.5 py-0.5 text-sm font-medium text-primary">
+          <Badge size="sm" color="primary" class="gap-1.5">
             <Icon
               name="material-symbols:layers-outline-rounded"
               size={14}
             />
-            <span>{seriesLabel}</span>
-          </span>
+            {seriesLabel}
+          </Badge>
         )}
         <TagBadgeList tags={data.tags} variant="plain" />
       </div>

@@ -6,6 +6,11 @@
   }
 }
 
+/* Elevation ladder for z-index. Keep every layer on one of these steps;
+   the values double as documentation of stacking intent:
+   header 50 < drawer overlay/panel 60/61 < skip-link 80
+   < popover 90 < modal 100 < medium-zoom 999. */
+
 :root {
   --radius: 1rem;
   --scroll-offset-block: 5.5rem;
@@ -16,6 +21,7 @@
   --muted-foreground: #555555;
   --border: #d8d0cb;
   --border-subtle: color-mix(in srgb, var(--border) 92%, transparent);
+  --overlay: rgb(0 0 0 / 0.5);
   --transition-colors: color 0.2s ease, background-color 0.2s ease;
   --transition-ui:
     color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
@@ -27,13 +33,16 @@
   --accent: #fceae6;
   --accent-foreground: #904a42;
   --card: rgb(255 255 255 / 0.92);
-  --card-foreground: #131313;
   --popover: #ffffff;
-  --popover-foreground: #131313;
   --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04);
   --shadow-card-hover:
     0 16px 32px rgb(0 0 0 / 0.08), 0 2px 8px rgb(0 0 0 / 0.05);
+  --shadow-raised: 0 4px 12px rgb(0 0 0 / 0.08), 0 1px 3px rgb(0 0 0 / 0.06);
   --shadow-floating: 0 18px 48px rgb(0 0 0 / 0.12), 0 2px 8px rgb(0 0 0 / 0.08);
+  /* Shared hover recipes: solid surfaces mix accent into the card color,
+     rows inside a surface tint over transparent. */
+  --surface-hover: color-mix(in srgb, var(--accent) 72%, var(--card));
+  --surface-hover-tint: color-mix(in srgb, var(--accent) 72%, transparent);
   --code-block-surface: color-mix(in srgb, var(--background) 94%, var(--muted));
   --code-block-border: var(--border-subtle);
   --code-block-header-border: color-mix(
@@ -47,7 +56,6 @@
     var(--muted-foreground)
   );
   --code-block-copy-border: color-mix(in srgb, var(--border) 90%, transparent);
-  --code-block-copy-background: transparent;
   --code-block-copy-color: var(--muted-foreground);
   --code-block-copy-hover-background: color-mix(
     in srgb,
@@ -66,19 +74,21 @@
     --muted: #161616;
     --muted-foreground: #8b949e;
     --border: #222224;
+    --overlay: rgb(0 0 0 / 0.6);
     --primary: #feb4a9;
     --primary-foreground: #1e1917;
     --accent: #1e1917;
     --accent-foreground: #feb4a9;
     --card: rgb(16 16 18 / 0.92);
-    --card-foreground: #f3f3f3;
     --popover: #101012;
-    --popover-foreground: #f3f3f3;
     --shadow-card: 0 1px 2px rgb(0 0 0 / 0.24);
     --shadow-card-hover:
       0 18px 40px rgb(0 0 0 / 0.28), 0 3px 10px rgb(0 0 0 / 0.18);
+    --shadow-raised: 0 4px 14px rgb(0 0 0 / 0.35), 0 1px 4px rgb(0 0 0 / 0.25);
     --shadow-floating:
       0 24px 56px rgb(0 0 0 / 0.4), 0 4px 12px rgb(0 0 0 / 0.24);
+    --surface-hover: color-mix(in srgb, var(--accent) 72%, var(--card));
+    --surface-hover-tint: color-mix(in srgb, var(--accent) 72%, transparent);
     --code-block-surface: color-mix(in srgb, #0d0d0f 88%, var(--card));
     --code-block-border: color-mix(in srgb, var(--border) 94%, transparent);
     --code-block-header-border: color-mix(
@@ -96,7 +106,6 @@
       var(--border) 92%,
       transparent
     );
-    --code-block-copy-background: transparent;
     --code-block-copy-color: var(--muted-foreground);
     --code-block-copy-hover-background: color-mix(
       in srgb,
@@ -129,10 +138,14 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
 
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 0.5rem);
+  /* Semantic radius ladder, all derived from --radius so a site-level
+     --radius override rescales every surface proportionally:
+     tight = inline code / result rows, inner = popovers and nav rows,
+     card = cards and the feed list shell, hero = full-bleed panels. */
+  --radius-tight: calc(var(--radius) * 0.5);
+  --radius-inner: var(--radius);
+  --radius-card: calc(var(--radius) * 1.5);
+  --radius-hero: calc(var(--radius) * 2);
 }

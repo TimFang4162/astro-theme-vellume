@@ -45,20 +45,18 @@
   background: transparent;
   color: color-mix(in srgb, var(--foreground) 56%, transparent);
   cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
+  transition: var(--transition-colors);
 }
 
 .toc-toggle:hover {
   border-color: color-mix(in srgb, var(--border) 92%, transparent);
-  background: color-mix(in srgb, var(--accent) 82%, transparent);
+  background: var(--surface-hover-tint);
   color: var(--primary);
 }
 
 .toc-toggle-glyph {
   display: block;
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   font-weight: 700;
   line-height: 1;
   transform: rotate(90deg);
@@ -89,14 +87,12 @@
   color: color-mix(in srgb, var(--foreground) 76%, transparent);
   line-height: 0;
   cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
+  transition: var(--transition-colors);
 }
 
 .toc-action:hover {
   border-color: var(--primary);
-  background: color-mix(in srgb, var(--accent) 82%, transparent);
+  background: var(--surface-hover-tint);
   color: var(--primary);
 }
 
@@ -111,19 +107,16 @@
   padding-inline-end: 0.75rem;
   padding-inline-start: calc(2.2rem + var(--toc-indent, 0rem));
   color: color-mix(in srgb, var(--foreground) 72%, transparent);
-  transition:
-    color 0.2s ease,
-    background-color 0.2s ease,
-    box-shadow 0.2s ease;
+  transition: var(--transition-ui-shadow);
 }
 
 .toc-link:hover {
-  background: color-mix(in srgb, var(--accent) 60%, transparent);
+  background: var(--surface-hover-tint);
   color: var(--primary);
 }
 
 .toc-link:not(.active) {
-  border-radius: 1rem;
+  border-radius: var(--radius-inner);
 }
 
 .toc-link.active {
@@ -133,11 +126,11 @@
 }
 
 .toc-link.active-first {
-  border-top-right-radius: 1rem;
-  border-top-left-radius: 1rem;
+  border-top-right-radius: var(--radius-inner);
+  border-top-left-radius: var(--radius-inner);
 }
 
 .toc-link.active-last {
-  border-bottom-right-radius: 1rem;
-  border-bottom-left-radius: 1rem;
+  border-bottom-right-radius: var(--radius-inner);
+  border-bottom-left-radius: var(--radius-inner);
 }

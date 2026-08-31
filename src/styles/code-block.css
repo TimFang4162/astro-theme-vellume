@@ -4,7 +4,7 @@
     margin: 1.5rem 0;
     overflow: hidden;
     border: 1px solid var(--code-block-border);
-    border-radius: 1rem;
+    border-radius: var(--radius-inner);
     background: var(--code-block-surface);
     box-shadow: var(--code-block-shadow);
   }
@@ -34,8 +34,8 @@
     align-items: center;
     justify-content: center;
     border: 1px solid var(--code-block-copy-border);
-    border-radius: 999px;
-    background: var(--code-block-copy-background);
+    border-radius: 9999px;
+    background: transparent;
     padding: 0.2rem 0.875rem;
     color: var(--code-block-copy-color);
     cursor: pointer;
@@ -146,7 +146,7 @@
 
   .prose :where(code) {
     border: 1px solid;
-    border-radius: 0.5rem;
+    border-radius: var(--radius-tight);
     padding: 0.2rem;
     margin: 0.2rem;
     border-color: color-mix(in srgb, var(--primary) 50%, transparent);
@@ -160,7 +160,8 @@
     @apply leading-5;
 
     margin: 0;
-    padding: 0.875rem 0;
+    /* Padding for the prose context lives in utilities.css, whose layer
+       outranks the typography plugin. */
     background: transparent;
     color: inherit;
     overflow: visible;
@@ -216,123 +217,6 @@
       font-style: var(--shiki-dark-font-style) !important;
       font-weight: var(--shiki-dark-font-weight) !important;
       text-decoration: var(--shiki-dark-text-decoration) !important;
-    }
-  }
-
-  @media print {
-    @page {
-      margin: 2cm;
-    }
-
-    html {
-      color-scheme: light !important;
-    }
-
-    body {
-      background: #ffffff !important;
-      color: #131313 !important;
-    }
-
-    body > header,
-    body > footer,
-    #search-modal,
-    #mobile-drawer,
-    #mobile-drawer-overlay,
-    .skip-link,
-    .post-nav-feedback,
-    nav[aria-label="Post navigation"],
-    [data-artalk-comments],
-    [data-article-sidebar] {
-      display: none !important;
-    }
-
-    main,
-    .main-frame,
-    .page-frame {
-      max-width: 100%;
-      padding: 0;
-      margin: 0;
-    }
-
-    .content-layout {
-      display: block;
-    }
-
-    .article-column {
-      max-width: 100%;
-    }
-
-    code-block {
-      background: var(--code-block-surface);
-      border-color: var(--code-block-border);
-    }
-
-    .code-block__header {
-      break-after: avoid;
-      background-color: transparent !important;
-      border-bottom-color: var(--code-block-header-border);
-    }
-
-    .code-block__copy {
-      display: none !important;
-    }
-
-    a[href]::after {
-      content: " (" attr(href) ")";
-      font-size: 0.85em;
-    }
-
-    a[href^="#"]::after {
-      content: none;
-    }
-
-    code-block {
-      box-shadow: none;
-    }
-
-    .math-block {
-      overflow: visible;
-    }
-
-    .math-inline img,
-    .math-block img {
-      width: auto;
-      max-width: 100%;
-    }
-
-    .code-block__scroller {
-      overflow: visible;
-    }
-
-    .code-block__pre {
-      width: 100%;
-      min-width: 0;
-    }
-
-    .code-block__code {
-      min-width: 0;
-    }
-
-    .code-block__line {
-      grid-template-columns: 3.5rem minmax(0, 1fr);
-    }
-
-    .code-block__line-inner {
-      max-width: min(80ch, 100%);
-      width: auto;
-      white-space: pre-wrap;
-      word-break: break-word;
-      overflow-wrap: anywhere;
-    }
-
-    .code-block__diagram {
-      width: 100%;
-      min-width: 0;
-    }
-
-    .code-block__diagram img {
-      width: 100%;
-      max-width: 100%;
     }
   }
 }

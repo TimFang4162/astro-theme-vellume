@@ -58,7 +58,7 @@ const wechatPopoverId = `${normalizedIdPrefix || "social-links"}-wechat-popover-
         </button>
         <div
           id={wechatPopoverId}
-          class="wechat-popover__panel popover-card fixed z-[90] p-3 text-center text-sm text-muted-foreground"
+          class="wechat-popover__panel popover-card fixed z-90 p-3 text-center text-sm text-muted-foreground"
           popover="auto"
         >
           <QRCode
@@ -66,7 +66,7 @@ const wechatPopoverId = `${normalizedIdPrefix || "social-links"}-wechat-popover-
             size={184}
             darkColor="#111111"
             lightColor="#ffffff"
-            class="mx-auto mb-2 box-border rounded-2xl border border-border bg-white p-2 text-black"
+            class="mx-auto mb-2 box-border rounded-inner border border-border bg-white p-2 text-black"
           />
           扫码添加微信
         </div>
@@ -92,9 +92,14 @@ const wechatPopoverId = `${normalizedIdPrefix || "social-links"}-wechat-popover-
   pointer-events: none;
   transform: translateY(0.25rem) scale(0.96);
   transform-origin: bottom center;
-  transition:
-    opacity 0.24s ease,
-    transform 0.24s ease;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .wechat-popover__panel {
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease;
+  }
 }
 
 .wechat-popover__panel:popover-open {

@@ -15,6 +15,9 @@
 
   body {
     min-height: 100vh;
+    /* clip (not hidden) so sticky elements keep working while full-bleed
+       sections like the home hero can never cause horizontal scrolling. */
+    overflow-x: clip;
     background-color: var(--background);
     color: var(--foreground);
     font-family: var(--font-sans);

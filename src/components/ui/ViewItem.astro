@@ -1,8 +1,8 @@
 ---
 // Shared dual-layout wrapper for feed items. The `data-view-item` element and
 // the card/list pair are the DOM contract behind the card/list view toggle
-// (styled in `src/styles/global.css`); keeping it in one place prevents the
-// two layouts from drifting apart.
+// (styled in `src/styles/components.css`); keeping it in one place prevents
+// the two layouts from drifting apart.
 interface Props {
   href: string;
   view?: "card" | "list";
@@ -15,7 +15,7 @@ const { href, view = "card" } = Astro.props;
 <a
   href={href}
   data-view-item={view}
-  class="view-collection-item group block transition"
+  class="view-collection-item group block transition-ui"
 >
   <div
     class="view-collection-card surface-card surface-card-hover flex h-full flex-col p-4"

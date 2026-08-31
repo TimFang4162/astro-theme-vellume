@@ -125,22 +125,22 @@ const displayItems = items.map(getDisplayItem);
           </time>
         </div>
 
-        <h3 class="card-title text-strong transition group-hover:text-primary">
+        <h3 class="card-title text-strong transition-ui group-hover:text-primary">
           {item.title}
         </h3>
 
         {item.type === "series" ? (
           <div class="mt-auto space-y-2.5 pt-3">
             {item.latestPostTitle && (
-              <div class="rounded-2xl bg-accent/55 px-3 py-2">
-                <div class="flex items-center gap-1.5 text-[0.68rem] font-semibold tracking-[0.14em] text-primary/80 uppercase">
+              <div class="rounded-inner bg-accent/55 px-3 py-2">
+                <div class="flex items-center gap-1.5 text-xs font-semibold tracking-widest text-primary uppercase">
                   <Icon
                     name="material-symbols:bookmark-star-outline-rounded"
                     size={14}
                   />
                   最新文章
                 </div>
-                <p class="mt-1 line-clamp-2 text-sm text-muted-foreground transition group-hover:text-primary">
+                <p class="mt-1 line-clamp-2 text-sm text-muted-foreground transition-ui group-hover:text-primary">
                   {item.latestPostTitle}
                 </p>
               </div>
@@ -170,7 +170,7 @@ const displayItems = items.map(getDisplayItem);
       <Fragment slot="list">
         <time
           datetime={item.publishedAtIso}
-          class="home-feed-list-date text-sm font-mono text-muted-foreground"
+          class="text-sm font-mono text-muted-foreground"
         >
           {item.publishedAtLabel}
         </time>
@@ -178,7 +178,7 @@ const displayItems = items.map(getDisplayItem);
         <div class="min-w-0 space-y-2">
           <div class="flex flex-wrap items-center gap-2">
             <Badge size="sm" color={item.badgeColor}>{item.kindLabel}</Badge>
-            <div class="text-base font-medium text-strong transition group-hover:text-primary">
+            <div class="text-base font-medium text-strong transition-ui group-hover:text-primary">
               {item.title}
             </div>
           </div>
@@ -187,7 +187,7 @@ const displayItems = items.map(getDisplayItem);
               {item.latestPostTitle && (
                 <div class="text-sm text-muted-foreground">
                   最新：
-                  <span class="font-medium text-strong transition group-hover:text-primary">
+                  <span class="font-medium text-strong transition-ui group-hover:text-primary">
                     {item.latestPostTitle}
                   </span>
                 </div>

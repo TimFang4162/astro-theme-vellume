@@ -14,12 +14,12 @@ const { currentPath } = Astro.props;
 
 <div
   id="mobile-drawer-overlay"
-  class="pointer-events-none fixed inset-0 z-[60] bg-black/40 opacity-0 transition-opacity duration-300 lg:hidden"
+  class="pointer-events-none fixed inset-0 z-60 bg-(--overlay) opacity-0 motion-safe:transition-opacity motion-safe:duration-300 lg:hidden"
   aria-hidden="true"
 />
 <aside
   id="mobile-drawer"
-  class="pointer-events-none fixed right-0 top-0 z-[61] flex h-dvh w-[min(22.5rem,86vw)] translate-x-full flex-col gap-4 overflow-y-auto border-l border-border bg-background px-4 py-4 shadow-2xl transition-transform duration-300 lg:hidden"
+  class="pointer-events-none fixed right-0 top-0 z-61 flex h-dvh w-[min(22.5rem,86vw)] translate-x-full flex-col gap-4 overflow-y-auto border-l border-border bg-background px-4 py-4 shadow-(--shadow-floating) motion-safe:transition-transform motion-safe:duration-300 lg:hidden"
   aria-hidden="true"
   aria-labelledby="mobile-drawer-title"
   aria-modal="true"

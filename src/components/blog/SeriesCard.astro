@@ -22,13 +22,7 @@ const {
 const resolvedHref = withBasePath(href);
 ---
 
-<a
-  href={resolvedHref}
-  class:list={[
-    "surface-card surface-card-hover block",
-    variant === "compact" ? "px-4 py-4" : "p-4",
-  ]}
->
+<a href={resolvedHref} class="surface-card surface-card-hover block p-4">
   {variant === "compact" ? (
     <div class="flex items-center justify-between gap-3">
       <h3 class="font-sans text-base font-semibold text-strong">{title}</h3>

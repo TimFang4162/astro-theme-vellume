@@ -1,8 +1,18 @@
+/* Standard interactive fade: theme-token colors + shadow at 0.2s ease.
+   Decorative transitions are additionally disabled for reduced motion in
+   transitions.css. */
+@utility transition-ui {
+  transition: var(--transition-ui-shadow);
+}
+
 @layer utilities {
+  /* Prose-context code block reset. Lives in the utilities layer so it
+     outranks the typography plugin's `pre` styles; this rule is the single
+     source of the 0.875rem block padding. */
   .rich-prose
-    :where(code-block pre):not(
-      :where([class~="not-prose"], [class~="not-prose"] *)
-    ) {
+  :where(code-block pre):not(
+    :where([class~="not-prose"], [class~="not-prose"] *)
+  ) {
     @apply m-0 rounded-none border-0 shadow-none;
 
     padding: 0.875rem 0;

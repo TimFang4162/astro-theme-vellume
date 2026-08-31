@@ -13,8 +13,7 @@
     box-shadow: var(--shadow-floating);
     transition:
       transform 0.2s ease,
-      background-color 0.2s ease,
-      color 0.2s ease;
+      var(--transition-colors);
   }
 
   .skip-link:focus-visible {
@@ -42,7 +41,7 @@
   }
 
   .display-title {
-    @apply text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl;
+    @apply text-4xl font-sans font-bold tracking-tight md:text-5xl lg:text-6xl;
   }
 
   .article-title {
@@ -93,7 +92,7 @@
 
   .surface-card {
     border: 1px solid var(--border-subtle);
-    border-radius: 1.5rem;
+    border-radius: var(--radius-card);
     background: color-mix(in srgb, var(--card) 96%, transparent);
     box-shadow: var(--shadow-card);
   }
@@ -104,7 +103,7 @@
 
   .surface-card-hover:hover {
     border-color: var(--primary);
-    background: color-mix(in srgb, var(--accent) 72%, var(--card));
+    background: var(--surface-hover);
     box-shadow: var(--shadow-card-hover);
   }
 
@@ -119,7 +118,7 @@
 
   .surface-chip:hover {
     border-color: var(--primary);
-    background: color-mix(in srgb, var(--accent) 72%, var(--card));
+    background: var(--surface-hover);
   }
 
   .segmented-control {
@@ -142,7 +141,7 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    border-radius: 1rem;
+    border-radius: var(--radius-inner);
     padding: 0.875rem 1rem;
     font-weight: 500;
     transition: var(--transition-colors);
@@ -162,7 +161,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    transition: color 0.2s ease;
+    transition: var(--transition-colors);
   }
 
   .social-link:hover {
@@ -171,14 +170,14 @@
 
   .popover-card {
     border: 1px solid var(--border-subtle);
-    border-radius: 1rem;
+    border-radius: var(--radius-inner);
     background: var(--popover);
     box-shadow: var(--shadow-floating);
     backdrop-filter: blur(16px);
   }
 
   .rich-prose {
-    @apply prose prose-brand max-w-none prose-img:rounded-2xl prose-code:text-primary prose-a:font-medium dark:prose-invert;
+    @apply prose prose-brand max-w-none prose-img:rounded-inner prose-code:text-primary prose-a:font-medium dark:prose-invert;
     overflow-wrap: anywhere;
   }
 
@@ -212,14 +211,14 @@
   .sidebar-link {
     display: flex;
     gap: 0.75rem;
-    border-radius: 1rem;
+    border-radius: var(--radius-inner);
     padding: 0.5rem 0.75rem;
     font-size: 0.875rem;
     transition: var(--transition-colors);
   }
 
   .sidebar-link:hover {
-    background: color-mix(in srgb, var(--accent) 78%, transparent);
+    background: var(--surface-hover-tint);
     color: var(--primary);
   }
 
@@ -244,7 +243,7 @@
   }
 
   .group:hover .list-row-hover {
-    background: color-mix(in srgb, var(--accent) 72%, transparent);
+    background: var(--surface-hover-tint);
   }
 
   .view-collection {
@@ -274,7 +273,7 @@
     flex-direction: column;
     overflow: hidden;
     border: 1px solid var(--border-subtle);
-    border-radius: 1.5rem;
+    border-radius: var(--radius-card);
     background: color-mix(in srgb, var(--card) 96%, transparent);
     gap: 0;
   }
@@ -317,7 +316,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 1rem;
+    border-radius: var(--radius-inner);
     background: var(--accent);
     color: var(--primary);
   }
