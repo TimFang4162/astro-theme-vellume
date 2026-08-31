@@ -97,7 +97,6 @@
     var(--foreground-strong) 78%,
     var(--muted-foreground)
   );
-  --code-block-copy-border: color-mix(in srgb, var(--border) 90%, transparent);
   --code-block-copy-color: var(--muted-foreground);
   --code-block-copy-hover-background: var(--container-faint-tint);
   --code-block-copy-hover-color: var(--primary);
@@ -153,11 +152,6 @@
       in srgb,
       var(--foreground-strong) 84%,
       var(--muted-foreground)
-    );
-    --code-block-copy-border: color-mix(
-      in srgb,
-      var(--border) 92%,
-      transparent
     );
     --code-block-copy-color: var(--muted-foreground);
     --code-block-copy-hover-background: var(--container-faint-tint);

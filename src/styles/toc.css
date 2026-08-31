@@ -81,9 +81,8 @@
   width: 2rem;
   align-items: center;
   justify-content: center;
-  border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
   border-radius: var(--radius-control);
-  background: var(--card);
+  background: transparent;
   color: color-mix(in srgb, var(--foreground) 76%, transparent);
   line-height: 0;
   cursor: pointer;
