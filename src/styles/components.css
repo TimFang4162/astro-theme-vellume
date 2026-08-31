@@ -25,31 +25,31 @@
   }
 
   .page-title {
-    @apply text-4xl font-sans font-bold md:text-5xl;
+    @apply text-4xl font-sans font-semibold md:text-5xl;
   }
 
   .page-title-reading {
-    @apply text-4xl font-bold md:text-5xl;
+    @apply text-4xl font-semibold md:text-5xl;
   }
 
   .section-title {
-    @apply text-2xl font-sans font-bold md:text-3xl;
+    @apply text-2xl font-sans font-semibold md:text-3xl;
   }
 
   .section-title-reading {
-    @apply text-2xl font-bold md:text-3xl;
+    @apply text-2xl font-semibold md:text-3xl;
   }
 
   .display-title {
-    @apply text-4xl font-sans font-bold tracking-tight md:text-5xl lg:text-6xl;
+    @apply text-4xl font-sans font-semibold tracking-tight md:text-5xl lg:text-6xl;
   }
 
   .article-title {
-    @apply text-4xl font-bold tracking-tight md:text-5xl;
+    @apply text-4xl font-semibold tracking-tight md:text-5xl;
   }
 
   .card-title {
-    @apply text-xl font-sans font-bold;
+    @apply text-xl font-sans font-semibold;
   }
 
   .eyebrow {
@@ -92,33 +92,29 @@
 
   .surface-card {
     border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-card);
-    background: color-mix(in srgb, var(--card) 96%, transparent);
-    box-shadow: var(--shadow-card);
+    border-radius: var(--radius-inner);
+    background: var(--card);
   }
 
   .surface-card-hover {
-    transition: var(--transition-ui-shadow);
+    transition: var(--transition-ui);
   }
 
   .surface-card-hover:hover {
-    border-color: var(--primary);
-    background: var(--surface-hover);
-    box-shadow: var(--shadow-card-hover);
+    border-color: color-mix(in srgb, var(--primary) 40%, var(--border));
+    background: color-mix(in srgb, var(--muted) 60%, var(--card));
   }
 
   .surface-chip {
     border: 1px solid var(--border-subtle);
-    border-radius: 9999px;
-    background: color-mix(in srgb, var(--card) 96%, transparent);
-    box-shadow: var(--shadow-card);
-    backdrop-filter: blur(16px);
+    border-radius: var(--radius-inner);
+    background: var(--card);
     transition: var(--transition-ui);
   }
 
   .surface-chip:hover {
-    border-color: var(--primary);
-    background: var(--surface-hover);
+    border-color: color-mix(in srgb, var(--primary) 40%, var(--border));
+    background: color-mix(in srgb, var(--muted) 60%, var(--card));
   }
 
   .segmented-control {
@@ -126,11 +122,9 @@
     width: fit-content;
     gap: 0.25rem;
     border: 1px solid var(--border-subtle);
-    border-radius: 9999px;
-    background: color-mix(in srgb, var(--card) 96%, transparent);
+    border-radius: var(--radius-inner);
+    background: var(--card);
     padding: 0.25rem;
-    box-shadow: var(--shadow-card);
-    backdrop-filter: blur(16px);
   }
 
   .segmented-control :where([data-view-btn]) {
@@ -173,7 +167,6 @@
     border-radius: var(--radius-inner);
     background: var(--popover);
     box-shadow: var(--shadow-floating);
-    backdrop-filter: blur(16px);
   }
 
   .rich-prose {
@@ -273,8 +266,8 @@
     flex-direction: column;
     overflow: hidden;
     border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-card);
-    background: color-mix(in srgb, var(--card) 96%, transparent);
+    border-radius: var(--radius-inner);
+    background: var(--card);
     gap: 0;
   }
 
@@ -316,8 +309,6 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: var(--radius-inner);
-    background: var(--accent);
     color: var(--primary);
   }
 
@@ -327,7 +318,7 @@
 
   .prose :where(p, li, blockquote) {
     font-size: 1rem;
-    line-height: 1.875;
+    line-height: 1.75;
   }
 
   .prose :where(figcaption, small, sup, sub) {
@@ -365,6 +356,6 @@
 
   .rich-prose :where(h1, h2, h3, h4, h5, h6)[id] {
     scroll-margin-top: var(--scroll-offset-block);
-    @apply font-bold;
+    @apply font-semibold;
   }
 }

@@ -12,14 +12,14 @@
    < popover 90 < modal 100 < medium-zoom 999. */
 
 :root {
-  --radius: 1rem;
+  --radius: 0.5rem;
   --scroll-offset-block: 5.5rem;
   --background: #ffffff;
-  --foreground: #131313;
+  --foreground: #1f2328;
   --foreground-strong: #000000;
-  --muted: #f3f1ef;
-  --muted-foreground: #555555;
-  --border: #d8d0cb;
+  --muted: #f5f6f7;
+  --muted-foreground: #6b7076;
+  --border: #e5e7ea;
   --border-subtle: color-mix(in srgb, var(--border) 92%, transparent);
   --overlay: rgb(0 0 0 / 0.5);
   --transition-colors: color 0.2s ease, background-color 0.2s ease;
@@ -28,17 +28,16 @@
   --transition-ui-shadow:
     color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease,
     box-shadow 0.2s ease;
-  --primary: #904a42;
-  --primary-foreground: #fff7f6;
-  --accent: #fceae6;
-  --accent-foreground: #904a42;
-  --card: rgb(255 255 255 / 0.92);
+  --primary: #2f6fed;
+  --primary-foreground: #ffffff;
+  --accent: #e8f0fe;
+  --accent-foreground: #2f6fed;
+  --card: #ffffff;
   --popover: #ffffff;
-  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04);
-  --shadow-card-hover:
-    0 16px 32px rgb(0 0 0 / 0.08), 0 2px 8px rgb(0 0 0 / 0.05);
-  --shadow-raised: 0 4px 12px rgb(0 0 0 / 0.08), 0 1px 3px rgb(0 0 0 / 0.06);
-  --shadow-floating: 0 18px 48px rgb(0 0 0 / 0.12), 0 2px 8px rgb(0 0 0 / 0.08);
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.03);
+  --shadow-card-hover: 0 4px 12px rgb(0 0 0 / 0.06);
+  --shadow-raised: 0 2px 8px rgb(0 0 0 / 0.05);
+  --shadow-floating: 0 8px 24px rgb(0 0 0 / 0.08);
   /* Shared hover recipes: solid surfaces mix accent into the card color,
      rows inside a surface tint over transparent. */
   --surface-hover: color-mix(in srgb, var(--accent) 72%, var(--card));
@@ -68,25 +67,23 @@
 
 @media not print {
   [data-theme="dark"] {
-    --background: #09090b;
-    --foreground: #d7d5d1;
-    --foreground-strong: #f3f3f3;
-    --muted: #161616;
-    --muted-foreground: #8b949e;
-    --border: #222224;
+    --background: #0e1116;
+    --foreground: #d7dbe0;
+    --foreground-strong: #f4f6f8;
+    --muted: #1a1f26;
+    --muted-foreground: #848b94;
+    --border: #262c35;
     --overlay: rgb(0 0 0 / 0.6);
-    --primary: #feb4a9;
-    --primary-foreground: #1e1917;
-    --accent: #1e1917;
-    --accent-foreground: #feb4a9;
-    --card: rgb(16 16 18 / 0.92);
-    --popover: #101012;
-    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.24);
-    --shadow-card-hover:
-      0 18px 40px rgb(0 0 0 / 0.28), 0 3px 10px rgb(0 0 0 / 0.18);
-    --shadow-raised: 0 4px 14px rgb(0 0 0 / 0.35), 0 1px 4px rgb(0 0 0 / 0.25);
-    --shadow-floating:
-      0 24px 56px rgb(0 0 0 / 0.4), 0 4px 12px rgb(0 0 0 / 0.24);
+    --primary: #6aa6ff;
+    --primary-foreground: #0b1220;
+    --accent: #12233a;
+    --accent-foreground: #88b6ff;
+    --card: rgb(17 21 27 / 0.92);
+    --popover: #14181e;
+    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3);
+    --shadow-card-hover: 0 4px 14px rgb(0 0 0 / 0.32);
+    --shadow-raised: 0 2px 10px rgb(0 0 0 / 0.35);
+    --shadow-floating: 0 12px 32px rgb(0 0 0 / 0.4);
     --surface-hover: color-mix(in srgb, var(--accent) 72%, var(--card));
     --surface-hover-tint: color-mix(in srgb, var(--accent) 72%, transparent);
     --code-block-surface: color-mix(in srgb, #0d0d0f 88%, var(--card));

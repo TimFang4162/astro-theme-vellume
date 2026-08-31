@@ -19,7 +19,7 @@ const avatarSrc = withBasePath(siteConfig.author.avatar.src);
 <div class="relative left-1/2 w-screen -translate-x-1/2 px-4 sm:px-6 lg:px-8">
   <section
     data-home-hero
-    class="relative overflow-hidden rounded-hero border border-border bg-background shadow-(--shadow-card)"
+    class="relative overflow-hidden rounded-hero border border-border bg-background"
   >
     <div class="absolute inset-0 overflow-hidden rounded-[inherit]">
       <div data-hero-canvas class="absolute inset-0 z-0"></div>
@@ -34,12 +34,12 @@ const avatarSrc = withBasePath(siteConfig.author.avatar.src);
           width={112}
           height={112}
           priority
-          class="size-24 rounded-full border-4 border-background object-cover shadow-[0_24px_80px_-30px_var(--primary)] md:size-28"
+          class="size-24 rounded-full border-4 border-background object-cover md:size-28"
         />
         <div class="max-w-3xl space-y-4">
           <h1 class="display-title text-strong">{title}</h1>
           <p
-            class="font-serif max-w-2xl text-lg leading-8 text-foreground md:text-xl"
+            class="max-w-2xl text-lg leading-8 text-foreground md:text-xl"
           >
             {bio}
           </p>

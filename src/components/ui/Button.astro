@@ -44,17 +44,17 @@ const resolvedHref = href ? withBasePath(href) : undefined;
       "size-9 text-sm": shape === "circle" && size === "sm",
       "size-11 text-base": shape === "circle" && size === "md",
       "size-12 text-lg": shape === "circle" && size === "lg",
-      "border border-transparent bg-primary text-primary-foreground shadow-(--shadow-card) hover:shadow-(--shadow-raised) active:shadow-(--shadow-card)":
+      "border border-transparent bg-primary text-primary-foreground hover:brightness-95":
         variant === "primary",
-      "border border-border bg-card/90 text-strong shadow-(--shadow-card) backdrop-blur hover:border-primary hover:bg-accent hover:shadow-(--shadow-raised) active:shadow-(--shadow-card)":
+      "border border-border bg-card text-strong hover:border-primary hover:bg-accent":
         variant === "secondary",
       "border border-transparent bg-accent/70 text-primary hover:bg-accent active:shadow-none":
         variant === "soft",
-      "border border-border/80 bg-transparent text-muted-foreground hover:border-primary hover:bg-accent hover:text-primary active:shadow-none aria-pressed:border-primary/50 aria-pressed:bg-accent aria-pressed:text-primary aria-pressed:shadow-(--shadow-card)":
+      "border border-border/80 bg-transparent text-muted-foreground hover:border-primary hover:bg-accent hover:text-primary active:shadow-none aria-pressed:border-primary/50 aria-pressed:bg-accent aria-pressed:text-primary":
         variant === "ghost" && !segmented,
-      "border border-transparent bg-transparent text-muted-foreground shadow-none hover:border-transparent hover:bg-accent hover:text-primary active:shadow-none aria-pressed:border-primary/50 aria-pressed:bg-accent aria-pressed:text-primary aria-pressed:shadow-(--shadow-card)":
+      "border border-transparent bg-transparent text-muted-foreground shadow-none hover:border-transparent hover:bg-accent hover:text-primary active:shadow-none aria-pressed:border-primary/50 aria-pressed:bg-accent aria-pressed:text-primary":
         variant === "ghost" && segmented,
-      "border-primary/50 bg-accent text-primary shadow-(--shadow-card)":
+      "border-primary/50 bg-accent text-primary":
         active && variant !== "primary",
     },
     className,

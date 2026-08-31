@@ -158,18 +158,18 @@ const themeDefaultConfig: SiteConfig = {
   theme: {
     browserColor: {
       light: "#ffffff",
-      dark: "#09090b",
+      dark: "#0e1116",
     },
   },
   og: {
     backgroundGradient: [
-      [24, 24, 27],
-      [9, 9, 11],
+      [20, 24, 32],
+      [12, 15, 20],
     ],
-    accent: [254, 180, 169],
+    accent: [76, 150, 235],
     description: [139, 148, 158],
     border: {
-      color: [254, 180, 169],
+      color: [76, 150, 235],
       width: 8,
     },
     fonts: {
