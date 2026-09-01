@@ -25,11 +25,11 @@
   }
 
   .page-title {
-    @apply text-4xl font-sans font-semibold md:text-5xl;
+    @apply text-h1 font-sans font-semibold;
   }
 
   .section-title {
-    @apply text-2xl font-sans font-semibold md:text-3xl;
+    @apply text-h2 font-sans font-semibold;
   }
 
   .display-title {
@@ -37,11 +37,11 @@
   }
 
   .article-title {
-    @apply text-4xl font-semibold tracking-tight md:text-5xl;
+    @apply text-h1 font-semibold;
   }
 
   .card-title {
-    @apply text-xl font-sans font-semibold;
+    @apply text-h3 font-sans font-semibold;
   }
 
   .eyebrow {
@@ -79,7 +79,7 @@
   }
 
   .article-column {
-    @apply min-w-0 max-w-3xl space-y-8;
+    @apply min-w-0 max-w-[44rem] space-y-8;
   }
 
   .surface-card {
@@ -174,7 +174,15 @@
   }
 
   .rich-prose {
-    @apply prose prose-brand max-w-none prose-img:rounded-inner dark:prose-invert;
+    /* dark:prose-invert is deliberately absent: every --tw-prose-* variable
+       below references theme tokens that already flip under
+       [data-theme="dark"], so an invert layer would only re-state them. */
+    @apply prose prose-brand max-w-none prose-img:rounded-inner;
+    /* Long-form body sits one step above the typography plugin's 1rem base
+       with a calmer CJK line height; the doubled class out-specifies the
+       plugin regardless of injection order. */
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
     overflow-wrap: anywhere;
   }
 
@@ -202,6 +210,7 @@
     gap: 0.75rem 1.25rem;
     color: var(--muted-foreground);
     font-size: 0.875rem;
+    font-variant-numeric: tabular-nums;
   }
 
   .meta-item {
@@ -338,19 +347,6 @@
     align-items: center;
     justify-content: center;
     color: var(--primary);
-  }
-
-  .prose {
-    font-size: 1rem;
-  }
-
-  .prose :where(p, li, blockquote) {
-    font-size: 1rem;
-    line-height: 1.75;
-  }
-
-  .prose :where(figcaption, small, sup, sub) {
-    font-size: 0.875rem;
   }
 
   .rich-prose

@@ -49,7 +49,8 @@
   h5,
   h6 {
     font-family: var(--font-sans);
-    letter-spacing: -0.015em;
+    /* No negative tracking here: it is a Latin display convention and cramps
+       CJK glyphs. The hero display title re-tightens via its own utility. */
     /* Balance wrapped headings so the last line never strands a single
        glyph — the classic orphan of narrow CJK titles. */
     text-wrap: balance;

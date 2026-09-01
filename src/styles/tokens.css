@@ -18,18 +18,20 @@
   --radius: 0.5rem;
   --scroll-offset-block: 5.5rem;
   --background: #ffffff;
-  --foreground: #1f2328;
-  --foreground-strong: #000000;
-  --muted: #f5f6f7;
-  --muted-foreground: #6b7076;
-  --border: #e5e7ea;
+  --foreground: #27272a;
+  --foreground-strong: #09090b;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  --border: #e4e4e7;
   --border-subtle: color-mix(in srgb, var(--border) 92%, transparent);
   --overlay: rgb(0 0 0 / 0.5);
   /* Single source for interaction timing; every transition recipe (and the
      one-off opacity/transform/filter transitions in partials) derives from
-     these two values so timing can never drift between files. */
+     these two values so timing can never drift between files. The easing is
+     a swift-out curve so hover/focus feedback decelerates like product UI
+     rather than coasting on the UA default. */
   --motion-duration: 0.2s;
-  --motion-easing: ease;
+  --motion-easing: cubic-bezier(0.2, 0.8, 0.2, 1);
   --transition-colors:
     color var(--motion-duration) var(--motion-easing),
     background-color var(--motion-duration) var(--motion-easing);
@@ -191,6 +193,23 @@
   --font-mono:
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Cascadia Mono",
     "Liberation Mono", monospace;
+
+  /* Type scale for structural headings and prose body. Fixed steps (not
+     fluid) so titles stay predictable across layout breakpoints; the prose
+     container consumes --text-body to lift long-form text above the
+     typography plugin's 1rem base:
+     h1    page and article titles
+     h2    section titles
+     h3    card titles and prose h4-level headings
+     body  long-form prose */
+  --text-h1: clamp(2rem, 1.4rem + 1.8vw, 2.75rem);
+  --text-h1--line-height: 1.2;
+  --text-h2: 1.5rem;
+  --text-h2--line-height: 1.3;
+  --text-h3: 1.25rem;
+  --text-h3--line-height: 1.4;
+  --text-body: 1.0625rem;
+  --text-body--line-height: 1.8;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);

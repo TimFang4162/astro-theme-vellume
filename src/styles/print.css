@@ -96,7 +96,7 @@
   }
 
   .code-block__line {
-    grid-template-columns: 3.5rem minmax(0, 1fr);
+    grid-template-columns: 2.5rem minmax(0, 1fr);
   }
 
   .code-block__line-inner {
