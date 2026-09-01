@@ -49,6 +49,11 @@ export interface SiteConfig {
     };
   };
   theme: {
+    /** Named profile from the `themeProfiles` registry (one css file each
+        under `src/site/profiles/`). */
+    profile: string;
+    /** Named print profile (see `printProfiles` in the same module). */
+    print: string;
     browserColor: {
       light: string;
       dark: string;
@@ -111,7 +116,7 @@ export const mergeSiteConfig = (...overrides: SiteConfigInput[]): SiteConfig =>
     createSiteConfig(),
   );
 
-const themeDefaultConfig: SiteConfig = {
+export const themeDefaultConfig: SiteConfig = {
   site: {
     url: "https://example.com",
     title: "Vellume",
@@ -156,6 +161,8 @@ const themeDefaultConfig: SiteConfig = {
     },
   },
   theme: {
+    profile: "default",
+    print: "default",
     browserColor: {
       light: "#ffffff",
       dark: "#0e1116",

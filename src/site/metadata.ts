@@ -6,8 +6,9 @@ export const siteMetadata = {
 };
 
 export const faviconMetadata = {
-  background: "#ffffff",
-  themeColor: "#ffffff",
+  // background/themeColor follow the active theme profile automatically
+  // (resolved in scripts/generate-favicons.ts); run `bun run
+  // generate:favicons` after switching profiles.
   appleStatusBarStyle: "black-translucent",
   display: "standalone",
   orientation: "any",

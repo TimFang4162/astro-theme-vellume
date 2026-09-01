@@ -7,6 +7,10 @@ import remarkBreaks from "remark-breaks";
 import remarkMath from "remark-math";
 import { siteUrl } from "./src/config/site";
 import { createUnlistedSitemapFilter } from "./src/config/sitemap-filter";
+import {
+  buildThemeProfileCss,
+  resolveThemeBranding,
+} from "./src/config/theme-profiles";
 import { rehypeHierarchicalHeadingIds } from "./src/markdown/rehype-heading-ids";
 import { rehypeImageCaptions } from "./src/markdown/rehype-image-captions";
 import { rehypeRenderTypstMath } from "./src/markdown/rehype-render-typst-math";
@@ -16,6 +20,24 @@ import { createShikiTransformers } from "./src/markdown/shiki-transformers";
 import { normalizeBasePath } from "./src/utils/base-path-core";
 
 const siteBase = normalizeBasePath(process.env.SITE_BASE || "/");
+const branding = resolveThemeBranding();
+
+const virtualThemeProfileModule = "\0virtual:vellume-theme-profile.css";
+// Generates the active profile's stylesheet so it can be imported between
+// global.css and theme.css — bundle order then guarantees the precedence
+// chain tokens.css < profile < theme.css < custom.css.
+const themeProfilePlugin = {
+  name: "vellume-theme-profile",
+  resolveId(id: string) {
+    if (id === "virtual:vellume-theme-profile.css")
+      return virtualThemeProfileModule;
+    return null;
+  },
+  load(id: string) {
+    if (id !== virtualThemeProfileModule) return null;
+    return buildThemeProfileCss();
+  },
+};
 
 // https://astro.build/config
 export default defineConfig({
@@ -28,10 +50,12 @@ export default defineConfig({
       excludeLangs: ["typst", "mermaid"],
     },
     shikiConfig: {
-      themes: {
-        light: "github-light",
-        dark: "github-dark-default",
-      },
+      // Profile-resolved theme names. Shiki's type only enumerates known
+      // presets, but arbitrary bundled theme names work at runtime.
+      themes: branding.shiki as Record<
+        string,
+        "github-light" | "github-dark-default"
+      >,
       transformers: createShikiTransformers(),
     },
     remarkPlugins: [
@@ -48,7 +72,7 @@ export default defineConfig({
   },
 
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [themeProfilePlugin, tailwindcss()],
     environments: {
       client: {
         build: {

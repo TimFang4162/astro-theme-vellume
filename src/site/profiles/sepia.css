@@ -1,0 +1,29 @@
+/* Sepia — warm paper neutrals with a terracotta accent. Flat single
+   canvas, default radii; tuned for long-form reading. */
+
+:root {
+  --background: #f6f1e7;
+  --card: #fffdf8;
+  --popover: #fffdf8;
+  --foreground: #33302a;
+  --foreground-strong: #211e18;
+  --muted: #ece5d6;
+  --muted-foreground: #7d7466;
+  --border: #ddd3c0;
+  --primary: #96572a;
+  --primary-foreground: #ffffff;
+}
+
+[data-theme="dark"] {
+  --background: #191512;
+  --surface: #1f1a16;
+  --card: #251f1a;
+  --popover: #292219;
+  --foreground: #ddd3c5;
+  --foreground-strong: #f1e9dc;
+  --muted: #2d2620;
+  --muted-foreground: #a2988a;
+  --border: #3a3129;
+  --primary: #d19a6b;
+  --primary-foreground: #201409;
+}

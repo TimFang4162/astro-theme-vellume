@@ -17,7 +17,15 @@
   color-scheme: light;
   --radius: 0.5rem;
   --scroll-offset-block: 5.5rem;
+  /* Surface ladder: --background is the page canvas, --surface the content
+     sheet (header / main column), --card a raised element on the sheet.
+     Surface defaults to the background so a flat single-canvas look is the
+     zero-config case; giving --background and --surface different values
+     (plus a --radius bump) yields a layered, Material-style sheet layout.
+     Consume the canvas only as a backdrop — text never sits directly on a
+     contrasting canvas/sheet pair without a card or surface in between. */
   --background: #ffffff;
+  --surface: var(--background);
   --foreground: #27272a;
   --foreground-strong: #09090b;
   --muted: #f4f4f5;
@@ -45,10 +53,24 @@
     background-color var(--motion-duration) var(--motion-easing),
     box-shadow var(--motion-duration) var(--motion-easing),
     transform var(--motion-duration) var(--motion-easing);
+  /* Mix strengths for the derived recipes below. Profiles and user themes
+     can retune tint depth (Material-style surfaces want stronger tints)
+     without rewriting the recipes themselves. */
+  --accent-strength: 12%;
+  --container-faint-strength: 50%;
+  --container-subtle-strength: 60%;
+  --ring-strength: 72%;
   --primary: #2f6fed;
   --primary-foreground: #ffffff;
-  --accent: #e8f0fe;
-  --accent-foreground: #2f6fed;
+  /* --accent derives from the primary so a primary swap re-tints every
+     tonal surface (hover fills, selected states, the container ladder).
+     Set --accent explicitly to opt out of the derivation. */
+  --accent: color-mix(
+    in srgb,
+    var(--primary) var(--accent-strength),
+    var(--card)
+  );
+  --accent-foreground: var(--primary);
   --card: #ffffff;
   --card-foreground: var(--foreground);
   --popover: #ffffff;
@@ -58,7 +80,7 @@
   --input: var(--border);
   /* Focus ring color, consumed by the focus-visible recipe in base.css.
      Derived from --primary so accent swaps re-tune the ring automatically. */
-  --ring: color-mix(in srgb, var(--primary) 72%, transparent);
+  --ring: color-mix(in srgb, var(--primary) var(--ring-strength), transparent);
   /* Feedback red pair for destructive states. Unused by the core UI today;
      defined so component CSS and user themes have a canonical slot. */
   --destructive: #dc2626;
@@ -72,21 +94,45 @@
                  solid surfaces mix accent into the card color
      subtle      persistent emphasis boxes nested inside cards
      selected    full --accent (primary-container), used directly. */
-  --container-faint: color-mix(in srgb, var(--accent) 50%, var(--card));
-  --container-faint-tint: color-mix(in srgb, var(--accent) 50%, transparent);
-  --container-subtle: color-mix(in srgb, var(--accent) 60%, var(--card));
+  --container-faint: color-mix(
+    in srgb,
+    var(--accent) var(--container-faint-strength),
+    var(--card)
+  );
+  --container-faint-tint: color-mix(
+    in srgb,
+    var(--accent) var(--container-faint-strength),
+    transparent
+  );
+  --container-subtle: color-mix(
+    in srgb,
+    var(--accent) var(--container-subtle-strength),
+    var(--card)
+  );
   /* Active thumb of segmented controls (shadcn-Tabs style: a raised
      foreground step on the muted track). Dark mixes a step lighter than
      --card so the thumb still reads against the low-luminance track. */
   --control-thumb: var(--card);
   /* Hero particle palette, read by the Three.js runtime via computed style.
-     Kept inside the accent family so the canvas can never drift off-brand;
-     --hero-particle-three is the neutral that keeps the field from looking
-     like a solid wash of blue. */
-  --hero-particle-base: #1f2328;
-  --hero-particle-one: #2f6fed;
-  --hero-particle-two: #7fa8f6;
-  --hero-particle-three: #c6d3e6;
+     Derived from the foreground/primary family so a primary swap re-tints
+     the field automatically; --hero-particle-three is the near-neutral that
+     keeps the field from looking like a solid wash of the accent. --tint is
+     the bright end of the particle ramp (white on light, pale grey on
+     dark). The runtime resolves the color-mix() recipes to concrete colors
+     before handing them to the renderer. */
+  --hero-particle-tint: #ffffff;
+  --hero-particle-base: color-mix(
+    in srgb,
+    var(--foreground-strong) 92%,
+    var(--background)
+  );
+  --hero-particle-one: var(--primary);
+  --hero-particle-two: color-mix(
+    in srgb,
+    var(--primary) 58%,
+    var(--hero-particle-tint)
+  );
+  --hero-particle-three: color-mix(in srgb, var(--primary) 18%, var(--muted));
   --code-block-surface: color-mix(in srgb, var(--background) 94%, var(--muted));
   --code-block-border: var(--border-subtle);
   --code-block-header-border: color-mix(
@@ -121,28 +167,24 @@
     --overlay: rgb(0 0 0 / 0.6);
     --primary: #6aa6ff;
     --primary-foreground: #0b1220;
-    --accent: #12233a;
-    --accent-foreground: #88b6ff;
+    /* Dark containers mix a step stronger than light so the tint stays
+       legible against the low-luminance card surface (--accent and the
+       container ladder derive with these strengths). */
+    --accent-strength: 22%;
+    --container-faint-strength: 64%;
+    --container-subtle-strength: 72%;
     --card: #11151b;
     --popover: #14181e;
     --destructive: #e5484d;
     --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3);
     --shadow-raised: 0 2px 10px rgb(0 0 0 / 0.35);
     --shadow-floating: 0 12px 32px rgb(0 0 0 / 0.4);
-    /* Dark containers mix a step stronger than light so the navy tint stays
-       legible against the low-luminance card surface. */
-    --container-faint: color-mix(in srgb, var(--accent) 64%, var(--card));
-    --container-faint-tint: color-mix(in srgb, var(--accent) 64%, transparent);
-    --container-subtle: color-mix(in srgb, var(--accent) 72%, var(--card));
     --control-thumb: color-mix(
       in srgb,
       var(--foreground-strong) 8%,
       var(--muted)
     );
-    --hero-particle-base: #e7eaee;
-    --hero-particle-one: #6aa6ff;
-    --hero-particle-two: #a9c6ff;
-    --hero-particle-three: #3f4a5c;
+    --hero-particle-tint: #e7eaee;
     --code-block-surface: color-mix(in srgb, #0d0d0f 88%, var(--card));
     --code-block-border: color-mix(in srgb, var(--border) 94%, transparent);
     --code-block-header-border: color-mix(
@@ -212,6 +254,7 @@
   --text-body--line-height: 1.8;
 
   --color-background: var(--background);
+  --color-surface: var(--surface);
   --color-foreground: var(--foreground);
   --color-foreground-strong: var(--foreground-strong);
   --color-muted: var(--muted);

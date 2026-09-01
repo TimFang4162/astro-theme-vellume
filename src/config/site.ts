@@ -3,7 +3,9 @@ import type { SiteConfigInput } from "./theme-default";
 import { mergeSiteConfig } from "./theme-default";
 
 function loadEnvOverrides(): SiteConfigInput {
-  const raw = import.meta.env.SITE_CONFIG_OVERRIDES;
+  // Optional chaining keeps Node-side consumers (favicon script) working
+  // where import.meta.env is undefined.
+  const raw = import.meta.env?.SITE_CONFIG_OVERRIDES;
   if (!raw || typeof raw !== "string") return {};
   try {
     return JSON.parse(raw) as SiteConfigInput;

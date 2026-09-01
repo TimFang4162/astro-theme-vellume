@@ -6,11 +6,18 @@ import { ThemeScript } from "astro-theme-toggle";
 import MobileDrawer from "../components/navigation/MobileDrawer.astro";
 import SearchModal from "../components/search/SearchModal.astro";
 import { siteConfig } from "../config/site";
+import {
+  resolveThemeBranding,
+  resolveThemeProfiles,
+} from "../config/theme-profiles";
 import { toAbsoluteSiteUrl, withBasePath } from "../utils/paths";
 import Footer from "./Footer.astro";
 import Header from "./Header.astro";
 import "medium-zoom/dist/style.css";
 import "../styles/global.css";
+// Active theme profile tokens; bundle order keeps them between tokens.css
+// (inside global.css) and the user-owned theme.css below.
+import "virtual:vellume-theme-profile.css";
 import "../site/theme.css";
 import "../site/custom.css";
 
@@ -39,6 +46,8 @@ const {
   articleMeta,
   jsonLd,
 } = Astro.props;
+const branding = resolveThemeBranding();
+const { rootStates, printAttribute } = resolveThemeProfiles();
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const currentPath = Astro.url.pathname;
 const defaultOgImage = "/assets/og/index.png";
@@ -95,18 +104,24 @@ const seoProps = {
 ---
 
 <!doctype html>
-<html lang={siteConfig.site.lang} dir="ltr" data-theme="light">
+<html
+  lang={siteConfig.site.lang}
+  dir="ltr"
+  data-theme="light"
+  data-print={printAttribute}
+  {...rootStates}
+>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content={Astro.generator}>
     <meta
       name="theme-color"
-      content={siteConfig.theme.browserColor.light}
+      content={branding.browserColor.light}
       media="(prefers-color-scheme: light)"
     >
     <meta
       name="theme-color"
-      content={siteConfig.theme.browserColor.dark}
+      content={branding.browserColor.dark}
       media="(prefers-color-scheme: dark)"
     >
     <link rel="icon" type="image/x-icon" href={faviconHref}>
@@ -180,7 +195,11 @@ const seoProps = {
         <slot name="mobile-drawer" />
       </MobileDrawer>
     )}
-    <main id="main-content" tabindex="-1" class="page-frame main-frame">
+    <main
+      id="main-content"
+      tabindex="-1"
+      class="page-frame main-frame min-h-screen bg-surface"
+    >
       <slot />
     </main>
     <Footer />

@@ -1,0 +1,7 @@
+/* Compact — smaller type, tighter leading; images and expanded link URLs
+   are suppressed by print.css (keyed on data-print="compact"). */
+
+:root {
+  --text-body: 0.9375rem;
+  --text-body--line-height: 1.65;
+}

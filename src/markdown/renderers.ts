@@ -1,7 +1,12 @@
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { resolveThemeBranding } from "../config/theme-profiles";
 import {
   readRenderCache,
   renderCacheKey,
+  renderCachePath,
   writeRenderCache,
 } from "./render-cache";
 import { runCommand } from "./run-command";
@@ -10,10 +15,47 @@ import { escapeXml, stripXmlPreamble } from "./utils";
 const typstCache = new Map<string, string>();
 const mermaidCache = new Map<string, string>();
 
-const mermaidConfigPath = path.resolve(
-  process.cwd(),
-  "src/markdown/mermaid.config.json",
-);
+const mermaidBaseConfig: Record<string, unknown> = JSON.parse(
+  readFileSync(
+    path.resolve(process.cwd(), "src/markdown/mermaid.config.json"),
+    "utf8",
+  ),
+) as Record<string, unknown>;
+
+let mermaidConfigPathPromise: Promise<string> | undefined;
+
+/**
+ * The mermaid CLI reads its theme from a config file, but the palette must
+ * follow the active theme profile. Resolve the branding once per build and
+ * materialize the merged config inside the render cache.
+ */
+function ensureMermaidConfigPath(): Promise<string> {
+  mermaidConfigPathPromise ??= (async () => {
+    const { mermaidThemeVariables } = resolveThemeBranding();
+    const file = renderCachePath("mermaid.config.json");
+    await mkdir(path.dirname(file), { recursive: true });
+    await writeFile(
+      file,
+      JSON.stringify(
+        { ...mermaidBaseConfig, themeVariables: mermaidThemeVariables },
+        null,
+        2,
+      ),
+    );
+    return file;
+  })();
+  return mermaidConfigPathPromise;
+}
+
+/** Diagrams are cached by source; bake the palette into the key so a
+ * profile swap invalidates previously rendered SVGs. */
+function mermaidPaletteHash(): string {
+  const { mermaidThemeVariables } = resolveThemeBranding();
+  return createHash("sha256")
+    .update(JSON.stringify(mermaidThemeVariables))
+    .digest("hex")
+    .slice(0, 12);
+}
 
 export interface SvgIntrinsicSize {
   width: number;
@@ -183,12 +225,20 @@ export async function compileTypstMath(
 }
 
 export async function compileMermaid(code: string) {
-  return compileWithCache("mermaid", code, code, mermaidCache, async () => {
-    const { stdout } = await runCommand(
-      "mmdr",
-      ["-e", "svg", "-c", mermaidConfigPath],
-      code,
-    );
-    return stripXmlPreamble(stdout);
-  });
+  const configFile = await ensureMermaidConfigPath();
+  const memoryKey = `${code}:${mermaidPaletteHash()}`;
+  return compileWithCache(
+    "mermaid",
+    memoryKey,
+    memoryKey,
+    mermaidCache,
+    async () => {
+      const { stdout } = await runCommand(
+        "mmdr",
+        ["-e", "svg", "-c", configFile],
+        code,
+      );
+      return stripXmlPreamble(stdout);
+    },
+  );
 }

@@ -10,6 +10,12 @@ const CACHE_DIR = path.join(
   "vellume-render",
 );
 
+/** Path inside the render cache for auxiliary build artifacts (e.g. the
+ * profile-resolved mermaid config handed to the mmdr CLI). */
+export function renderCachePath(name: string): string {
+  return path.join(CACHE_DIR, name);
+}
+
 export async function renderCacheKey(kind: string, input: string) {
   const { typst, mmdr } = await getToolchainVersions();
 

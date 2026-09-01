@@ -60,7 +60,8 @@ That is why the theme keeps a calm, tool-like visual system in the spirit of Not
 
 Concretely, that means:
 
-- **Semantic token system** — the full shadcn set (`background/foreground/muted/border/primary/accent/card/popover/secondary/input/ring/destructive`) defined in `src/styles/tokens.css` and mapped into Tailwind via `@theme inline`. Override `--radius` alone and the whole five-step radius ladder (tight → control → inner → card → hero) rescales; swap `--primary` and the ring, selection, and hero particles follow.
+- **Semantic token system** — the full shadcn set (`background/foreground/muted/border/primary/accent/card/popover/secondary/input/ring/destructive`) defined in `src/styles/tokens.css` and mapped into Tailwind via `@theme inline`. Override `--radius` alone and the whole five-step radius ladder (tight → control → inner → card → hero) rescales; swap `--primary` and the accent, ring, selection, and hero particles follow.
+- **Theme profiles** — reskin the whole site by changing one config key: built-in `material` / `sepia` looks or an inline token set, with the code-highlighting, OG-image, and browser-chrome colors following along. Printing gets its own profile, and visitors can switch it from the article sidebar (see `docs/theming.md`).
 - **Chinese-first typography** — explicit PingFang SC / Hiragino Sans GB / Microsoft YaHei resolution per platform, `text-autospace` for CJK↔Latin breathing, `text-wrap: balance` on headings and `pretty` on prose to kill orphan lines.
 - **Themed Markdown throughout** — star-shaped list markers with staggered rotation, chip-style inline code and `kbd`, Notion-style collapsibles, hairline footnotes, task lists on the brand accent, and horizontal-rule tables.
 - **Quiet affordances** — borderless utility buttons (copy, TOC actions, toggles) that tint on hover, hover-revealed `#` heading anchors, a scroll-revealed header hairline, and a one-shot `:target` flash when jumping to a heading.

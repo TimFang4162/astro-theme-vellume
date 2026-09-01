@@ -1,0 +1,34 @@
+/* Material — layered sheet layout: grey-green canvas, near-white content
+   sheet, green accent, rounder corners. Everything not listed here (accent,
+   ring, tonal fills, hero particles, code-block chrome) derives from these
+   bases automatically. */
+
+:root {
+  --background: #f0f1ec;
+  --surface: #fafaf7;
+  --card: #ffffff;
+  --popover: #ffffff;
+  --foreground: #262b26;
+  --foreground-strong: #151a15;
+  --muted: #e7e9e2;
+  --muted-foreground: #6d746c;
+  --border: #dbded5;
+  --primary: #188038;
+  --primary-foreground: #ffffff;
+  --radius: 0.75rem;
+  --code-block-surface: #f4f5f0;
+}
+
+[data-theme="dark"] {
+  --background: #121411;
+  --surface: #181a17;
+  --card: #1d201c;
+  --popover: #20231f;
+  --foreground: #d5dad3;
+  --foreground-strong: #eef2ec;
+  --muted: #242822;
+  --muted-foreground: #8b948b;
+  --border: #2e332c;
+  --primary: #69bd75;
+  --primary-foreground: #0d150f;
+}

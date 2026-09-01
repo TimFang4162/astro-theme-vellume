@@ -1,5 +1,14 @@
 /* Print stylesheet. Intentionally left unlayered (like toc.css and
- * transitions.css) so print rules outrank every @layer on screen styles. */
+ * transitions.css) so print rules outrank every @layer on screen styles.
+ *
+ * Print profiles: token deltas for the active profile are injected by the
+ * theme-profile system under @media print. Structural differences are rules
+ * here, keyed two ways —
+ * - [data-print="<name>"] for the built-in profiles, set on <html> by the
+ *   owner config or the visitor print menu;
+ * - the relayed state vocabulary (data-print-links / data-print-images /
+ *   data-print-break) for custom owner profiles, guarded with
+ *   html:not([data-print]) so a visitor's explicit choice always wins. */
 
 @media print {
   @page {
@@ -11,8 +20,8 @@
   }
 
   body {
-    background: #ffffff !important;
-    color: #1f2328 !important;
+    background: var(--background) !important;
+    color: var(--foreground) !important;
   }
 
   body > header,
@@ -24,7 +33,8 @@
   .post-nav-feedback,
   nav[aria-label="Post navigation"],
   [data-artalk-comments],
-  [data-article-sidebar] {
+  [data-article-sidebar],
+  [data-article-actions] {
     display: none !important;
   }
 
@@ -34,6 +44,13 @@
     max-width: 100%;
     padding: 0;
     margin: 0;
+  }
+
+  /* The screen "sheet" surface must not carry into print; ink and paper
+     come from the print profile tokens instead. */
+  main.bg-surface,
+  .site-header.bg-surface {
+    background: none !important;
   }
 
   .content-layout {
@@ -59,6 +76,7 @@
     display: none !important;
   }
 
+  /* Links expand their target unless the profile opts out. */
   a[href]::after {
     content: " (" attr(href) ")";
     font-size: 0.85em;
@@ -115,5 +133,47 @@
   .code-block__diagram img {
     width: 100%;
     max-width: 100%;
+  }
+
+  /* Built-in print profile structure, keyed on the active profile name
+     (set by the owner config or the visitor print menu). Kept after the
+     generic rules above so overrides stay ascending in specificity. */
+
+  [data-print="compact"] a[href]::after {
+    content: none;
+  }
+
+  [data-print="compact"] .rich-prose img {
+    display: none;
+  }
+
+  /* The paper profile prints its tinted canvas and starts each section on
+     a fresh page. */
+  html[data-print="paper"] {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  [data-print="paper"] .rich-prose h2 {
+    break-before: page;
+  }
+
+  /* State vocabulary for custom owner profiles (only active when the
+     visitor has not picked a built-in profile). */
+  html:not([data-print])[data-print-links="plain"] a[href]::after {
+    content: none;
+  }
+
+  html:not([data-print])[data-print-links="external"]
+    a[href]:not([href^="http"])::after {
+    content: none;
+  }
+
+  html:not([data-print])[data-print-images="none"] .rich-prose img {
+    display: none;
+  }
+
+  html:not([data-print])[data-print-break="chapter"] .rich-prose h2 {
+    break-before: page;
   }
 }

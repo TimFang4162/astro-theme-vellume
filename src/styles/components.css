@@ -218,6 +218,46 @@
     font-variant-numeric: tabular-nums;
   }
 
+  /* Title row of the article header: the title takes the room, the
+     three-dot action menu hugs the first line's right edge. */
+  .article-title-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .article-title-row .article-title {
+    min-width: 0;
+  }
+
+  .article-action {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 0.5rem;
+    border: none;
+    border-radius: var(--radius-inner);
+    background: transparent;
+    color: var(--foreground);
+    cursor: pointer;
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    transition: var(--transition-colors);
+  }
+
+  .article-action:hover:not(:disabled) {
+    background: var(--container-faint-tint);
+    color: var(--primary);
+  }
+
+  .article-action:disabled {
+    color: var(--muted-foreground);
+    cursor: default;
+    opacity: 0.45;
+  }
+
   .meta-item {
     display: inline-flex;
     align-items: center;

@@ -1,0 +1,73 @@
+---
+import { Icon } from "astro-icon/components";
+import { toAbsoluteSiteUrl } from "../../utils/paths";
+
+interface Props {
+  /** Canonical article path, e.g. `/posts/<slug>/`. */
+  path: string;
+  title: string;
+}
+
+/**
+ * Three-dot action menu at the right of the article title: copy link,
+ * share, print, and a placeholder for "copy as text" (not yet supported).
+ * The panel is toggled manually (absolute positioning inside the title row
+ * cannot use the native popover, whose top-layer containing block is the
+ * viewport). Hidden by the print stylesheet.
+ */
+const { path, title } = Astro.props;
+const menuId = "article-actions-menu";
+const shareUrl = toAbsoluteSiteUrl(path, Astro.site ?? Astro.url).href;
+---
+
+<div class="relative" data-article-actions>
+  <button
+    type="button"
+    class="toc-action mt-1.5 shrink-0"
+    data-article-actions-toggle
+    aria-haspopup="true"
+    aria-expanded="false"
+    aria-controls={menuId}
+    aria-label="更多操作"
+    title="更多操作"
+  >
+    <Icon name="material-symbols:more-vert" size={20} />
+  </button>
+  <div
+    id={menuId}
+    class="popover-card absolute top-10 right-0 z-[90] hidden w-44 p-2"
+    data-article-actions-menu
+  >
+    <button
+      type="button"
+      class="article-action"
+      data-action="copy-link"
+      data-url={shareUrl}
+    >
+      <Icon name="material-symbols:link-rounded" size={18} />
+      <span data-label>复制链接</span>
+    </button>
+    <button
+      type="button"
+      class="article-action"
+      data-action="share"
+      data-url={shareUrl}
+      data-title={title}
+    >
+      <Icon name="material-symbols:ios-share-rounded" size={18} />
+      <span data-label>分享</span>
+    </button>
+    <button type="button" class="article-action" data-action="print">
+      <Icon name="material-symbols:print-rounded" size={18} />
+      <span data-label>打印</span>
+    </button>
+    <button type="button" class="article-action" disabled title="暂不支持">
+      <Icon name="material-symbols:description-outline-rounded" size={18} />
+      <span data-label>复制原文</span>
+    </button>
+  </div>
+</div>
+
+<script>
+import "../../scripts/ui/article-actions";
+</script>

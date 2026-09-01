@@ -50,10 +50,36 @@ const FALLBACK_COLORS = {
   three: "#c6d3e6",
 } as const;
 
+let colorProbe: HTMLElement | undefined;
+
+/* Derived tokens may hold color-mix() recipes, which custom properties do
+   not resolve on their own. Round-trip through a hidden element's computed
+   color (the probe must be in the document for computed style to resolve)
+   to hand the renderer a concrete color string. */
+function resolveColor(value: string): string {
+  colorProbe ??= (() => {
+    const el = document.createElement("span");
+    el.setAttribute("aria-hidden", "true");
+    el.style.cssText = "position:absolute;width:0;height:0;overflow:hidden;";
+    document.documentElement.append(el);
+    return el;
+  })();
+  colorProbe.style.color = "";
+  colorProbe.style.color = value;
+  return getComputedStyle(colorProbe).color || value;
+}
+
 function readParticleColors(hero: HTMLElement) {
   const styles = getComputedStyle(hero);
-  const read = (name: string, fallback: string) =>
-    styles.getPropertyValue(name).trim() || fallback;
+  const read = (name: string, fallback: string) => {
+    const raw = styles.getPropertyValue(name).trim();
+    if (!raw) return fallback;
+    try {
+      return resolveColor(raw);
+    } catch {
+      return fallback;
+    }
+  };
 
   return {
     base: read("--hero-particle-base", FALLBACK_COLORS.base),

@@ -1,18 +1,22 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { type FaviconOptions, favicons } from "favicons";
+import { resolveThemeBranding } from "../src/config/theme-profiles";
 import { faviconMetadata, siteMetadata } from "../src/site/metadata";
 
 const source = path.join(process.cwd(), "public/assets/favicon.png");
 const outputDir = path.join(process.cwd(), "public/favicons");
+
+// Favicon chrome follows the active theme profile's canvas color.
+const { browserColor } = resolveThemeBranding();
 
 const configuration: FaviconOptions = {
   path: "./",
   appName: siteMetadata.title,
   appShortName: siteMetadata.title,
   appDescription: siteMetadata.description,
-  background: faviconMetadata.background,
-  theme_color: faviconMetadata.themeColor,
+  background: browserColor.light,
+  theme_color: browserColor.light,
   appleStatusBarStyle: faviconMetadata.appleStatusBarStyle,
   display: faviconMetadata.display,
   orientation: faviconMetadata.orientation,

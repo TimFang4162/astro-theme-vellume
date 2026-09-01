@@ -1,10 +1,12 @@
 import { OGImageRoute } from "astro-og-canvas";
 import { siteConfig, siteHost } from "../../../config/site";
+import { resolveThemeBranding } from "../../../config/theme-profiles";
 import { getAccessibleBlogPosts } from "../../../lib/blog";
 
 // Accessible (public + unlisted) posts all embed an OG image on their page, so
 // each of them needs one; drafts are never built and don't.
 const accessiblePosts = await getAccessibleBlogPosts();
+const branding = resolveThemeBranding();
 
 const pages: Record<string, { title: string; description?: string }> = {
   index: {
@@ -30,9 +32,9 @@ export const { getStaticPaths, GET } = await OGImageRoute({
     title: page.title,
     description: page.description,
     dir: "ltr",
-    bgGradient: siteConfig.og.backgroundGradient,
+    bgGradient: branding.og.backgroundGradient,
     border: {
-      color: siteConfig.og.border.color,
+      color: branding.og.border.color,
       width: siteConfig.og.border.width,
       side: "inline-start",
     },
@@ -43,14 +45,14 @@ export const { getStaticPaths, GET } = await OGImageRoute({
     padding: 40,
     font: {
       title: {
-        color: siteConfig.og.accent,
+        color: branding.og.accent,
         size: 60,
         weight: "Bold",
         lineHeight: 1.2,
         families: [siteConfig.og.fonts.title.family],
       },
       description: {
-        color: siteConfig.og.description,
+        color: branding.og.description,
         size: 36,
         weight: "Normal",
         lineHeight: 1.4,

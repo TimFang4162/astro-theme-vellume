@@ -1,0 +1,13 @@
+/*
+Default theme profile.
+
+The default look IS tokens.css, so this file stays empty — it exists so the
+"default" profile has a uniform on-disk home like every other profile.
+
+Profile file contract (parsed by src/config/theme-profiles.ts):
+- screen profiles: flat `:root { --token: value; }` light block plus an
+  optional `[data-theme="dark"] { ... }` block; injected verbatim between
+  global.css and theme.css.
+- print profiles (print/*.css): ONE flat `:root { --token: value; }` block
+  (no media wrapper); the system scopes copies for the visitor print menu.
+*/

@@ -1,24 +1,19 @@
 /*
 User-owned theme token overrides.
-Loaded after `src/styles/global.css`.
+Loaded after the active theme profile (see src/config/theme-profiles.ts),
+so anything here wins over both the tokens.css defaults and the profile.
 
-Keep browser chrome colors in `src/site/config.ts` in sync if you change the
-page background substantially.
-*/
+Keep in mind: `src/site/config.ts` may carry its own `theme.browserColor`
+override; otherwise browser chrome colors follow the active profile.
 
-/*
 :root {
   --primary: #2f6fed;
-  --accent: #eaf2ff;
-  --destructive: #dc2626;
-  --radius: 0.5rem;
+  --radius: 0.75rem;
 }
 
 @media not print {
   [data-theme="dark"] {
     --primary: #8fb4ff;
-    --accent: #111827;
-    --destructive: #e5484d;
   }
 }
 */
