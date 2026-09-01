@@ -196,10 +196,12 @@ function parsePrintTokens(css: string): string[] {
  * Build the profile stylesheet injected between global.css and the user's
  * theme.css, so precedence is always: tokens.css < profile < theme.css.
  *
- * The active screen profile's css is injected verbatim. Under `@media print`,
- * every registered print profile's tokens are re-scoped to
- * `[data-print="<name>"]` — the `data-print` root attribute (owner default or
- * visitor menu) picks the active set.
+ * The active screen profile's css is injected verbatim. Every registered
+ * print profile's tokens are scoped to
+ * `[data-print-style][data-print="<name>"]` — print.css and the preview
+ * panel toggle those root attributes, so preview and paper share one rule
+ * source and one set of values. Print styling itself is attribute-driven;
+ * @media print only keeps the no-JS fallback and panel hiding.
  */
 export function buildThemeProfileCss(): string {
   const { screen } = resolveThemeProfiles();
@@ -210,16 +212,14 @@ export function buildThemeProfileCss(): string {
     blocks.push(screenCss);
   }
 
-  const printBlocks: string[] = [];
   for (const [name, registration] of Object.entries(printProfiles)) {
     if (name === "default") continue;
     const tokens = parsePrintTokens(readProfileCss(registration));
     if (tokens.length > 0) {
-      printBlocks.push(`[data-print="${name}"] {\n  ${tokens.join("\n  ")}\n}`);
+      blocks.push(
+        `[data-print-style][data-print="${name}"] {\n  ${tokens.join("\n  ")}\n}`,
+      );
     }
-  }
-  if (printBlocks.length > 0) {
-    blocks.push(`@media print {\n${printBlocks.join("\n")}\n}`);
   }
 
   return `${blocks.join("\n")}\n`;

@@ -88,16 +88,30 @@ material: {
 footer）→ `--card`（浮起元素）。`--surface` 默认等于 `--background`，
 单画布零配置；给两者不同值（如 material）即得到分层 Material 效果。
 
-## 打印主题
+## 打印主题与打印预览
 
-- **站长**：`theme.print` 选默认打印档案，纯 CSS，Ctrl+P 直接生效。
-- **访客**：文章标题右侧的"更多"菜单里选"打印"，即按当前生效档案打印。
+打印样式是**属性驱动**的：真实打印时由 `beforeprint` / `afterprint` 内联脚本在
+`<html>` 上镜像 `data-print-style`，预览会话则直接持有该属性——同一份规则、
+同一个开关，预览所见即打印所得。
 
-结构行为是 `print.css` 里的变体规则，档案通过 `data-print` 根属性挑选；
-自定义结构词汇（`data-print-links` / `data-print-images` /
-`data-print-break`）见 print.css 头部注释。浏览器默认不打印背景色，
-`paper` 档案已声明 `print-color-adjust: exact`，但最终仍受打印对话框
-"背景图形"开关影响——关键对比不依赖底色。
+- **站长**：`theme.print` 选默认打印档案。
+- **访客**：文章标题右侧"更多"菜单 →"打印"进入**打印预览**：页面切换为打印
+  样式，右下角浮出配置面板，可调打印风格（标准/纸张/紧凑）、链接展开、
+  图片显隐、章节起新页，全部即时生效；"开始打印"调起浏览器打印（面板不会
+  被印出），"退出预览"或 Esc 还原屏幕状态。
+
+面板调整映射到根属性状态词汇（也可由自定义档案在注册表 `states` 里预置）：
+
+| 状态 | 取值 |
+| --- | --- |
+| `data-print-links` | `footnote`（默认，展开链接）/ `plain`（收起）/ `external`（仅外链） |
+| `data-print-images` | `all`（默认）/ `none` |
+| `data-print-break` | `none`（默认）/ `chapter` |
+
+`@media print` 只剩两件事：**无 JS 时的最低打印保障**（隐藏 chrome、白底黑字、
+通栏布局——属性方案依赖 JS，这一块保底）和**面板隐藏**。`@page` 页边距是
+主题固定值（2cm），属性表达不了。浏览器默认不打印背景色，`paper` 档案已
+声明 `print-color-adjust: exact`，但最终仍受打印对话框"背景图形"开关影响。
 
 ## 边界与已知限制
 
@@ -106,6 +120,8 @@ footer）→ `--card`（浮起元素）。`--surface` 默认等于 `--background
 - 档案文件只放 token（扁平声明块），不放 CSS 规则；结构性样式写进
   print.css 或 `src/site/custom.css`。
 - CSS 文件没有编译期类型检查，写错属性名靠构建产物审查兜底。
+- 打印样式的激活依赖 JS 镜像打印状态（`beforeprint`）；无 JS 访客打印时
+  只应用 `@media print` 最低保障块。
 - `@page` 页边距是主题固定值（2cm），既不能吃自定义属性也不能按属性切换。
 - 每页页眉/页码由浏览器自带开关控制，CSS 无法定制。
 

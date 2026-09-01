@@ -168,6 +168,24 @@ const seoProps = {
       true,
     );
     </script>
+    <!-- Print state mirror: the print stylesheet is attribute-driven
+        ([data-print-style]), so real printing — Ctrl+P included — must set
+        it too. beforeprint fires before the dialog renders; afterprint
+        restores the screen, keeping the styling while a preview session
+        (data-print-preview) is still open. -->
+    <script is:inline>
+    window.addEventListener("beforeprint", () => {
+      document.documentElement.setAttribute("data-print-style", "");
+    });
+    window.addEventListener("afterprint", () => {
+      const el = document.documentElement;
+      if (el.hasAttribute("data-print-preview")) {
+        el.setAttribute("data-print-style", "");
+      } else {
+        el.removeAttribute("data-print-style");
+      }
+    });
+    </script>
     <LoadingIndicator color="var(--primary)" />
     <SEO {...seoProps} />
     {jsonLd && (

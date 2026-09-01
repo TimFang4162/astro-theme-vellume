@@ -1,5 +1,6 @@
 import { captureFocusedElement, restoreFocusedElement } from "./focus";
 import { runOnPageLoad } from "./page-load";
+import { enterPrintPreview } from "./print-preview";
 
 const FEEDBACK_MS = 1400;
 
@@ -95,7 +96,9 @@ function setupMenu(root: HTMLElement) {
       const action = button.dataset.action;
       if (action === "print") {
         setOpen(false);
-        window.print();
+        // Open the print preview session instead of printing straight away:
+        // the page switches to print styling and the config panel appears.
+        enterPrintPreview();
         return;
       }
       const pending = action === "share" ? share(button) : copyLink(button);

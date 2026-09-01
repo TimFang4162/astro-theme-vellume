@@ -1,27 +1,27 @@
 /* Print stylesheet. Intentionally left unlayered (like toc.css and
  * transitions.css) so print rules outrank every @layer on screen styles.
  *
- * Print profiles: token deltas for the active profile are injected by the
- * theme-profile system under @media print. Structural differences are rules
- * here, keyed two ways —
- * - [data-print="<name>"] for the built-in profiles, set on <html> by the
- *   owner config or the visitor print menu;
- * - the relayed state vocabulary (data-print-links / data-print-images /
- *   data-print-break) for custom owner profiles, guarded with
- *   html:not([data-print]) so a visitor's explicit choice always wins. */
+ * Activation is attribute-driven: the theme profile system and the print
+ * preview set [data-print-style] on <html> (an inline head script mirrors
+ * beforeprint/afterprint so real printing — Ctrl+P included — gets the same
+ * treatment). Preview additionally sets [data-print-preview], which the
+ * config panel and the paper-sheet simulation key on.
+ *
+ * Only two concerns still need @media print: @page (engine-only syntax)
+ * and the no-JS / panel-hiding fallbacks below. */
 
 @media print {
+  /* No-JS baseline: without the inline mirror script [data-print-style]
+     never appears, so this block keeps the printout readable — plain white
+     paper, chrome hidden. With JS it is a harmless subset of the rules
+     below (the attribute selectors out-specify it). */
   @page {
     margin: 2cm;
   }
 
-  html {
-    color-scheme: light !important;
-  }
-
   body {
-    background: var(--background) !important;
-    color: var(--foreground) !important;
+    background: #ffffff !important;
+    color: #1f2328 !important;
   }
 
   body > header,
@@ -34,7 +34,8 @@
   nav[aria-label="Post navigation"],
   [data-artalk-comments],
   [data-article-sidebar],
-  [data-article-actions] {
+  [data-article-actions],
+  [data-print-preview-panel] {
     display: none !important;
   }
 
@@ -46,13 +47,6 @@
     margin: 0;
   }
 
-  /* The screen "sheet" surface must not carry into print; ink and paper
-     come from the print profile tokens instead. */
-  main.bg-surface,
-  .site-header.bg-surface {
-    background: none !important;
-  }
-
   .content-layout {
     display: block;
   }
@@ -60,120 +54,188 @@
   .article-column {
     max-width: 100%;
   }
+}
 
-  code-block {
-    background: var(--code-block-surface);
-    border-color: var(--code-block-border);
-  }
+/* ── Full print styling ──────────────────────────────────────────────── */
 
-  .code-block__header {
-    break-after: avoid;
-    background-color: transparent !important;
-    border-bottom-color: var(--code-block-header-border);
-  }
+[data-print-style] {
+  color-scheme: light !important;
+}
 
-  .code-block__copy {
-    display: none !important;
-  }
+[data-print-style] body {
+  background: var(--background) !important;
+  color: var(--foreground) !important;
+}
 
-  /* Links expand their target unless the profile opts out. */
-  a[href]::after {
-    content: " (" attr(href) ")";
-    font-size: 0.85em;
-  }
+[data-print-style] body > header,
+[data-print-style] body > footer,
+[data-print-style] #search-modal,
+[data-print-style] #mobile-drawer,
+[data-print-style] #mobile-drawer-overlay,
+[data-print-style] .skip-link,
+[data-print-style] .post-nav-feedback,
+[data-print-style] nav[aria-label="Post navigation"],
+[data-print-style] [data-artalk-comments],
+[data-print-style] [data-article-sidebar],
+[data-print-style] [data-article-actions] {
+  display: none !important;
+}
 
-  a[href^="#"]::after {
-    content: none;
-  }
+/* The config panel is screen chrome: it must survive the preview (it is
+   only suppressed by the @media print block above, i.e. on paper). */
 
-  code-block {
-    box-shadow: none;
-  }
+[data-print-style] main,
+[data-print-style] .main-frame,
+[data-print-style] .page-frame {
+  max-width: 100%;
+  padding: 0;
+  margin: 0;
+}
 
-  .math-block {
-    overflow: visible;
-  }
+/* The screen "sheet" surface must not carry into print; ink and paper come
+   from the print profile tokens instead. */
+[data-print-style] .site-header.bg-surface,
+[data-print-style] main.bg-surface {
+  background: none !important;
+}
 
-  .math-inline img,
-  .math-block img {
-    width: auto;
-    max-width: 100%;
-  }
+[data-print-style] .content-layout {
+  display: block;
+}
 
-  .code-block__scroller {
-    overflow: visible;
-  }
+[data-print-style] .article-column {
+  max-width: 100%;
+}
 
-  .code-block__pre {
-    width: 100%;
-    min-width: 0;
-  }
+[data-print-style] code-block {
+  background: var(--code-block-surface);
+  border-color: var(--code-block-border);
+}
 
-  .code-block__code {
-    min-width: 0;
-  }
+[data-print-style] .code-block__header {
+  break-after: avoid;
+  background-color: transparent !important;
+  border-bottom-color: var(--code-block-header-border);
+}
 
-  .code-block__line {
-    grid-template-columns: 2.5rem minmax(0, 1fr);
-  }
+[data-print-style] .code-block__copy {
+  display: none !important;
+}
 
-  .code-block__line-inner {
-    max-width: min(80ch, 100%);
-    width: auto;
-    white-space: pre-wrap;
-    word-break: break-word;
-    overflow-wrap: anywhere;
-  }
+[data-print-style] code-block {
+  box-shadow: none;
+}
 
-  .code-block__diagram {
-    width: 100%;
-    min-width: 0;
-  }
+[data-print-style] .math-block {
+  overflow: visible;
+}
 
-  .code-block__diagram img {
-    width: 100%;
-    max-width: 100%;
-  }
+[data-print-style] .math-inline img,
+[data-print-style] .math-block img {
+  width: auto;
+  max-width: 100%;
+}
 
-  /* Built-in print profile structure, keyed on the active profile name
-     (set by the owner config or the visitor print menu). Kept after the
-     generic rules above so overrides stay ascending in specificity. */
+[data-print-style] .code-block__scroller {
+  overflow: visible;
+}
 
-  [data-print="compact"] a[href]::after {
-    content: none;
-  }
+[data-print-style] .code-block__pre {
+  width: 100%;
+  min-width: 0;
+}
 
-  [data-print="compact"] .rich-prose img {
-    display: none;
-  }
+[data-print-style] .code-block__code {
+  min-width: 0;
+}
 
-  /* The paper profile prints its tinted canvas and starts each section on
-     a fresh page. */
-  html[data-print="paper"] {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
+[data-print-style] .code-block__line {
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+}
 
-  [data-print="paper"] .rich-prose h2 {
-    break-before: page;
-  }
+[data-print-style] .code-block__line-inner {
+  max-width: min(80ch, 100%);
+  width: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
 
-  /* State vocabulary for custom owner profiles (only active when the
-     visitor has not picked a built-in profile). */
-  html:not([data-print])[data-print-links="plain"] a[href]::after {
-    content: none;
-  }
+[data-print-style] .code-block__diagram {
+  width: 100%;
+  min-width: 0;
+}
 
-  html:not([data-print])[data-print-links="external"]
-    a[href]:not([href^="http"])::after {
-    content: none;
-  }
+[data-print-style] .code-block__diagram img {
+  width: 100%;
+  max-width: 100%;
+}
 
-  html:not([data-print])[data-print-images="none"] .rich-prose img {
-    display: none;
-  }
+/* Links expand their target unless the profile opts out. */
+[data-print-style] a[href]::after {
+  content: " (" attr(href) ")";
+  font-size: 0.85em;
+}
 
-  html:not([data-print])[data-print-break="chapter"] .rich-prose h2 {
-    break-before: page;
-  }
+[data-print-style] a[href^="#"]::after {
+  content: none;
+}
+
+/* ── Print profile structure ───────────────────────────────────────────
+   Built-in profiles are keyed on the data-print value (owner default via
+   BaseLayout, live via the preview panel). Custom registrations express
+   the same ideas through the relayed state vocabulary instead. */
+
+[data-print-style][data-print="compact"] a[href]::after {
+  content: none;
+}
+
+[data-print-style][data-print="compact"] .rich-prose img {
+  display: none;
+}
+
+/* The paper profile prints its tinted canvas and starts each section on a
+   fresh page. */
+html[data-print-style][data-print="paper"] {
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+[data-print-style][data-print="paper"] .rich-prose h2 {
+  break-before: page;
+}
+
+[data-print-style][data-print-break="chapter"] .rich-prose h2 {
+  break-before: page;
+}
+
+[data-print-style][data-print-links="plain"] a[href]::after {
+  content: none;
+}
+
+[data-print-style][data-print-links="external"]
+  a[href]:not([href^="http"])::after {
+  content: none;
+}
+
+[data-print-style][data-print-images="none"] .rich-prose img {
+  display: none;
+}
+
+/* ── Preview session ─────────────────────────────────────────────────── */
+
+/* Paper-sheet simulation: dimmed backdrop, the article column becomes the
+   sheet. Pagination itself stays invisible — the browser owns page breaks. */
+[data-print-preview] body {
+  background: var(--muted);
+}
+
+[data-print-preview] main.page-frame {
+  max-width: 52rem;
+  min-height: 100vh;
+  margin: 2rem auto;
+  padding: 3rem 3.5rem;
+  background: var(--background);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-floating);
 }
