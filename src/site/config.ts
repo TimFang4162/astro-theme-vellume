@@ -10,7 +10,7 @@ export const siteOverride = defineSiteConfig({
   author: {
     name: "Your Name",
     introTitle: "Hi there.",
-    bio: "Vellume is a writing-focused Astro theme for blogs, notes, and essays, with warm typography, structured discovery, and article pages designed for longer reading.",
+    bio: "Vellume is a writing-focused Astro theme for blogs, notes, and essays, with a calm modern interface, structured discovery, and article pages designed for longer reading.",
     tagline: "A calm structure for writing that lasts.",
     copyrightName: "Your Name",
     avatar: {

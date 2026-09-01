@@ -3,9 +3,9 @@ title: About Vellume
 description: Design notes, content structure, and customization guidance for the Vellume theme.
 ---
 
-Vellume is an editorial-style Astro theme built for personal blogs, technical notes, and long-form writing.
+Vellume is a calm, document-first Astro theme built for personal blogs, technical notes, and long-form writing.
 
-It combines warm paper-toned colors, serif-led typography, and restrained motion so the interface feels alive without pulling attention away from the text.
+It combines a neutral surface, a single blue accent, and restrained motion so the interface stays quiet and never pulls attention away from the text.
 
 ## Start Here
 
