@@ -270,10 +270,12 @@
   }
 
   /* Persistent emphasis box nested inside a card (e.g. the series "latest
-     post" preview). Tinted container, never a border or shadow. */
+     post" preview). Translucent tint, never a border or shadow: on the
+     hovered card it stacks over the card tint into a deeper shade instead
+     of blending into it. */
   .container-box {
     border-radius: var(--radius-inner);
-    background: var(--container-subtle);
+    background: color-mix(in srgb, var(--primary) 12%, transparent);
   }
 
   .view-collection {
