@@ -9,8 +9,8 @@ const sitemapHref = withBasePath("/sitemap-index.xml");
 
 <footer class="mt-16 border-t border-border bg-muted/50">
   <div class="page-frame py-10 sm:py-12">
-    <div class="grid grid-cols-1 gap-8 sm:grid-cols-[1.5fr_1fr_1fr]">
-      <div class="flex h-full max-w-xs flex-col justify-between gap-4">
+    <div class="grid grid-cols-1 gap-8 sm:grid-cols-[2fr_1fr_1fr]">
+      <div class="flex h-full flex-col justify-between gap-4">
         <div>
           <span class="text-lg font-semibold tracking-tight text-strong">
             {siteConfig.site.title}
@@ -26,7 +26,11 @@ const sitemapHref = withBasePath("/sitemap-index.xml");
       </div>
 
       <nav aria-label="Footer navigation">
-        <h2 class="mb-3 text-xs font-sans font-semibold text-strong">导航</h2>
+        <div
+          class="mb-3 font-sans text-xs font-medium uppercase tracking-widest text-muted-foreground"
+        >
+          导航
+        </div>
         <ul class="m-0 flex list-none flex-col p-0">
           {footerNavItems.map((item) => (
             <li>
@@ -42,7 +46,11 @@ const sitemapHref = withBasePath("/sitemap-index.xml");
       </nav>
 
       <div>
-        <h2 class="mb-3 text-xs font-sans font-semibold text-strong">链接</h2>
+        <div
+          class="mb-3 font-sans text-xs font-medium uppercase tracking-widest text-muted-foreground"
+        >
+          链接
+        </div>
         <ul class="m-0 flex list-none flex-col p-0">
           <li>
             <a
