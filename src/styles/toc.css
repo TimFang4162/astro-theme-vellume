@@ -67,8 +67,80 @@
   transform: rotate(0deg);
 }
 
+/* Numbered badge occupying the toggle slot on top-level rows. Collapsible
+   sections swap the number for the chevron on hover/focus; leaf rows keep
+   the plain number. Must stay after .toc-toggle:hover so the badge fill
+   wins the cascade. The fill is translucent so that stacking it on the
+   active row's tint deepens the chip automatically — no active variant —
+   and the card background keeps it visible off-highlight. */
+.toc-badge {
+  position: absolute;
+  top: 0.375rem;
+  left: calc(1rem + var(--toc-indent, 0rem));
+  z-index: 1;
+  display: inline-flex;
+  height: 1.5rem;
+  width: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--primary);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  transition: var(--transition-colors);
+}
+
+.toc-badge:hover {
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--primary);
+}
+
+.toc-toggle-number {
+  transition: opacity var(--motion-duration) var(--motion-easing);
+}
+
+.toc-badge .toc-toggle-glyph {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition:
+    opacity var(--motion-duration) var(--motion-easing),
+    transform var(--motion-duration) var(--motion-easing);
+}
+
+.toc-badge:hover .toc-toggle-number,
+.toc-badge:focus-visible .toc-toggle-number {
+  opacity: 0;
+}
+
+.toc-badge:hover .toc-toggle-glyph,
+.toc-badge:focus-visible .toc-toggle-glyph {
+  opacity: 1;
+}
+
 .toc-children {
+  position: relative;
   display: block;
+}
+
+/* VSCode-style indent guide: one hairline per nesting level, aligned with
+   the parent's collapse-toggle column (toggle left edge is 1rem + indent,
+   box is 1.5rem wide). Row backgrounds paint over it, so the active pill
+   swallows the line. */
+.toc-children::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(1.75rem + var(--toc-indent, 0rem) - 0.5px);
+  width: 1px;
+  background: var(--border);
 }
 
 .toc-node[data-collapsed="true"] > .toc-children {
@@ -103,7 +175,7 @@
   padding-block: 0.5rem;
   margin-inline-start: 0.65rem;
   padding-inline-end: 0.75rem;
-  padding-inline-start: calc(2.2rem + var(--toc-indent, 0rem));
+  padding-inline-start: calc(2.75rem + var(--toc-indent, 0rem));
   color: color-mix(in srgb, var(--foreground) 72%, transparent);
   transition: var(--transition-ui-shadow);
 }
@@ -118,7 +190,9 @@
 }
 
 .toc-link.active {
-  background: var(--accent);
+  /* Translucent tint, not --accent: the indent guide must stay visible
+     through the highlight. */
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
   color: var(--primary);
   font-weight: 600;
 }

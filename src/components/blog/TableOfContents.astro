@@ -102,8 +102,8 @@ const toc = buildTocTree(filteredHeadings);
       data-sidebar-panel-body
     >
       <ul class="m-0 list-none p-0">
-        {toc.map((heading) => (
-          <TOCHeading heading={heading} />
+        {toc.map((heading, index) => (
+          <TOCHeading heading={heading} number={index + 1} />
         ))}
       </ul>
     </div>
