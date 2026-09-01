@@ -1,10 +1,9 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import { Icon } from "astro-icon/components";
-import { formatDate } from "../../utils/date";
+import { formatDate, formatMonthDay, formatShortDate } from "../../utils/date";
 import { withBasePath } from "../../utils/paths";
 import { estimateReadTime, getEntryReadMinutes } from "../../utils/text";
-import Badge from "../ui/Badge.astro";
 import MetaItem from "../ui/MetaItem.astro";
 import TagBadgeList from "../ui/TagBadgeList.astro";
 import ViewItem from "../ui/ViewItem.astro";
@@ -13,9 +12,10 @@ interface Props {
   post: CollectionEntry<"blog">;
   view?: "card" | "list";
   seriesTitle?: string;
+  dateStyle?: "full" | "compact";
 }
 
-const { post, view = "card", seriesTitle } = Astro.props;
+const { post, view = "card", seriesTitle, dateStyle = "full" } = Astro.props;
 const { id, data } = post;
 const readTime = estimateReadTime(getEntryReadMinutes(post));
 const publishedAtIso = data.publishedAt.toISOString();
@@ -23,14 +23,16 @@ const publishedAtLabel = formatDate(data.publishedAt);
 const seriesLabel = seriesTitle ?? data.series?.id;
 ---
 
-<ViewItem href={withBasePath(`/posts/${id}`)} view={view}>
+<ViewItem href={withBasePath(`/posts/${id}`)} view={view} dateStyle={dateStyle}>
   <Fragment slot="card">
-    <h3 class="card-title text-strong transition-ui group-hover:text-primary">
+    <h3
+      class="card-title line-clamp-2 text-strong transition-ui group-hover:text-primary"
+    >
       {data.title}
     </h3>
 
     <div class="mt-auto space-y-2.5 pt-3">
-      <TagBadgeList tags={data.tags} variant="plain" />
+      <TagBadgeList tags={data.tags} variant="plain" max={3} />
       <div class="meta-row">
         <MetaItem
           as="time"
@@ -50,29 +52,34 @@ const seriesLabel = seriesTitle ?? data.series?.id;
   <Fragment slot="list">
     <time
       datetime={publishedAtIso}
-      class="text-sm tabular-nums text-muted-foreground"
+      class="view-collection-date-col text-sm leading-6 tabular-nums text-muted-foreground"
     >
-      {publishedAtLabel}
+      {dateStyle === "compact" ? formatMonthDay(data.publishedAt) : publishedAtLabel}
     </time>
 
-    <div class="min-w-0 space-y-2">
+    <div class="min-w-0 space-y-1">
       <div
-        class="text-base font-medium text-strong transition-ui group-hover:text-primary"
+        class="text-base leading-6 font-medium text-strong transition-ui group-hover:text-primary"
       >
         {data.title}
       </div>
       <div class="meta-row">
+        <time
+          datetime={publishedAtIso}
+          class="view-collection-date-inline tabular-nums"
+        >
+          {dateStyle === "compact"
+            ? formatMonthDay(data.publishedAt)
+            : formatShortDate(data.publishedAt)}
+        </time>
         <MetaItem icon="material-symbols:schedule-outline-rounded">
-          预计阅读 {readTime}
+          {readTime}
         </MetaItem>
         {seriesLabel && (
-          <Badge size="sm" color="primary" class="gap-1.5">
-            <Icon
-              name="material-symbols:layers-outline-rounded"
-              size={14}
-            />
+          <span class="meta-item text-primary">
+            <Icon name="material-symbols:layers-outline-rounded" size={14} />
             {seriesLabel}
-          </Badge>
+          </span>
         )}
         <TagBadgeList tags={data.tags} variant="plain" />
       </div>

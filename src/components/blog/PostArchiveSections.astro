@@ -22,6 +22,13 @@ const {
 const groupedPosts = groupPostsByMonth(posts);
 const sortedMonths = Object.keys(groupedPosts).sort().reverse();
 const HeadingTag = headingTag;
+
+/** "2026-03" group keys come straight from the grouper; render them as a
+ *  localized heading instead of a raw ISO month. */
+function formatMonthHeading(month: string) {
+  const [year, monthNumber] = month.split("-");
+  return `${year} 年 ${Number(monthNumber)} 月`;
+}
 ---
 
 <div class:list={["page-stack", className]}>
@@ -32,13 +39,17 @@ const HeadingTag = headingTag;
   )}
   {sortedMonths.map((month) => (
     <section class="space-y-4">
-      <HeadingTag class:list={["section-title", "text-strong"]}>
-        {month}
+      <HeadingTag class:list={["section-title", "flex items-baseline gap-3", "text-strong"]}>
+        {formatMonthHeading(month)}
+        <span class="text-sm font-normal tabular-nums text-muted-foreground">
+          {groupedPosts[month].length} 篇
+        </span>
       </HeadingTag>
       <PostList
         posts={groupedPosts[month]}
         defaultView={defaultView}
         viewKey={viewKey}
+        dateStyle="compact"
       />
     </section>
   ))}

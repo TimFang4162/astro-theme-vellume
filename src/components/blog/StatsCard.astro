@@ -11,7 +11,7 @@ const { title, value, icon } = Astro.props;
 ---
 
 <div class="surface-card p-4">
-  <div class="mb-3 flex items-center gap-2.5">
+  <div class="flex items-center gap-2.5">
     {icon && (
       <span class="icon-well">
         <Icon name={icon} size={18} />
@@ -19,5 +19,7 @@ const { title, value, icon } = Astro.props;
     )}
     <span class="text-sm font-medium text-muted-foreground">{title}</span>
   </div>
-  <div class="text-4xl font-semibold text-foreground md:text-5xl">{value}</div>
+  <div class="mt-2 text-3xl font-semibold tabular-nums text-foreground">
+    {value}
+  </div>
 </div>

@@ -1,9 +1,8 @@
 ---
 import { Icon } from "astro-icon/components";
-import { formatDate } from "../../utils/date";
+import { formatDate, formatShortDate } from "../../utils/date";
 import { withBasePath } from "../../utils/paths";
 import { estimateReadTime } from "../../utils/text";
-import Badge from "../ui/Badge.astro";
 import MetaItem from "../ui/MetaItem.astro";
 import TagBadgeList from "../ui/TagBadgeList.astro";
 import ViewCollection from "../ui/ViewCollection.astro";
@@ -33,10 +32,10 @@ interface HomeFeedSeriesItem {
 export type HomeFeedItem = HomeFeedPostItem | HomeFeedSeriesItem;
 
 interface HomeFeedDisplayBase {
-  badgeColor: "default" | "primary";
-  kindLabel: "文章" | "系列";
   metaIcon: string;
   metaLabel: string;
+  /** Compact copy for list rows, where prefixes like "预计阅读" are noise. */
+  metaLabelShort: string;
   publishedAtIso: string;
   publishedAtLabel: string;
 }
@@ -75,10 +74,9 @@ function getDisplayItem(item: HomeFeedItem): HomeFeedDisplayItem {
   if (item.type === "series") {
     return {
       ...item,
-      badgeColor: "primary",
-      kindLabel: "系列",
       metaIcon: "material-symbols:layers-outline-rounded",
       metaLabel: `${item.count} 篇文章`,
+      metaLabelShort: `${item.count} 篇文章`,
       publishedAtIso,
       publishedAtLabel,
     };
@@ -86,10 +84,9 @@ function getDisplayItem(item: HomeFeedItem): HomeFeedDisplayItem {
 
   return {
     ...item,
-    badgeColor: "default",
-    kindLabel: "文章",
     metaIcon: "material-symbols:schedule-outline-rounded",
     metaLabel: `预计阅读 ${getPostReadTime(item)}`,
+    metaLabelShort: getPostReadTime(item),
     publishedAtIso,
     publishedAtLabel,
   };
@@ -114,17 +111,7 @@ const displayItems = items.map(getDisplayItem);
   {displayItems.map((item) => (
     <ViewItem href={withBasePath(item.href)} view={defaultView}>
       <Fragment slot="card">
-        <div class="mb-3 flex items-center justify-between gap-3">
-          <Badge size="sm" color={item.badgeColor}>{item.kindLabel}</Badge>
-          <time
-            datetime={item.publishedAtIso}
-            class="text-sm tabular-nums text-muted-foreground"
-          >
-            {item.publishedAtLabel}
-          </time>
-        </div>
-
-        <h3 class="card-title text-strong transition-ui group-hover:text-primary">
+        <h3 class="card-title line-clamp-2 text-strong transition-ui group-hover:text-primary">
           {item.title}
         </h3>
 
@@ -144,24 +131,40 @@ const displayItems = items.map(getDisplayItem);
                 </p>
               </div>
             )}
-            <MetaItem
-              icon={item.metaIcon}
-              as="div"
-              class="text-sm text-muted-foreground"
-            >
-              {item.metaLabel}
-            </MetaItem>
+            <div class="meta-row">
+              <MetaItem
+                icon={item.metaIcon}
+                as="div"
+                class="tabular-nums"
+              >
+                {item.metaLabel}
+              </MetaItem>
+              <MetaItem
+                as="time"
+                datetime={item.publishedAtIso}
+                icon="material-symbols:calendar-today-outline-rounded"
+                class="tabular-nums"
+              >
+                {item.publishedAtLabel}
+              </MetaItem>
+            </div>
           </div>
         ) : (
           <div class="mt-auto space-y-2.5 pt-3">
-            <TagBadgeList tags={item.tags} variant="plain" />
-            <MetaItem
-              icon={item.metaIcon}
-              as="div"
-              class="text-sm text-muted-foreground"
-            >
-              {item.metaLabel}
-            </MetaItem>
+            <TagBadgeList tags={item.tags} variant="plain" max={3} />
+            <div class="meta-row">
+              <MetaItem
+                as="time"
+                datetime={item.publishedAtIso}
+                icon="material-symbols:calendar-today-outline-rounded"
+                class="tabular-nums"
+              >
+                {item.publishedAtLabel}
+              </MetaItem>
+              <MetaItem icon={item.metaIcon}>
+                {item.metaLabel}
+              </MetaItem>
+            </div>
           </div>
         )}
       </Fragment>
@@ -169,36 +172,49 @@ const displayItems = items.map(getDisplayItem);
       <Fragment slot="list">
         <time
           datetime={item.publishedAtIso}
-          class="text-sm tabular-nums text-muted-foreground"
+          class="view-collection-date-col text-sm leading-6 tabular-nums text-muted-foreground"
         >
           {item.publishedAtLabel}
         </time>
 
-        <div class="min-w-0 space-y-2">
-          <div class="flex flex-wrap items-center gap-2">
-            <Badge size="sm" color={item.badgeColor}>{item.kindLabel}</Badge>
-            <div class="text-base font-medium text-strong transition-ui group-hover:text-primary">
-              {item.title}
-            </div>
+        <div class="min-w-0 space-y-1">
+          <div
+            class="text-base leading-6 font-medium text-strong transition-ui group-hover:text-primary"
+          >
+            {item.title}
           </div>
           {item.type === "series" ? (
             <>
               {item.latestPostTitle && (
-                <div class="text-sm text-muted-foreground">
+                <div class="line-clamp-1 text-sm text-muted-foreground">
                   最新：
                   <span class="font-medium text-strong transition-ui group-hover:text-primary">
                     {item.latestPostTitle}
                   </span>
                 </div>
               )}
-              <MetaItem icon={item.metaIcon} as="div" class="text-sm text-muted-foreground">
-                {item.metaLabel}
-              </MetaItem>
+              <div class="meta-row">
+                <time
+                  datetime={item.publishedAtIso}
+                  class="view-collection-date-inline tabular-nums"
+                >
+                  {formatShortDate(item.publishedAt)}
+                </time>
+                <MetaItem icon={item.metaIcon} class="tabular-nums">
+                  {item.metaLabel}
+                </MetaItem>
+              </div>
             </>
           ) : (
             <div class="meta-row">
+              <time
+                datetime={item.publishedAtIso}
+                class="view-collection-date-inline tabular-nums"
+              >
+                {formatShortDate(item.publishedAt)}
+              </time>
               <MetaItem icon={item.metaIcon}>
-                {item.metaLabel}
+                {item.metaLabelShort}
               </MetaItem>
               <TagBadgeList tags={item.tags} variant="plain" />
             </div>

@@ -6,9 +6,13 @@
 interface Props {
   href: string;
   view?: "card" | "list";
+  /** List-row date column: "full" keeps the long localized date, "compact"
+   *  renders the short M-D form (for lists already grouped under a month
+   *  heading, where repeating year and month is noise). */
+  dateStyle?: "full" | "compact";
 }
 
-const { href, view = "card" } = Astro.props;
+const { href, view = "card", dateStyle = "full" } = Astro.props;
 ---
 
 <!-- biome-ignore lint/a11y/useAnchorContent: accessible content renders through the named slots -->
@@ -23,9 +27,11 @@ const { href, view = "card" } = Astro.props;
     <slot name="card" />
   </div>
 
+  <!-- Inset hover surface: the row tint is a rounded rectangle floating
+       inside the container instead of a band bleeding into its border. -->
   <div
-    class="view-collection-list list-row-hover px-5 py-4"
-    data-view-list-layout="dated"
+    class="view-collection-list list-row-hover mx-2 rounded-inner px-3 py-3.5"
+    data-view-list-layout={dateStyle === "compact" ? "dated-compact" : "dated-full"}
   >
     <slot name="list" />
   </div>

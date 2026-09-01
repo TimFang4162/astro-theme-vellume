@@ -5,9 +5,13 @@ interface Props {
   tags: string[];
   class?: string;
   variant?: "badge" | "plain";
+  /** Show at most this many tags, collapsing the rest into a muted "+N". */
+  max?: number;
 }
 
-const { tags, class: className, variant = "badge" } = Astro.props;
+const { tags, class: className, variant = "badge", max } = Astro.props;
+const visibleTags = max ? tags.slice(0, max) : tags;
+const overflowCount = tags.length - visibleTags.length;
 ---
 
 {tags.length > 0 && (
@@ -19,14 +23,17 @@ const { tags, class: className, variant = "badge" } = Astro.props;
       className,
     ]}
   >
-    {tags.map((tag) =>
+    {visibleTags.map((tag) =>
       variant === "badge" ? (
         <Badge size="sm" color="default">
           {tag}
         </Badge>
       ) : (
-        <span class="transition-ui group-hover:text-primary">#{tag}</span>
+        <span>#{tag}</span>
       ),
+    )}
+    {overflowCount > 0 && (
+      <span>+{overflowCount}</span>
     )}
   </div>
 )}

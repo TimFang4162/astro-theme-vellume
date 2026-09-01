@@ -11,6 +11,7 @@ interface Props {
   title?: string;
   description?: string;
   viewKey?: string;
+  dateStyle?: "full" | "compact";
 }
 
 const {
@@ -20,6 +21,7 @@ const {
   title,
   description,
   viewKey,
+  dateStyle = "full",
 } = Astro.props;
 const seriesTitleById = await getSeriesTitleMap();
 ---
@@ -40,6 +42,7 @@ const seriesTitleById = await getSeriesTitleMap();
     <PostItem
       post={post}
       view={defaultView}
+      dateStyle={dateStyle}
       seriesTitle={post.data.series ? seriesTitleById.get(post.data.series.id) : undefined}
     />
   ))}
