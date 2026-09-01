@@ -82,10 +82,12 @@
     @apply text-sm leading-5;
 
     content: attr(data-line);
-    padding: 0 0.75rem 0 1rem;
+    padding: 0 0.5rem;
     color: var(--muted-foreground);
     font-family: var(--font-mono);
+    font-size: 0.75rem;
     text-align: right;
+    white-space: nowrap;
     user-select: none;
     opacity: 0.85;
   }
