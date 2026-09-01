@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import { formatDate } from "../../utils/date";
+import { slugifyId } from "../../utils/id";
 import { withBasePath } from "../../utils/paths";
 import Button from "../ui/Button.astro";
 
@@ -13,10 +14,37 @@ interface Props {
 const { prev, next, pageKey, showFeedback = true } = Astro.props;
 const prevHref = prev ? withBasePath(`/posts/${prev.id}`) : undefined;
 const nextHref = next ? withBasePath(`/posts/${next.id}`) : undefined;
+const wavePatternId = `post-nav-wave-${slugifyId(pageKey)}`;
 ---
 
 {(prev || next) && (
-  <nav class="mt-12 border-t border-border pt-8" aria-label="Post navigation">
+  <nav class="mt-12 space-y-4 pt-2" aria-label="Post navigation">
+    <div class="post-nav-divider" aria-hidden="true">
+      <svg
+        aria-hidden="true"
+        width="100%"
+        height="8"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <pattern
+            id={wavePatternId}
+            width="24"
+            height="8"
+            patternUnits="userSpaceOnUse"
+          >
+            <path
+              d="M0 4Q6 0 12 4Q18 8 24 4"
+              stroke="currentColor"
+              stroke-linecap="square"
+              stroke-width="1.5"
+            />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill={`url(#${wavePatternId})`}></rect>
+      </svg>
+    </div>
     <div class="post-nav-content article-column">
       {showFeedback && (
         <div class="post-nav-feedback">
@@ -84,6 +112,19 @@ const nextHref = next ? withBasePath(`/posts/${next.id}`) : undefined;
 <style is:global>
 /* Global because the vote buttons are rendered by the shared Button
    component; selectors stay namespaced under .post-nav-*. */
+.post-nav-divider {
+  /* Stroke width tracks the article column (max-w-44rem) so the wave
+     sits flush with the nav content below it. */
+  max-width: 44rem;
+  color: color-mix(in srgb, var(--primary) 30%, var(--border));
+}
+
+.post-nav-divider svg {
+  display: block;
+  height: 8px;
+  width: 100%;
+}
+
 .post-nav-content {
   display: grid;
   gap: 1rem;
