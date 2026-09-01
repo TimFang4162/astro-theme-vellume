@@ -115,14 +115,15 @@ export const themeProfiles: Record<string, ProfileRegistration> = {
 
 /**
  * The print-profile registry (css files under `profiles/print/`).
- * Structural differences between them are implemented in print.css keyed on
- * the `data-print` root attribute, so the owner default and the visitor
- * print menu go through one path.
+ * A profile may bring *typographic* structure only, implemented in
+ * print.css keyed on the `data-print` root attribute. Content behaviour —
+ * link expansion, image visibility, chapter breaks — is the settings
+ * vocabulary in print-settings.css and never part of a profile, so any
+ * profile composes with any setting combination.
  */
 export const printProfiles: Record<string, ProfileRegistration> = {
   default: { file: "default.css", label: "标准" },
-  paper: { file: "print/paper.css", label: "纸张" },
-  compact: { file: "print/compact.css", label: "紧凑" },
+  thesis: { file: "print/thesis.css", label: "论文" },
 };
 
 /** Labels for the visitor-facing print menu (order = menu order). */

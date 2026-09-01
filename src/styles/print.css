@@ -7,8 +7,13 @@
  * treatment). Preview additionally sets [data-print-preview], which the
  * config panel and the paper-sheet simulation key on.
  *
- * Only two concerns still need @media print: @page (engine-only syntax)
- * and the no-JS / panel-hiding fallbacks below. */
+ * This file owns look-and-feel. Content behaviour — link expansion, image
+ * visibility, chapter breaks — lives in print-settings.css so settings stay
+ * independent of the chosen print profile. @media appears twice, each for
+ * something an attribute cannot express: the @page + no-JS / panel-hiding
+ * fallbacks, and the preview simulation, which is screen chrome and must
+ * never reach paper (printing from an open preview emits only the
+ * [data-print-style] rules). */
 
 @media print {
   /* No-JS baseline: without the inline mirror script [data-print-style]
@@ -171,71 +176,47 @@
   max-width: 100%;
 }
 
-/* Links expand their target unless the profile opts out. */
-[data-print-style] a[href]::after {
-  content: " (" attr(href) ")";
-  font-size: 0.85em;
-}
-
-[data-print-style] a[href^="#"]::after {
-  content: none;
-}
-
 /* ── Print profile structure ───────────────────────────────────────────
-   Built-in profiles are keyed on the data-print value (owner default via
-   BaseLayout, live via the preview panel). Custom registrations express
-   the same ideas through the relayed state vocabulary instead. */
+   A profile may bring *typographic* structure keyed on the data-print
+   value (owner default via BaseLayout, live via the preview panel). It
+   must not encode content behaviour — links, images, chapter breaks are
+   the settings vocabulary in print-settings.css, so any profile composes
+   with any setting combination. */
 
-[data-print-style][data-print="compact"] a[href]::after {
-  content: none;
+/* 论文: serif body via the profile tokens, plus justified paragraphs with
+   first-line indents and centred section titles. */
+[data-print-style][data-print="thesis"] .rich-prose {
+  text-align: justify;
 }
 
-[data-print-style][data-print="compact"] .rich-prose img {
-  display: none;
+[data-print-style][data-print="thesis"] .rich-prose > p {
+  text-indent: 2em;
 }
 
-/* The paper profile prints its tinted canvas and starts each section on a
-   fresh page. */
-html[data-print-style][data-print="paper"] {
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
+[data-print-style][data-print="thesis"] .rich-prose h2 {
+  text-align: center;
+  break-after: avoid;
 }
 
-[data-print-style][data-print="paper"] .rich-prose h2 {
-  break-before: page;
-}
-
-[data-print-style][data-print-break="chapter"] .rich-prose h2 {
-  break-before: page;
-}
-
-[data-print-style][data-print-links="plain"] a[href]::after {
-  content: none;
-}
-
-[data-print-style][data-print-links="external"]
-  a[href]:not([href^="http"])::after {
-  content: none;
-}
-
-[data-print-style][data-print-images="none"] .rich-prose img {
-  display: none;
-}
-
-/* ── Preview session ─────────────────────────────────────────────────── */
+/* ── Preview session (screen chrome) ─────────────────────────────────── */
 
 /* Paper-sheet simulation: dimmed backdrop, the article column becomes the
-   sheet. Pagination itself stays invisible — the browser owns page breaks. */
-[data-print-preview] body {
-  background: var(--muted);
-}
+   sheet. Scoped to screen — printing straight from an open preview
+   (Ctrl+P) must emit only the [data-print-style] rules above, never the
+   simulated sheet and its border. !important outbids the equally specific
+   [data-print-style] body / main.bg-surface resets while previewing. */
+@media screen {
+  [data-print-preview] body {
+    background: var(--muted) !important;
+  }
 
-[data-print-preview] main.page-frame {
-  max-width: 52rem;
-  min-height: 100vh;
-  margin: 2rem auto;
-  padding: 3rem 3.5rem;
-  background: var(--background);
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-floating);
+  [data-print-preview] main.page-frame {
+    max-width: 52rem;
+    min-height: 100vh;
+    margin: 2rem auto;
+    padding: 3rem 3.5rem;
+    background: var(--background) !important;
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-floating);
+  }
 }

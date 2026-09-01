@@ -16,7 +16,7 @@ tokens.css 默认值 < 主题档案（profile） < 用户覆盖（src/site/theme
 // src/site/config.ts —— 换主题 = 改一个键
 theme: {
   profile: "material",  // 屏幕：default | material | sepia | 你注册的任何名字
-  print: "paper",       // 打印：default | paper | compact
+  print: "thesis",      // 打印：default | thesis
 },
 ```
 
@@ -32,8 +32,7 @@ src/site/profiles/
   material.css       ← 灰绿画布 + 白色 sheet + 绿色主色 + 大圆角
   sepia.css          ← 暖纸中性底 + 陶土主色
   print/
-    paper.css        ← 衬线正文、暖纸底
-    compact.css      ← 小字号紧行距
+    thesis.css       ← 论文排版：衬线正文、首行缩进、居中章节标题
 ```
 
 文件形态（由 `src/config/theme-profiles.ts` 解析）：
@@ -96,11 +95,16 @@ footer）→ `--card`（浮起元素）。`--surface` 默认等于 `--background
 
 - **站长**：`theme.print` 选默认打印档案。
 - **访客**：文章标题右侧"更多"菜单 →"打印"进入**打印预览**：页面切换为打印
-  样式，右下角浮出配置面板，可调打印风格（标准/纸张/紧凑）、链接展开、
-  图片显隐、章节起新页，全部即时生效；"开始打印"调起浏览器打印（面板不会
-  被印出），"退出预览"或 Esc 还原屏幕状态。
+  样式，右下角浮出配置面板，可调打印风格（标准/论文）、链接展开、图片显隐、
+  章节起新页，全部即时生效；"开始打印"调起浏览器打印（面板不会被印出），
+  "退出预览"或 Esc 还原屏幕状态。在预览中直接 Ctrl+P 也安全：纸张模拟限定在
+  屏幕媒体，落纸的只有打印规则本身。
 
-面板调整映射到根属性状态词汇（也可由自定义档案在注册表 `states` 里预置）：
+面板调整映射到根属性状态词汇（也可由自定义档案在注册表 `states` 里预置）。
+**设置与打印档案是两个正交维度**：档案只管"纸上长什么样"（版式、字体、
+节奏），链接/图片/分页这些"纸上放什么内容"的行为由状态词汇独占，规则住在
+独立的 `src/styles/print-settings.css`，任何档案都不许编码这些行为——
+因此任意档案可与任意设置组合。
 
 | 状态 | 取值 |
 | --- | --- |
@@ -108,17 +112,18 @@ footer）→ `--card`（浮起元素）。`--surface` 默认等于 `--background
 | `data-print-images` | `all`（默认）/ `none` |
 | `data-print-break` | `none`（默认）/ `chapter` |
 
-`@media print` 只剩两件事：**无 JS 时的最低打印保障**（隐藏 chrome、白底黑字、
-通栏布局——属性方案依赖 JS，这一块保底）和**面板隐藏**。`@page` 页边距是
-主题固定值（2cm），属性表达不了。浏览器默认不打印背景色，`paper` 档案已
-声明 `print-color-adjust: exact`，但最终仍受打印对话框"背景图形"开关影响。
+`@media` 只剩两处：`@media print` 承担**无 JS 时的最低打印保障**（隐藏
+chrome、白底黑字、通栏布局——属性方案依赖 JS，这一块保底）、面板隐藏和
+`@page` 页边距（引擎专属语法，属性表达不了）；`@media screen` 承担预览的
+纸张模拟（暗背景 + 纸张投影），这是屏幕装饰，绝不能落纸。
 
 ## 边界与已知限制
 
 - 主题管理器是**无语义**的：只注入 token 与透传状态。新增主题 = 加一个
   css 文件 + 注册表加一行；新增结构行为 = 主题样式表加规则，系统零改动。
-- 档案文件只放 token（扁平声明块），不放 CSS 规则；结构性样式写进
-  print.css 或 `src/site/custom.css`。
+- 档案文件只放 token（扁平声明块），不放 CSS 规则；版式结构写进 print.css
+  （keyed on `data-print`），内容行为设置写进 print-settings.css，其余进
+  `src/site/custom.css`。
 - CSS 文件没有编译期类型检查，写错属性名靠构建产物审查兜底。
 - 打印样式的激活依赖 JS 镜像打印状态（`beforeprint`）；无 JS 访客打印时
   只应用 `@media print` 最低保障块。

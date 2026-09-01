@@ -47,17 +47,11 @@ export const siteOverride = defineSiteConfig({
   //     dark: "#09090b",
   //   },
   // },
-  // Pick a theme profile (see src/config/theme-profiles.ts): "material",
-  // "sepia", or an inline object for a one-off look. Print gets its own
-  // profile; visitors can switch it from the article sidebar.
-  // Pick a theme profile (see src/config/theme-profiles.ts): "material",
-  // "sepia", or an inline object for a one-off look. Print gets its own
-  // profile; visitors can switch it from the article sidebar.
   // Pick a theme profile by name — one css file per theme lives in
   // src/site/profiles/ (default / material / sepia; print profiles under
-  // print/). Visitors can switch the print profile from the article sidebar.
+  // print/). Visitors can switch the print profile from the article menu.
   // theme: {
   //   profile: "material",
-  //   print: "paper",
+  //   print: "thesis",
   // },
 });

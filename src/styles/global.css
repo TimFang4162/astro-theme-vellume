@@ -2,10 +2,10 @@
  * order; keep the order stable when adding files.
  *
  * Cascade contract: tokens/base/components/prose/code-block/utilities are
- * layered (@layer) styles. toc.css, transitions.css and print.css are
- * deliberately unlayered so they always outrank layered rules — toc because
- * its script toggles classes at runtime, transitions/print because they are
- * global overrides. */
+ * layered (@layer) styles. toc.css, transitions.css, print.css and
+ * print-settings.css are deliberately unlayered so they always outrank
+ * layered rules — toc because its script toggles classes at runtime,
+ * transitions/print because they are global overrides. */
 @import "tailwindcss";
 @import "./tokens.css";
 @import "./base.css";
@@ -16,5 +16,6 @@
 @import "./utilities.css";
 @import "./toc.css";
 @import "./print.css";
+@import "./print-settings.css";
 
 @plugin "@tailwindcss/typography";
