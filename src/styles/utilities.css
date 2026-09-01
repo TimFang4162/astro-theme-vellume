@@ -61,13 +61,6 @@
     font-style: normal;
   }
 
-  /* Tables: a quiet muted band distinguishes the header row now that row
-     separators are opaque hairlines. */
-  .rich-prose
-  :where(thead th):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
-    background-color: var(--muted);
-  }
-
   /* `mark` highlights follow the accent pair instead of browser yellow. */
   .rich-prose
   :where(mark):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
