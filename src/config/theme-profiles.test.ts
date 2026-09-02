@@ -13,7 +13,7 @@ import {
 } from "./theme-profiles";
 
 const withConfig = (
-  slots: { profile?: string; print?: string } = {},
+  slots: { profile?: string; print?: string | undefined } = {},
 ): SiteConfig => {
   const config = mergeSiteConfig();
   return {
@@ -21,7 +21,13 @@ const withConfig = (
     theme: {
       ...config.theme,
       profile: slots.profile ?? config.theme.profile,
-      print: slots.print,
+      // Missing key means "use the built-in default thesis"; explicit
+      // undefined/""/absent is only via withConfig({ print: "" }) etc.
+      // withConfig() with no print key should mirror themeDefaultConfig.
+      print:
+        "print" in slots
+          ? slots.print
+          : (config.theme.print as string | undefined),
     },
   };
 };
@@ -74,8 +80,18 @@ describe("resolvePrintTemplate", () => {
     );
   });
 
-  it("returns undefined when the slot is unset", () => {
-    expect(resolvePrintTemplate(withConfig())).toBeUndefined();
+  it("returns the default thesis template when the slot is unset", () => {
+    expect(resolvePrintTemplate(withConfig())?.name).toBe("thesis");
+  });
+
+  it("returns undefined when the slot is explicitly disabled", () => {
+    expect(resolvePrintTemplate(withConfig({ print: "" }))).toBeUndefined();
+  });
+
+  it("returns undefined when explicitly set to undefined", () => {
+    expect(
+      resolvePrintTemplate(withConfig({ print: undefined })),
+    ).toBeUndefined();
   });
 
   it("warns once and disables the slot for an unknown name", () => {
@@ -97,14 +113,30 @@ describe("resolvePrintTemplate", () => {
 });
 
 describe("buildSkinCss", () => {
-  const css = buildSkinCss();
+  it("default build emits the print template inside @media print (screen half is empty)", () => {
+    const css = buildSkinCss();
+    expect(css).toContain("@media print {");
+    // thesis paper tokens (white paper, serif stack) are inside the print wrapper.
+    expect(css).toMatch(/--background:\s*#fff/);
+    expect(css).not.toContain("data-skin");
+    // No screen-layer content (default.css is empty) — the only top-level
+    // @media is the print wrapper (nested @media screen/print inside it is OK).
+  });
 
-  it("emits the default profile's own file (empty) and nothing else", () => {
+  it("emits nothing when print is explicitly disabled and screen skin is empty", () => {
+    const css = buildSkinCss(withConfig({ print: "" }));
     expect(css).toBe("");
   });
 
   it("emits no data-skin scoping or switching plumbing", () => {
+    const css = buildSkinCss();
     expect(css).not.toContain("data-skin");
+  });
+
+  it("material + default print carries both screen tokens and the print wrapper", () => {
+    const css = buildSkinCss(withConfig({ profile: "material" }));
+    expect(css).toContain("--primary: #188038");
+    expect(css).toContain("@media print {");
   });
 });
 

@@ -25,8 +25,9 @@ import {
  * The build emits:
  * - the profile's file, dark blocks wrapped in `@media screen` so paper
  *   always renders the light values;
- * - the print template's whole file inside `@media print`, so printing
- *   follows the owner's slot regardless of screen look.
+ * - the print template's whole file inside `@media print` (default
+ *   `thesis`), so printing follows the paper template regardless of screen
+ *   look (set `theme.print: ""` to disable).
  *
  * Emitted css is unconstrained by `data-skin` (nothing switches skins at
  * runtime); cascade precedence stays purely order-based:
@@ -172,9 +173,10 @@ export function resolveSkin(config: SiteConfig = siteConfig): ResolvedSkin {
 const warnedPrintNames = new Set<string>();
 
 /**
- * Resolve the optional `theme.print` slot. Unset or unknown names return
- * undefined, which disables the slot (print then follows the active skin's
- * light half).
+ * Resolve the optional `theme.print` slot. Unset/empty or unknown names
+ * return undefined, which disables the slot (print then follows the active
+ * skin's light half). The built-in default is `thesis` (see
+ * `themeDefaultConfig`).
  */
 export function resolvePrintTemplate(
   config: SiteConfig = siteConfig,
@@ -411,9 +413,9 @@ export function transformSkinCss(
  *
  * - The active screen skin's file, dark blocks screen-gated (the default
  *   skin's file is empty; tokens.css is the default look).
- * - `theme.print`, when configured: the print template's whole file inside
- *   `@media print` — printing then follows the owner's slot instead of the
- *   screen skin's light half.
+ * - `theme.print` (default `thesis`): the print template's whole file inside
+ *   `@media print` — printing then follows the paper template instead of the
+ *   screen skin's light half (set `theme.print: ""` to disable).
  */
 export function buildSkinCss(config: SiteConfig = siteConfig): string {
   const blocks: string[] = [];

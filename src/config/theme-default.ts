@@ -55,8 +55,8 @@ export interface SiteConfig {
     profile: string;
     /** Optional print template from the `printTemplates` registry: printing
         (and the print preview) always uses this template's paper
-        presentation. Unset means print follows the profile skin's light
-        half. */
+        presentation. "thesis" is the default paper typesetting (unset means
+        print follows the profile skin's light half). */
     print?: string;
     browserColor: {
       light: string;
@@ -180,6 +180,7 @@ export const themeDefaultConfig: SiteConfig = {
   },
   theme: {
     profile: "default",
+    print: "thesis",
     browserColor: {
       light: "#ffffff",
       dark: "#0e1116",

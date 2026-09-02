@@ -53,11 +53,15 @@ export const siteOverride = defineSiteConfig({
   // theme: {
   //   profile: "material",
   // },
-  // Optional: always print with a paper template (src/site/profiles/,
-  // `thesis`), regardless of the screen skin. Unset = print follows the
-  // profile skin's light half.
+  // Printing defaults to the thesis paper template (src/site/profiles/,
+  // `thesis`), regardless of the screen skin. Set print to "" to disable
+  // and let print follow the profile skin's light half.
   // theme: {
   //   profile: "material",
   //   print: "thesis",
+  // },
+  // To disable thesis and print the screen skin's light half:
+  // theme: {
+  //   print: "",
   // },
 });

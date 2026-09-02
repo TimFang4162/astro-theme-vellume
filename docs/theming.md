@@ -4,8 +4,8 @@ Vellume 的视觉由"皮肤（skin）"决定。一个屏幕皮肤就是 `src/sit
 一个 CSS 文件，外加 `src/config/theme-profiles.ts` 里的一行注册。站长在
 `src/site/config.ts` 里通过 `theme.profile` **选定一个屏幕皮肤**，它决定整个
 站点的亮色与暗色外观；**没有访客侧换肤**——选择在构建期定死、打进产物。
-打印可以另指一个"打印模板"（`theme.print`，内置 thesis），让打印固定走纸面
-排版，与屏幕皮肤无关。
+打印默认即走 thesis 纸面排版（`theme.print` 默认为 `thesis`），与屏幕皮肤无关；
+显式设空可关掉（见下）。
 
 级联优先级从低到高，完全由加载顺序决定：
 
@@ -16,7 +16,7 @@ tokens.css 默认值 < profile 屏幕皮肤 < 打印模板（theme.print） < �
 - **tokens.css** 定义全部语义变量及其派生关系，是"default 皮肤"本身。
 - **profile 皮肤文件** 携带自己的 token 与结构规则，一处文件即完整外观
   （亮色 + 暗色两个半块配对写在同一个文件里）。
-- **打印模板**（若配置）以 `@media print` 层注入，仅打印与打印预览可见。
+- **打印模板**（默认 `thesis`）以 `@media print` 层注入，仅打印与打印预览可见；设空即不注入。
 - **theme.css** 是你的手改入口，永远最优先，对屏幕与打印都生效。
 
 ## 快速开始
@@ -25,16 +25,15 @@ tokens.css 默认值 < profile 屏幕皮肤 < 打印模板（theme.print） < �
 // src/site/config.ts —— 换皮肤 = 改一个键
 theme: {
   profile: "material",  // default | material | 你注册的任何屏幕皮肤
-  print: "thesis",      // 可选：打印一律用 thesis 纸面排版
+  print: "thesis",      // 默认即此值；设为 "" 可关掉论文排版、让打印跟随屏幕皮肤亮色
 },
 ```
 
 - 只改 `theme.profile`，站点整套亮暗配色随之切换（material 会把 `--primary`、
   卡片、圆角、OG/浏览器栏配色一起带过去）。
-- 想要"屏幕常规皮肤、打印论文排版"？配 `theme.print: "thesis"` 即可——这正是
+- 默认即"屏幕常规皮肤、打印论文排版"——零配置就是 thesis 纸面；这正是
   thesis 的定位：**它不是一个常规屏幕皮肤，而是打印模板**，不该当 `profile` 用。
-- 打印模板不配＝打印跟随 profile 皮肤自己的亮色半边（皮肤暗色块已在构建期
-  门控在 `@media screen` 内，打印永远渲染亮色值）。
+- 想要打印跟随屏幕皮肤亮色（不套论文版式）？显式设 `theme: { print: "" }`（空串即关掉打印模板；皮肤暗色块已在构建期门控在 `@media screen` 内，打印自然渲染亮色值）。
 
 改过 `browserColor` 后，favicon 需要 `bun run generate:favicons` 重新生成。
 皮肤 CSS 改动在 `astro dev` 下即时热更新；改注册表（theme-profiles.ts）或
@@ -50,7 +49,7 @@ src/site/profiles/
 ```
 
 thesis 写成打印模板时**只取其纸面**：它文件里的暗色块（刻意镜像亮色的"纸张"
-观感）在屏幕层根本不会发射，只有整体包进 `@media print` 的纸面排版进入产物。
+观感）在屏幕层根本不会发射，只有整体包进 `@media print` 的纸面排版进入产物（默认即启用）。
 
 ## 文件形态（由 `src/config/theme-profiles.ts` 解析）
 
@@ -133,9 +132,8 @@ footer）→ `--card`（浮起元素）。`--surface` 默认等于 `--background
 - **打印**：Ctrl+P（或浏览器打印）即可。`print.css`（纯 `@media print`，
   注入在打印模板层之后）提供固定底线：隐藏 chrome、通栏单列、代码折行、
   外链展开为脚注、白纸白底、分页卫生（figure/table 不跨页、标题不孤悬、
-  orphans/widows）。配置了 `theme.print` 时，模板层在 print.css 之前注入、
-  随模板带上排版（字体、缩进、章节起新页）；未配置则 profile 皮肤的亮色
-  半边直接进纸。
+  orphans/widows）。默认 `theme.print: "thesis"` 时，模板层在 print.css 之前注入、
+  随模板带上排版（字体、缩进、章节起新页）；设 `print: ""` 关掉后则 profile 皮肤的亮色半边直接进纸。
 
 ## 边界与已知限制
 
