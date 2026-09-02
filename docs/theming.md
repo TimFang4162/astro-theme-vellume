@@ -32,7 +32,7 @@ theme: {
 ```
 src/site/profiles/
   default.css    ← 空文件（tokens.css 就是默认外观）
-  material.css   ← 灰绿画布 + 白色 sheet + 绿色主色 + 大圆角
+  material.css   ← 灰绿画布统一底色（sheet 同色），仅卡片白色且无边框 + 绿色主色 + 大圆角 + 标题正文一张卡片
   sepia.css      ← 暖纸中性底 + 陶土主色
   thesis.css     ← 纸张观感：衬线正文、首行缩进、居中章节标题
 ```
@@ -53,7 +53,9 @@ thesis 是"纸张调性"的皮肤：屏幕上呈现的就是纸上排版（WYSIW
   暗色）后置附加，其余前缀为后代。
 
 只需写"个性"：`--accent`、`--ring`、tonal 填充阶梯、代码块外框、首页粒子
-全部从 `--primary` 等基底自动派生。material.css 一共二十几行。
+全部从 `--primary` 等基底自动派生（material.css 只写值加一条"标题+正文"
+文章卡片规则）。结构规则里尽管引用 token（`var(--card)` 等），暗色跟随
+token 翻转；屏幕专属的视觉装饰应包一层 `@media screen`，纸张保持素面。
 
 ## 注册表
 
@@ -121,6 +123,10 @@ footer）→ `--card`（浮起元素）。`--surface` 默认等于 `--background
   贡献），永远输给 theme.css / custom.css 的后置覆盖。
 - 暗色块必须是顶层的扁平 `[data-theme="dark"]` 块才会被构建期包进
   `@media screen`；写进其他媒体块不会被识别。
+- 暗色块里不要用 `var()`（包括 `color-mix()` 引用）：构建期包裹时会重新
+  序列化该规则，lightningcss napi 无法往返 `var()`，直接编译报错。派生值
+  写死字面量。皮肤在 `:root` 固定的 token 若要随暗色翻转，必须在暗色块里
+  重新声明（同特异度下皮肤 `:root` 会压过 tokens.css 的暗色块）。
 - CSS 文件没有编译期类型检查，写错属性名靠构建产物审查兜底。
 - `@page` 页边距是主题固定值（2cm），不能吃自定义属性也不能按皮肤切换。
 - 每页页眉/页码由浏览器自带开关控制，CSS 无法定制。

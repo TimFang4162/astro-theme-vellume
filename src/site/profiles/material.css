@@ -1,11 +1,14 @@
-/* Material — layered sheet layout: grey-green canvas, near-white content
-   sheet, green accent, rounder corners. Everything not listed here (accent,
-   ring, tonal fills, hero particles, code-block chrome) derives from these
-   bases automatically. */
+/* Material — one tinted canvas: canvas and content sheet share the same
+   grey-green #eaf0eb, and only cards are white. Green accent, rounder
+   corners. Everything not listed here (accent, ring, tonal fills, hero
+   particles, code-block chrome) derives from these bases automatically.
+   Cards carry no border — the white fill on the tinted canvas is the
+   separation (screen-only; print stays plain). Dark mirrors the structure:
+   one near-black canvas with elevated green-dark cards. */
 
 :root {
-  --background: #f0f1ec;
-  --surface: #fafaf7;
+  --background: #eaf0eb;
+  --surface: #eaf0eb;
   --card: #ffffff;
   --popover: #ffffff;
   --foreground: #262b26;
@@ -21,7 +24,7 @@
 
 [data-theme="dark"] {
   --background: #121411;
-  --surface: #181a17;
+  --surface: #121411;
   --card: #1d201c;
   --popover: #20231f;
   --foreground: #d5dad3;
@@ -31,4 +34,30 @@
   --border: #2e332c;
   --primary: #69bd75;
   --primary-foreground: #0d150f;
+  /* The light block fixes --code-block-surface, and at equal specificity
+     the skin's :root outranks the tokens.css dark block (it loads later) —
+     so dark must re-state it here or code chrome renders light. Literal
+     value (card #1d201c stepped 12% toward black): the build re-serializes
+     this block when wrapping it in @media screen, and lightningcss cannot
+     round-trip var() through that path. */
+  --code-block-surface: #1a1c19;
+}
+
+/* Article-as-card: the header (title, description, meta, chips) and the
+   prose share one card. Scoped to .content-layout so only the title+body
+   column is carded — the comments column sits outside it and stays flat.
+   No border anywhere: the white fill against the tinted canvas is the
+   separation. Screen-only: the print floor renders plain white paper, so
+   card chrome must not reach print. */
+@media screen {
+  .content-layout .article-column {
+    border-radius: var(--radius-card);
+    background: var(--card);
+    box-shadow: var(--shadow-card);
+    padding: clamp(1.25rem, 4vw, 2rem);
+  }
+
+  .surface-card {
+    border: none;
+  }
 }

@@ -65,12 +65,13 @@ export const skins: Record<string, ProfileRegistration> = {
   },
 
   /* Layered sheet layout: grey canvas, near-white content sheet, green
-     accent, rounder corners. */
+     accent, rounder corners; title and body share one article card
+     (screen-only structural rule). */
   material: {
     file: "material.css",
     label: "Material",
     meta: {
-      browserColor: { light: "#f0f1ec", dark: "#121411" },
+      browserColor: { light: "#eaf0eb", dark: "#121411" },
       og: {
         accent: [105, 189, 117],
         backgroundGradient: [
@@ -178,6 +179,10 @@ const isDarkAttribute = (component: {
 function scopeSkinCss(name: string, css: string): string {
   if (!css.trim()) return "";
 
+  /* Source locs of rules this invocation already wrapped in `@media screen`;
+     file-scoped, since loc offsets are relative to the skin file. */
+  const wrappedRuleLocs = new Set<string>();
+
   const whereSkin = () => ({
     type: "pseudo-class" as const,
     kind: "where" as const,
@@ -197,26 +202,36 @@ function scopeSkinCss(name: string, css: string): string {
     code: Buffer.from(css),
     minify: false,
     visitor: {
-      StyleSheet(stylesheet) {
-        stylesheet.rules = stylesheet.rules.map((rule) => {
-          if (rule.type !== "style") return rule;
-          const { selectors } = rule.value;
-          const isDarkBlock =
-            selectors.length > 0 &&
-            selectors.every(
-              (selector) => selector.length > 0 && isDarkAttribute(selector[0]),
-            );
-          if (!isDarkBlock) return rule;
-          return {
-            type: "media" as const,
-            value: {
-              loc: rule.value.loc,
-              query: { mediaQueries: [{ mediaType: "screen" }] },
-              rules: [rule],
-            },
-          };
-        });
-        return stylesheet;
+      /* Rule-level (not whole-`StyleSheet`) visitor: lightningcss's napi
+         bindings cannot round-trip a `var()` declaration back through a
+         returned rule (failed to deserialize "Specifier"), and a StyleSheet
+         visitor re-crosses every rule in the file. A rule-level visitor only
+         crosses what it returns, so var()-bearing structural rules survive
+         untouched via a `void` return. */
+      Rule(rule) {
+        if (rule.type !== "style") return;
+        /* Returning a replacement re-visits it (re-deserialized, so object
+           identity is lost); the rule's source loc is the only stable key,
+           and it marks the wrap as done. */
+        const loc = rule.value.loc;
+        const locKey = `${loc.source_index}:${loc.line}:${loc.column}`;
+        if (wrappedRuleLocs.has(locKey)) return;
+        const { selectors } = rule.value;
+        const isDarkBlock =
+          selectors.length > 0 &&
+          selectors.every(
+            (selector) => selector.length > 0 && isDarkAttribute(selector[0]),
+          );
+        if (!isDarkBlock) return;
+        wrappedRuleLocs.add(locKey);
+        return {
+          type: "media" as const,
+          value: {
+            loc,
+            query: { mediaQueries: [{ mediaType: "screen" }] },
+            rules: [rule],
+          },
+        };
       },
       Selector(selector) {
         if (selector.length === 0) return selector;
