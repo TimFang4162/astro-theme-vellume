@@ -6,21 +6,16 @@ import { ThemeScript } from "astro-theme-toggle";
 import MobileDrawer from "../components/navigation/MobileDrawer.astro";
 import SearchModal from "../components/search/SearchModal.astro";
 import { siteConfig } from "../config/site";
-import { SKIN_STORAGE_KEY } from "../config/skin-types";
-import {
-  resolveSkin,
-  resolveSkinSlot,
-  resolveThemeBranding,
-  skins,
-} from "../config/theme-profiles";
+import { resolveThemeBranding } from "../config/theme-profiles";
 import { toAbsoluteSiteUrl, withBasePath } from "../utils/paths";
 import Footer from "./Footer.astro";
 import Header from "./Header.astro";
 import "medium-zoom/dist/style.css";
 import "../styles/global.css";
-// Every registered skin's css, :where-scoped to its data-skin attribute;
-// bundle order keeps skins between tokens.css (inside global.css) and the
-// user-owned theme.css below.
+// The active screen skin (dark blocks screen-gated) plus the optional
+// print template, emitted by the vellume-skins virtual module; bundle order
+// keeps them between tokens.css (inside global.css) and the user-owned
+// theme.css below.
 import "virtual:vellume-skins.css";
 import "../site/theme.css";
 import "../site/custom.css";
@@ -51,17 +46,6 @@ const {
   jsonLd,
 } = Astro.props;
 const branding = resolveThemeBranding();
-const skin = resolveSkin();
-// Dark-mode slot: server-stamped so first-time visitors get the configured
-// dark half; removed at runtime as soon as the visitor picks a skin.
-const darkSlot = resolveSkinSlot("dark");
-const darkSlotName =
-  darkSlot && darkSlot.name !== skin.name ? darkSlot.name : undefined;
-// Inline bootstrap payload: registered skin names for localStorage
-// validation (see the skin bootstrap script in <head>).
-const skinBootstrap = `try{var d=document.documentElement,n=${JSON.stringify(
-  Object.keys(skins),
-)},v=localStorage.getItem(${JSON.stringify(SKIN_STORAGE_KEY)});if(n.indexOf(v)>-1){d.dataset.skin=v;delete d.dataset.skinDark}}catch(e){}`;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const currentPath = Astro.url.pathname;
 const defaultOgImage = "/assets/og/index.png";
@@ -118,13 +102,7 @@ const seoProps = {
 ---
 
 <!doctype html>
-<html
-  lang={siteConfig.site.lang}
-  dir="ltr"
-  data-theme="light"
-  data-skin={skin.name}
-  data-skin-dark={darkSlotName}
->
+<html lang={siteConfig.site.lang} dir="ltr" data-theme="light">
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content={Astro.generator}>
@@ -169,22 +147,6 @@ const seoProps = {
         e.newDocument.documentElement.dataset.theme = current;
         e.newDocument.documentElement.style.colorScheme = current;
       }
-      // Mirror the old document's slot state: a visitor skin pick removes
-      // it; an untouched visit keeps the new document's server-stamped
-      // value (set below by the skin migration when no pick exists).
-      const oldDark = document.documentElement.dataset.skinDark;
-      const newDark = e.newDocument.documentElement.dataset.skinDark;
-      if (oldDark !== newDark) {
-        if (oldDark) {
-          e.newDocument.documentElement.dataset.skinDark = oldDark;
-        } else {
-          delete e.newDocument.documentElement.dataset.skinDark;
-        }
-      }
-      const skin = document.documentElement.dataset.skin;
-      if (skin) {
-        e.newDocument.documentElement.dataset.skin = skin;
-      }
     });
     document.addEventListener(
       "click",
@@ -198,10 +160,6 @@ const seoProps = {
       true,
     );
     </script>
-    <!-- Skin bootstrap: restore the visitor's chosen skin before first
-        paint. Names are validated against the registry so a skin removed
-        upstream falls back to the server-stamped default. -->
-    <script is:inline set:html={skinBootstrap} />
     <LoadingIndicator color="var(--primary)" />
     <SEO {...seoProps} />
     {jsonLd && (

@@ -3,7 +3,6 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { transform } from "lightningcss";
 import { rawSiteConfigInput, siteConfig } from "./site";
-import type { SkinBranding, SkinRegistration } from "./skin-types";
 import {
   isPlainObject,
   type SiteConfig,
@@ -12,22 +11,28 @@ import {
 } from "./theme-default";
 
 /**
- * Skins: one css file per skin under `src/site/profiles/`, plus a small
- * typed registration entry here.
+ * The look system: `theme.profile` picks ONE css file for the whole site
+ * (screen light + dark halves), and `theme.print` may pick a print template
+ * used whenever the page is printed. There is no visitor-side skin
+ * switching — the owner's choice is baked in at build time.
  *
- * Boundary contract (see docs/theming.md):
- * - Every registered skin ships to every visitor and is runtime-switchable
- *   via the `data-skin` root attribute; `theme.profile` only picks the
- *   server-side default.
- * - The build scopes each skin's selectors with zero-specificity
- *   `:where([data-skin="<name>"])` and wraps dark blocks in `@media screen`
- *   (paper always renders the light values), so the cascade is purely
- *   order-based: tokens.css < skins < theme.css < custom.css.
- * - Skins carry values and their own structural rules; nothing here encodes
- *   per-visitor behaviour.
+ * Files live under `src/site/profiles/`. The `skins` registry holds the
+ * screen looks (default = tokens.css itself, material); `printTemplates`
+ * holds the files that only make sense on paper (thesis). thesis is not a
+ * screen skin: screen skins stay paired (light + dark halves written
+ * together), and thesis exists to be printed on top of any screen skin.
+ *
+ * The build emits:
+ * - the profile's file, dark blocks wrapped in `@media screen` so paper
+ *   always renders the light values;
+ * - the print template's whole file inside `@media print`, so printing
+ *   follows the owner's slot regardless of screen look.
+ *
+ * Emitted css is unconstrained by `data-skin` (nothing switches skins at
+ * runtime); cascade precedence stays purely order-based:
+ * tokens.css < profile skin < print template < theme.css < custom.css.
+ * See docs/theming.md.
  */
-
-export type { SkinBranding, SkinRegistration } from "./skin-types";
 
 /* Resolved from this module's own URL, not the process cwd, so Node-side
    consumers (astro.config.ts, the favicon script) resolve it the same way
@@ -36,6 +41,30 @@ export const skinsDir = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "../site/profiles",
 );
+
+/** Non-CSS color consumers that follow the chosen screen skin. Each field
+ * is a default that explicit user config (src/site/config.ts) outranks. */
+export interface SkinBranding {
+  browserColor?: { light: string; dark: string };
+  shiki?: { light: string; dark: string };
+  og?: {
+    accent?: SiteConfig["og"]["accent"];
+    backgroundGradient?: SiteConfig["og"]["backgroundGradient"];
+    description?: SiteConfig["og"]["description"];
+    border?: SiteConfig["og"]["border"]["color"];
+  };
+  /** Mermaid themeVariables; mmdr's schema wants numeric values for
+   * quantitative entries (fontSize) and strings for colors. */
+  mermaid?: Record<string, string | number>;
+}
+
+/** One screen skin = one css file plus its typed metadata. */
+export interface SkinRegistration {
+  /** css file path relative to `src/site/profiles/`. */
+  file: string;
+  /** Branding defaults for the non-CSS color consumers. */
+  meta?: SkinBranding;
+}
 
 /**
  * Baseline branding for the default skin. Its css file stays empty
@@ -63,11 +92,9 @@ const defaultBranding: Required<Pick<SkinBranding, "shiki" | "mermaid">> = {
   },
 };
 
-/**
- * The skin registry: one css file per skin. Adding a skin means dropping a
- * file into `src/site/profiles/` and registering it here — it then shows up
- * in the visitor skin switcher automatically.
- */
+/** The screen-skin registry: one css file per skin. `theme.profile` picks
+ * one of these; adding a skin means dropping a file into
+ * `src/site/profiles/` and registering it here. */
 export const skins = {
   /* The shipped look: zinc greys, single blue accent (tokens.css itself). */
   default: {
@@ -80,7 +107,6 @@ export const skins = {
      (screen-only structural rule). */
   material: {
     file: "material.css",
-    label: "Material",
     meta: {
       browserColor: { light: "#eaf0eb", dark: "#121411" },
       og: {
@@ -99,33 +125,30 @@ export const skins = {
       },
     },
   },
-
-  /* Paper typesetting on plain white: serif body with justified indented
-     paragraphs, heiti section titles, three-line tables, chromeless code
-     and diagram panels, and a compact print rhythm. Screen shows the
-     paper; printing inherits it. The dark block mirrors light so the
-     paper look survives the dark toggle. */
-  thesis: {
-    file: "thesis.css",
-    label: "论文",
-    meta: {
-      browserColor: { light: "#ffffff", dark: "#ffffff" },
-    },
-  },
 } satisfies Record<string, SkinRegistration>;
 
 export type SkinName = keyof typeof skins;
 
 /* Explicit annotation: entries of the satisfies-typed literal carry the
-   per-entry literal types, which the label fallback below cannot read. */
+   per-entry literal types, which optional-field reads cannot see. */
 const skinEntries: [string, SkinRegistration][] = Object.entries(skins);
 
-/** Labels for the visitor-facing skin switcher (order = menu order). */
-export const skinOptions: Array<{ name: string; label: string }> =
-  skinEntries.map(([name, registration]) => ({
-    name,
-    label: registration.label ?? name,
-  }));
+/** Print templates: css files usable via `theme.print`. thesis is the
+ * shipped paper template. A screen skin printed without a slot already
+ * renders its own light half, so screen skins are intentionally not listed
+ * here. */
+export const printTemplates = {
+  /* Paper typesetting on plain white: serif body with justified indented
+     paragraphs, heiti section titles, three-line tables, chromeless code
+     and diagram panels, and a compact print rhythm. Its screen look (the
+     WYSIWYG paper) never ships; only its @media print output is used. */
+  thesis: { file: "thesis.css" },
+} satisfies Record<string, { file: string }>;
+
+export type PrintTemplateName = keyof typeof printTemplates;
+
+const printTemplateEntries: [string, { file: string }][] =
+  Object.entries(printTemplates);
 
 export interface ResolvedSkin {
   name: string;
@@ -144,42 +167,42 @@ export function resolveSkin(config: SiteConfig = siteConfig): ResolvedSkin {
   return { name: "default", registration: skins.default };
 }
 
-/* Slot names are validated once per name; resolveThemeBranding resolves on
-   every page render, so the warning must not spam the build log. */
-const warnedSlotNames = new Set<string>();
+/* The print slot warns once per name; resolveThemeBranding resolves per
+   page render, so an unknown value must not spam the build log. */
+const warnedPrintNames = new Set<string>();
 
 /**
- * Resolve an optional per-mode slot (`theme.dark` / `theme.print`) to a
- * skin. Unset or unknown names return undefined, which disables the slot.
+ * Resolve the optional `theme.print` slot. Unset or unknown names return
+ * undefined, which disables the slot (print then follows the active skin's
+ * light half).
  */
-export function resolveSkinSlot(
-  slot: "dark" | "print",
+export function resolvePrintTemplate(
   config: SiteConfig = siteConfig,
-): ResolvedSkin | undefined {
-  const name = config.theme[slot];
+): { name: string; file: string } | undefined {
+  const name = config.theme.print;
   if (!name) return undefined;
-  const found = skinEntries.find(([key]) => key === name);
+  const found = printTemplateEntries.find(([key]) => key === name);
   if (found) {
-    return { name: found[0], registration: found[1] };
+    return { name: found[0], file: found[1].file };
   }
-  const warningKey = `${slot}:${name}`;
-  if (!warnedSlotNames.has(warningKey)) {
-    warnedSlotNames.add(warningKey);
+  const warningKey = `print:${name}`;
+  if (!warnedPrintNames.has(warningKey)) {
+    warnedPrintNames.add(warningKey);
     console.warn(
-      `[vellume] Unknown skin "${name}" for theme.${slot}; ignoring the slot. Known skins: ${Object.keys(skins).join(", ")}.`,
+      `[vellume] Unknown print template "${name}"; ignoring theme.print. Known templates: ${Object.keys(printTemplates).join(", ")}.`,
     );
   }
   return undefined;
 }
 
-function readSkinCss(registration: SkinRegistration): string {
-  return readFileSync(path.join(skinsDir, registration.file), "utf8");
+function readLookCss(file: string): string {
+  return readFileSync(path.join(skinsDir, file), "utf8");
 }
 
-/* ── Skin css transform ──────────────────────────────────────────────────
+/* ── Look css transform ────────────────────────────────────────────────
  *
  * Emitted css is consumed verbatim by the browser, so every rewrite is a
- * real CSS parse (lightningcss), not text rewriting. Per skin:
+ * real CSS parse (lightningcss), not text rewriting.
  *
  * - Dark blocks (selectors anchored on `[data-theme="dark"]`, optionally
  *   through `:root`/`html`) are wrapped in `@media screen` TEXTUALLY, using
@@ -188,12 +211,11 @@ function readSkinCss(registration: SkinRegistration): string {
  *   round-trip through the napi bindings (which cannot deserialize them
  *   back into Rust). Dark blocks nested inside an authored @media keep that
  *   block's own media context and are not gated.
- * - Every selector gains a zero-specificity `:where([data-skin="<name>"])`
- *   constraint: appended for root-anchored selectors (`:root`, `html`,
- *   dark anchors), so it constrains the same element; prefixed as a
- *   descendant for everything else. Zero specificity keeps the cascade
- *   order-based — a skin can never outrank tokens.css (earlier) or
- *   theme.css/custom.css (later).
+ * - The print layer wraps the whole template file inside `@media print`;
+ *   its own dark blocks stay inside their nested screen gate (inert in
+ *   print), and its own @media print rules nest harmlessly.
+ * - No data-skin scoping: exactly one screen skin is built in, and printing
+ *   is owner intent — the cascade is purely order-based.
  */
 
 interface CssRange {
@@ -215,8 +237,6 @@ const isDarkAttribute = (component: SimpleComponent): boolean =>
   component.operation?.operator === "equal" &&
   component.operation?.value === "dark";
 
-/* Root-anchored: the attribute lives on the same element the selector
-   starts from, so the :where constraint is appended instead of prefixed. */
 const isRootAnchored = (component: SimpleComponent): boolean =>
   (component.type === "pseudo-class" && component.kind === "root") ||
   (component.type === "type" && component.name === "html");
@@ -269,11 +289,11 @@ const ruleRange = (css: string, start: number): CssRange => {
   );
 };
 
-/* Phase 1 — walk the authored file: record where the dark blocks are and
-   enforce the skin css contract. Returns the ranges of dark blocks that are
-   NOT nested inside an authored @media (such a block owns its media context
-   already; docs/theming.md documents nested dark blocks as ungated). */
-const analyzeSkinCss = (name: string, css: string): CssRange[] => {
+/* Walk the authored file: record where the dark blocks are and enforce the
+   look-file contract. Returns the ranges of dark blocks that are NOT nested
+   inside an authored @media (such a block owns its media context already;
+   docs/theming.md documents nested dark blocks as ungated). */
+const analyzeLookCss = (name: string, css: string): CssRange[] => {
   const lineStarts = [0];
   for (let i = 0; i < css.length; i++) {
     if (css[i] === "\n") lineStarts.push(i + 1);
@@ -308,7 +328,7 @@ const analyzeSkinCss = (name: string, css: string): CssRange[] => {
         for (const selector of selectors) {
           if (selector.some(isDarkAttribute)) {
             throw new Error(
-              `[vellume] skins/${name}.css:${loc.line + 1}: [data-theme="dark"] must anchor its selector — write it first ("[data-theme=\\"dark\\"] .x") or right after :root/html (":root[data-theme=\\"dark\\"]"). Mid-selector dark styling is never screen-gated and would leak dark values into print; split it into its own dark-anchored rule. See docs/theming.md.`,
+              `[vellume] profiles/${name}.css:${loc.line + 1}: [data-theme="dark"] must anchor its selector — write it first ("[data-theme=\\"dark\\"] .x") or right after :root/html (":root[data-theme=\\"dark\\"]"). Mid-selector dark styling is never screen-gated and would leak dark values into print; split it into its own dark-anchored rule. See docs/theming.md.`,
             );
           }
         }
@@ -324,8 +344,8 @@ const analyzeSkinCss = (name: string, css: string): CssRange[] => {
   );
 };
 
-/* Phase 2 — textual gate. Applied last-to-first so earlier offsets stay
-   valid while later ones are spliced. */
+/* Applied last-to-first so earlier offsets stay valid while later ones are
+   spliced. */
 const gateDarkBlocks = (css: string, ranges: CssRange[]): string => {
   let out = css;
   for (const { start, end } of [...ranges].sort((a, b) => b.start - a.start)) {
@@ -334,110 +354,29 @@ const gateDarkBlocks = (css: string, ranges: CssRange[]): string => {
   return out;
 };
 
-/* Pull just the dark blocks out of the file (for the dark-slot layer,
-   which must not carry the light tokens or structural rules). */
-const extractDarkBlocks = (css: string, ranges: CssRange[]): string =>
-  ranges.map(({ start, end }) => css.slice(start, end + 1)).join("\n");
+/** Which bundle layer a look file is transformed into. */
+export type SkinLayer =
+  /** The screen layer: the active profile's file, dark blocks screen-gated. */
+  | "screen"
+  /** The print layer: the whole template wrapped in `@media print`. */
+  | "print";
 
-/* Phase 3 — zero-specificity scoping (selectors never carry var(), so
-   returning rewritten selectors through the napi bindings is safe).
-   `attribute` selects the root attribute the skin is scoped to. */
-/* Zero-specificity scoping (selectors never carry var(), so returning
-   rewritten selectors through the napi bindings is safe). `attribute` is the
-   root attribute the skin is scoped to. `darkYieldsToSlot` marks the skin's
-   OWN dark blocks as conditional on the dark slot being absent: without it
-   a `data-skin` that equals the owner's `profile` would apply its dark half
-   even when `theme.dark` names a different skin. The screen layer sets it;
-   the dark-slot layer (scoped to data-skin-dark) does not, since there the
-   attribute is the slot itself. */
-const scopeSkinSelectors = (
-  name: string,
-  css: string,
-  attribute: string = "data-skin",
-  darkYieldsToSlot: boolean = false,
-): string => {
-  const whereSkin = () => ({
-    type: "pseudo-class" as const,
-    kind: "where" as const,
-    selectors: [
-      [
-        {
-          type: "attribute" as const,
-          name: attribute,
-          operation: { operator: "equal" as const, value: name },
-        },
-      ],
-    ],
-  });
-
-  /* `[data-skin=x]:where(:not([data-skin-dark]))` — active only while no
-     dark slot overrides the mode. */
-  const whereNoDarkSlot = () => ({
-    type: "pseudo-class" as const,
-    kind: "where" as const,
-    selectors: [
-      [
-        {
-          type: "pseudo-class" as const,
-          kind: "not" as const,
-          selectors: [
-            [
-              {
-                type: "attribute" as const,
-                name: "data-skin-dark",
-              },
-            ],
-          ],
-        },
-      ],
-    ],
-  });
-
-  const { code } = transform({
+/* Parse-and-reserialize pass with no visitor: drops comments (the file
+   headers' contract notes are docs, not css), normalizes whitespace, and —
+   crucially — keeps var() declarations intact (lightningcss handles them in
+   a plain transform; it is only RETURNING rewritten rules through the napi
+   visitor that cannot round-trip them). The dark-gate analysis and text
+   splicing then run on this normalized text, whose rule locs are fresh. */
+const normalizeLookCss = (name: string, css: string): string =>
+  transform({
     filename: `${name}.css`,
     code: Buffer.from(css),
     minify: false,
-    visitor: {
-      Selector(selector) {
-        if (selector.length === 0) return selector;
-        const first = selector[0];
-        if (isDarkAttribute(first) || isRootAnchored(first)) {
-          const darkBlock = isDarkAnchoredSelector(selector);
-          return [
-            first,
-            whereSkin(),
-            ...(darkBlock && darkYieldsToSlot ? [whereNoDarkSlot()] : []),
-            ...selector.slice(1),
-          ];
-        }
-        return [
-          whereSkin(),
-          { type: "combinator" as const, value: "descendant" },
-          ...selector,
-        ];
-      },
-    },
-  });
-
-  return code.toString();
-};
-
-/** Which bundle layer a skin's css is emitted into. */
-export type SkinLayer =
-  /** The regular skin layer: everything, scoped to `data-skin`. */
-  | "screen"
-  /** The dark-mode slot layer: only the dark half, scoped to
-      `data-skin-dark` so it can apply while the screen skin stays
-      `profile`'s. */
-  | "dark-screen"
-  /** The print slot layer: the light presentation wrapped in
-      `@media print`, unconstrained — printing follows the owner's slot,
-      not the visitor's skin. */
-  | "print";
+  }).code.toString();
 
 /**
- * Transform one skin file into a bundle layer.
- * Exported for tests; `buildSkinCss` is the build entry point.
+ * Transform one look file into a bundle layer. Exported for tests;
+ * `buildSkinCss` is the build entry point.
  */
 export function transformSkinCss(
   name: string,
@@ -446,71 +385,54 @@ export function transformSkinCss(
 ): string {
   if (!css.trim()) return "";
 
+  // Normalize first so comments never reach the bundle and empty files
+  // (a header-only default.css) emit nothing.
+  const normalized = normalizeLookCss(name, css);
+  if (!normalized.trim()) return "";
+
+  const darkRanges = analyzeLookCss(name, normalized);
+  const gated = gateDarkBlocks(normalized, darkRanges);
+
   if (layer === "print") {
-    // The whole file becomes the print presentation. Dark blocks keep
-    // their screen gate, which nesting inside print renders inert; the
-    // author's own @media print blocks nest harmlessly. No data-skin
-    // constraint: the print slot applies whatever the visitor picked.
-    const gated = gateDarkBlocks(css, analyzeSkinCss(name, css));
+    // The whole template becomes the print presentation. Its dark blocks
+    // keep their screen gate (inert when nested in print), and its own
+    // @media print rules nest harmlessly. No skin constraint: printing is
+    // the owner's intent, whatever the screen skin is.
     return `@media print {\n${gated}\n}\n`;
   }
 
-  if (layer === "dark-screen") {
-    const only = extractDarkBlocks(css, analyzeSkinCss(name, css));
-    if (!only.trim()) return "";
-    const gated = gateDarkBlocks(only, analyzeSkinCss(name, only));
-    // data-skin-dark IS the slot, so no :not([data-skin-dark]) gating.
-    return scopeSkinSelectors(name, gated, "data-skin-dark");
-  }
-
-  const darkRanges = analyzeSkinCss(name, css);
-  // The skin's own dark half yields to the dark slot when it is present.
-  return scopeSkinSelectors(
-    name,
-    gateDarkBlocks(css, darkRanges),
-    "data-skin",
-    true,
-  );
+  return gated;
 }
 
 /**
  * Build the stylesheet injected between global.css and the user's
  * theme.css, so precedence is always:
- * tokens.css < skins < dark slot < print slot < theme.css.
+ * tokens.css < profile skin < print template < theme.css < custom.css.
  *
- * - Every registered skin is emitted into the screen layer (scoped);
- *   empty files emit nothing.
- * - `theme.dark` adds the slot skin's dark half scoped to `data-skin-dark`,
- *   after the skins layer so it wins for dark mode while the visitor has
- *   not picked a skin. Same skin as `profile` emits nothing (identical).
- * - `theme.print` adds the slot skin's light presentation wrapped in
- *   `@media print`, unconstrained: printing is publisher intent and
- *   outranks whatever skin the visitor is on.
+ * - The active screen skin's file, dark blocks screen-gated (the default
+ *   skin's file is empty; tokens.css is the default look).
+ * - `theme.print`, when configured: the print template's whole file inside
+ *   `@media print` — printing then follows the owner's slot instead of the
+ *   screen skin's light half.
  */
-export function buildSkinCss(): string {
-  const blocks = Object.entries(skins)
-    .map(([name, registration]) =>
-      transformSkinCss(name, readSkinCss(registration)),
-    )
-    .filter((css) => css.length > 0);
+export function buildSkinCss(config: SiteConfig = siteConfig): string {
+  const blocks: string[] = [];
 
-  const profile = resolveSkin();
-  const dark = resolveSkinSlot("dark");
-  if (dark && dark.name !== profile.name) {
-    blocks.push(
-      transformSkinCss(
-        dark.name,
-        readSkinCss(dark.registration),
-        "dark-screen",
-      ),
-    );
-  }
+  const profile = resolveSkin(config);
+  const profileCss = transformSkinCss(
+    profile.name,
+    readLookCss(profile.registration.file),
+  );
+  if (profileCss) blocks.push(profileCss);
 
-  const print = resolveSkinSlot("print");
-  if (print) {
-    blocks.push(
-      transformSkinCss(print.name, readSkinCss(print.registration), "print"),
+  const printTemplate = resolvePrintTemplate(config);
+  if (printTemplate) {
+    const printCss = transformSkinCss(
+      printTemplate.name,
+      readLookCss(printTemplate.file),
+      "print",
     );
+    if (printCss) blocks.push(printCss);
   }
 
   return blocks.length > 0 ? `${blocks.join("\n")}\n` : "";
@@ -518,7 +440,7 @@ export function buildSkinCss(): string {
 
 /**
  * Effective non-CSS branding: explicit user config (src/site/config.ts or
- * env overrides) outranks the owner's default skin, which outranks the
+ * env overrides) outranks the chosen skin's meta, which outranks the
  * built-in defaults. "Explicit" is read from the raw pre-merge input, since
  * the merged config cannot tell "unset" from "set to the default value" —
  * a value the owner typed always wins, even when it equals the default.
@@ -537,14 +459,7 @@ export function resolveThemeBranding(
   };
   mermaidThemeVariables: Record<string, string | number>;
 } {
-  /* Light-mode branding follows `profile`; the dark half follows the
-     `theme.dark` slot when configured, so browser chrome and code
-     highlighting stay coherent with what dark-mode visitors actually
-     see. og/mermaid are single-look build artifacts and follow `profile`. */
-  const light = resolveSkin(config);
-  const darkSkin = resolveSkinSlot("dark", config) ?? light;
-  const lightMeta = light.registration.meta ?? {};
-  const darkMeta = darkSkin.registration.meta ?? {};
+  const meta = resolveSkin(config).registration.meta ?? {};
   const defaults = themeDefaultConfig;
 
   const isExplicit = (keys: readonly string[]): boolean => {
@@ -568,37 +483,34 @@ export function resolveThemeBranding(
       light: pick(
         config.theme.browserColor.light,
         ["theme", "browserColor", "light"],
-        lightMeta.browserColor?.light,
+        meta.browserColor?.light,
         defaults.theme.browserColor.light,
       ),
       dark: pick(
         config.theme.browserColor.dark,
         ["theme", "browserColor", "dark"],
-        darkMeta.browserColor?.dark,
+        meta.browserColor?.dark,
         defaults.theme.browserColor.dark,
       ),
     },
-    shiki: {
-      light: lightMeta.shiki?.light ?? defaultBranding.shiki.light,
-      dark: darkMeta.shiki?.dark ?? defaultBranding.shiki.dark,
-    },
+    shiki: meta.shiki ?? defaultBranding.shiki,
     og: {
       backgroundGradient: pick(
         config.og.backgroundGradient,
         ["og", "backgroundGradient"],
-        lightMeta.og?.backgroundGradient,
+        meta.og?.backgroundGradient,
         defaults.og.backgroundGradient,
       ),
       accent: pick(
         config.og.accent,
         ["og", "accent"],
-        lightMeta.og?.accent,
+        meta.og?.accent,
         defaults.og.accent,
       ),
       description: pick(
         config.og.description,
         ["og", "description"],
-        lightMeta.og?.description,
+        meta.og?.description,
         defaults.og.description,
       ),
       border: {
@@ -607,14 +519,14 @@ export function resolveThemeBranding(
         color: pick(
           config.og.border.color,
           ["og", "border", "color"],
-          lightMeta.og?.border,
+          meta.og?.border,
           defaults.og.border.color,
         ),
       },
     },
     mermaidThemeVariables: {
       ...defaultBranding.mermaid,
-      ...lightMeta.mermaid,
+      ...meta.mermaid,
     },
   };
 }

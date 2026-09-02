@@ -2,7 +2,6 @@
 import { Icon } from "astro-icon/components";
 import { siteConfig } from "../../config/site";
 import Button from "../ui/Button.astro";
-import SkinSwitcher from "../ui/SkinSwitcher.astro";
 import ThemeToggle from "../ui/ThemeToggle.astro";
 import NavLinks from "./NavLinks.astro";
 
@@ -38,7 +37,6 @@ const { currentPath } = Astro.props;
       </div>
     </div>
     <div class="flex items-center gap-2">
-      <SkinSwitcher />
       <ThemeToggle />
       <Button
         variant="borderless"

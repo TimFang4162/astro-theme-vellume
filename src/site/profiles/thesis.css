@@ -1,18 +1,26 @@
-/* 论文 — standard academic-paper typesetting: plain white paper, serif
-   body, justified paragraphs with 2em first-line indents and no
-   blank-line spacing (the indent alone marks the paragraph, as in print),
-   left-aligned heiti sans section titles, three-line (booktabs) tables,
-   chromeless code and diagram panels (no frame, no language row),
-   centred figures with stepped-down captions, and printed-style indented
-   quotations. The screen shows the paper typesetting (WYSIWYG), so
-   printing inherits it; the @media print block only adds chapter breaks.
+/* 论文 — paper print template: plain white paper, serif body, justified
+   paragraphs with 2em first-line indents and no blank-line spacing (the
+   indent alone marks the paragraph, as in print), left-aligned heiti sans
+   section titles, three-line (booktabs) tables, chromeless code and
+   diagram panels (no frame, no language row), centred figures with
+   stepped-down captions, and printed-style indented quotations. Its own
+   @media print block adds chapter breaks and print compaction.
 
-Skin file contract (parsed by src/config/theme-profiles.ts):
-- light tokens: one flat `:root` block;
-- dark tokens: one dark-anchored block (`[data-theme="dark"]`, optionally
-  through `:root`/`html`) — the build wraps it in `@media screen` and scopes
-  every selector to this skin with `:where([data-skin="thesis"])`;
-- structural rules are allowed; the build prefixes their selectors.
+   thesis is a PRINT TEMPLATE, not a screen skin: it is wired to printing
+   via theme.print, so the whole file is emitted inside @media print. Do
+   not list it in the `skins` registry (do not use it as theme.profile) —
+   the screen layer never ships it. Its dark blocks are a mirror of the
+   light values (paper stays paper) and are inert when the file is nested
+   inside print; they exist so the file also passes the screen-layer
+   analyzer (dark blocks must be dark-anchored) should it ever be
+   registered.
+
+Template file contract (parsed by src/config/theme-profiles.ts):
+- the whole file is wrapped in @media print at build time;
+- light values are written in :root;
+- dark blocks are dark-anchored ([data-theme="dark"] first, or right
+  after :root/html) and kept for analyzer/registration parity;
+- structural rules are allowed and emitted as authored.
 
 --font-sans is overridden with a serif stack on purpose: the sans body
 token drives the reading face, and the paper look swaps it wholesale.

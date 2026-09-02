@@ -30,8 +30,7 @@
   .post-nav-feedback,
   nav[aria-label="Post navigation"],
   [data-artalk-comments],
-  [data-article-sidebar],
-  [data-article-actions] {
+  [data-article-sidebar] {
     display: none !important;
   }
 

@@ -47,21 +47,17 @@ export const siteOverride = defineSiteConfig({
   //     dark: "#09090b",
   //   },
   // },
-  // Pick the default skin by name — one css file per skin lives in
-  // src/site/profiles/ (default / material / thesis). Visitors can
-  // switch skins at runtime via the header skin switcher; this only picks
-  // what first-time visitors (and build-time branding) see.
+  // Pick the site's screen skin by name — one css file per skin lives in
+  // src/site/profiles/ (default / material). It sets the whole light and
+  // dark look; there is no visitor-side switching.
   // theme: {
   //   profile: "material",
   // },
-  // Optional per-mode slots, layered on top of `profile`:
-  //   dark: use another skin's dark half in dark mode (e.g. thesis days,
-  //         normal dark nights) — a visitor skin pick overrides it.
-  //   print: always print with a skin's light paper presentation,
-  //          regardless of the visitor's screen skin.
+  // Optional: always print with a paper template (src/site/profiles/,
+  // `thesis`), regardless of the screen skin. Unset = print follows the
+  // profile skin's light half.
   // theme: {
   //   profile: "material",
-  //   dark: "default",
   //   print: "thesis",
   // },
 });

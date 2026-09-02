@@ -42,12 +42,12 @@ const skinsPlugin: Plugin = {
   configureServer(server) {
     // Skin css is read from disk inside the virtual module, so it is not in
     // the module graph; without this, edits to src/site/profiles/*.css or
-    // the owner's theme slot config (site/config.ts) would need a
+    // the owner's profile/print choice (site/config.ts) would need a
     // dev-server restart to show up.
-    const isSlotRelevant = (file: string) =>
+    const isLookRelevant = (file: string) =>
       file.startsWith(skinsDir) || file.endsWith("site/config.ts");
     const refresh = (file: string) => {
-      if (!isSlotRelevant(file)) return;
+      if (!isLookRelevant(file)) return;
       // The client and SSR graphs are unrelated classes — invalidate each.
       const clientMod = server.moduleGraph.getModuleById(virtualSkinsModule);
       if (clientMod) server.moduleGraph.invalidateModule(clientMod);
