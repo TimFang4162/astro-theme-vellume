@@ -9,7 +9,7 @@ Vellume 的视觉由"皮肤（skin）"决定。一个屏幕皮肤就是 `src/sit
 
 级联优先级从低到高，完全由加载顺序决定：
 
-```
+```text
 tokens.css 默认值 < profile 屏幕皮肤 < 打印模板（theme.print） < 用户覆盖（src/site/theme.css） < src/site/custom.css
 ```
 
@@ -41,7 +41,7 @@ theme: {
 
 ## 内置皮肤与模板
 
-```
+```text
 src/site/profiles/
   default.css    ← 空文件（tokens.css 就是默认外观）
   material.css   ← 屏幕皮肤：灰绿画布统一底色（sheet 同色），仅卡片白色且无边框 + 绿色主色 + 大圆角 + 标题正文一张卡片
