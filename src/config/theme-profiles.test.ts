@@ -181,6 +181,20 @@ describe("transformSkinCss", () => {
       transformSkinCss("t", '.rich [data-theme="dark"] .x { color: red; }'),
     ).toThrow(/anchor/);
   });
+
+  it("does not gate a dark block nested inside an authored @media", () => {
+    // Documented in docs/theming.md — a dark block that already lives
+    // inside an authored media query keeps that query's context and must
+    // not receive an extra @media screen wrapper.
+    const nested =
+      '@media (min-width: 600px) { [data-theme="dark"] { --bg: #000; } }';
+    const out = transformSkinCss("t", nested);
+    expect(out).not.toContain("@media screen");
+    expect(out).toMatch(
+      /@media\s*\(width\s*>=\s*600px\)|@media\s*\(min-width:\s*600px\)/,
+    );
+    expect(out).toContain('[data-theme="dark"]');
+  });
 });
 
 describe("resolveThemeBranding", () => {

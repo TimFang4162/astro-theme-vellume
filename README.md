@@ -177,7 +177,7 @@ The usual starting points are:
 │   ├── markdown/
 │   ├── pages/
 │   ├── scripts/
-│   ├── site/
+│   ├── site/            # config + theme.css/custom.css + profiles (skins)
 │   ├── styles/
 │   └── utils/
 ├── astro.config.ts

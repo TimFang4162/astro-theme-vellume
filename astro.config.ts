@@ -25,10 +25,10 @@ const siteBase = normalizeBasePath(process.env.SITE_BASE || "/");
 const branding = resolveThemeBranding();
 
 const virtualSkinsModule = "\0virtual:vellume-skins.css";
-// Generates every registered skin's stylesheet (:where-scoped, dark blocks
-// screen-gated) so it can be imported between global.css and theme.css —
-// bundle order then guarantees the precedence chain
-// tokens.css < skins < theme.css < custom.css.
+// Generates the active screen skin plus the print template (dark blocks
+// screen-gated, print template wrapped in @media print) between
+// global.css and theme.css — bundle order then guarantees the precedence
+// chain tokens.css < profile skin < print template < theme.css < custom.css.
 const skinsPlugin: Plugin = {
   name: "vellume-skins",
   resolveId(id) {

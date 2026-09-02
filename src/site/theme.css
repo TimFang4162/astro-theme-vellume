@@ -5,7 +5,7 @@ anything here wins over both the tokens.css defaults and every skin — for
 the visitor's current skin and for print.
 
 Keep in mind: `src/site/config.ts` may carry its own `theme.browserColor`
-override; otherwise browser chrome colors follow the default skin.
+override; otherwise browser chrome colors follow the active profile skin.
 
 :root {
   --primary: #2f6fed;

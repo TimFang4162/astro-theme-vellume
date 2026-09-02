@@ -75,12 +75,14 @@
   --popover-foreground: var(--foreground);
   --secondary: var(--muted);
   --secondary-foreground: var(--foreground);
+  /* shadcn-compat placeholder — mapped to --color-input, not consumed directly */
   --input: var(--border);
   /* Focus ring color, consumed by the focus-visible recipe in base.css.
      Derived from --primary so accent swaps re-tune the ring automatically. */
   --ring: color-mix(in srgb, var(--primary) var(--ring-strength), transparent);
   /* Feedback red pair for destructive states. Unused by the core UI today;
-     defined so component CSS and user themes have a canonical slot. */
+     defined so component CSS and user themes have a canonical slot.
+     shadcn-compat placeholder — keep unless removing from @theme inline too. */
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
   --shadow-card: 0 1px 2px rgb(0 0 0 / 0.03);
@@ -109,7 +111,9 @@
   );
   /* Active thumb of segmented controls (shadcn-Tabs style: a raised
      foreground step on the muted track). Dark mixes a step lighter than
-     --card so the thumb still reads against the low-luminance track. */
+     --card so the thumb still reads against the low-luminance track.
+     shadcn-compat placeholder — not consumed as var(--control-thumb) today,
+     track uses --muted directly; keep to avoid breaking future segmented thumb. */
   --control-thumb: var(--card);
   /* Hero particle palette, read by the Three.js runtime via computed style.
      Derived from the foreground/primary family so a primary swap re-tints
