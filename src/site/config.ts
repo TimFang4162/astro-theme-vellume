@@ -48,7 +48,7 @@ export const siteOverride = defineSiteConfig({
   //   },
   // },
   // Pick the default skin by name — one css file per skin lives in
-  // src/site/profiles/ (default / material / sepia / thesis). Visitors can
+  // src/site/profiles/ (default / material / thesis). Visitors can
   // switch skins at runtime via the header skin switcher; this only picks
   // what first-time visitors (and build-time branding) see.
   // theme: {

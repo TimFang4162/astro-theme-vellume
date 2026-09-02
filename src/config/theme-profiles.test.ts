@@ -13,7 +13,6 @@ describe("skins registry", () => {
     expect(skinOptions).toEqual([
       { name: "default", label: "default" },
       { name: "material", label: "Material" },
-      { name: "sepia", label: "Sepia" },
       { name: "thesis", label: "论文" },
     ]);
   });
@@ -40,7 +39,6 @@ describe("buildSkinCss", () => {
 
   it("emits every non-empty skin scoped to its data-skin attribute", () => {
     expect(css).toContain(':root:where([data-skin="material"]) {');
-    expect(css).toContain(':root:where([data-skin="sepia"]) {');
     expect(css).toContain(':root:where([data-skin="thesis"]) {');
   });
 
@@ -56,7 +54,7 @@ describe("buildSkinCss", () => {
   });
 
   it("screen-gates every dark block so paper renders light values", () => {
-    for (const name of ["material", "sepia", "thesis"]) {
+    for (const name of ["material", "thesis"]) {
       expect(css).toMatch(
         new RegExp(
           `@media screen\\s*\\{\\s*\\[data-theme="dark"\\]:where\\(\\[data-skin="${name}"\\]\\)`,

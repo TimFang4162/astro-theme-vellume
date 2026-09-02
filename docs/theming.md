@@ -21,7 +21,7 @@ tokens.css 默认值 < 皮肤（全部） < 用户覆盖（src/site/theme.css）
 ```ts
 // src/site/config.ts —— 换默认皮肤 = 改一个键
 theme: {
-  profile: "material",  // default | material | sepia | thesis | 你注册的任何名字
+  profile: "material",  // default | material | thesis | 你注册的任何名字
 },
 ```
 
@@ -33,8 +33,7 @@ theme: {
 src/site/profiles/
   default.css    ← 空文件（tokens.css 就是默认外观）
   material.css   ← 灰绿画布统一底色（sheet 同色），仅卡片白色且无边框 + 绿色主色 + 大圆角 + 标题正文一张卡片
-  sepia.css      ← 暖纸中性底 + 陶土主色
-  thesis.css     ← 纸张观感：衬线正文、首行缩进、居中章节标题
+  thesis.css     ← 论文排版：纯白纸面、衬线正文、首行缩进、黑体标题、三线表、极简代码面板（无边框、无阴影、无语言行）、紧凑打印间距
 ```
 
 thesis 是"纸张调性"的皮肤：屏幕上呈现的就是纸上排版（WYSIWYG），打印时

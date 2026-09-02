@@ -1,7 +1,11 @@
-/* 论文 — paper-oriented skin: serif body on a warm white canvas, justified
-   paragraphs with first-line indents, centred section titles. The screen
-   shows the paper typesetting, so printing inherits it; the @media print
-   block only adds chapter breaks.
+/* 论文 — standard academic-paper typesetting: plain white paper, serif
+   body, justified paragraphs with 2em first-line indents and no
+   blank-line spacing (the indent alone marks the paragraph, as in print),
+   left-aligned heiti sans section titles, three-line (booktabs) tables,
+   chromeless code and diagram panels (no frame, no language row),
+   centred figures with stepped-down captions, and printed-style indented
+   quotations. The screen shows the paper typesetting (WYSIWYG), so
+   printing inherits it; the @media print block only adds chapter breaks.
 
 Skin file contract (parsed by src/config/theme-profiles.ts):
 - light tokens: one flat `:root` block;
@@ -10,12 +14,14 @@ Skin file contract (parsed by src/config/theme-profiles.ts):
   `:where([data-skin="thesis"])`;
 - structural rules are allowed; the build prefixes their selectors.
 
---font-sans is overridden with a serif stack on purpose: the sans body token
-drives the reading face, and the paper look swaps it wholesale. */
+--font-sans is overridden with a serif stack on purpose: the sans body
+token drives the reading face, and the paper look swaps it wholesale.
+--font-heading pins the opposite face — the sans (heiti) stack that paper
+convention reserves for section titles. */
 
 :root {
-  --background: #fcfbf7;
-  --surface: #fcfbf7;
+  --background: #ffffff;
+  --surface: #ffffff;
   --card: #ffffff;
   --popover: #ffffff;
   --foreground: #2a2c26;
@@ -23,17 +29,27 @@ drives the reading face, and the paper look swaps it wholesale. */
   --muted: #f0efe8;
   --muted-foreground: #6b6d62;
   --border: #dedcd2;
+  /* Chromeless code and diagram panels: frame, shadow, and the language
+     row are screen UI, not paper. The tinted surface alone separates the
+     block from the page. */
+  --code-block-border: transparent;
+  --code-block-shadow: none;
   --font-sans:
     "Times New Roman", Georgia, "Noto Serif SC", "Songti SC", "SimSun", serif;
+  --font-heading:
+    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC",
+    sans-serif;
   --text-body: 1rem;
   --text-body--line-height: 1.9;
 }
 
 /* Mirror of the light block: paper stays paper in dark mode (the build
-   screen-gates dark blocks, so paper never sees either). */
+   screen-gates dark blocks, so paper never sees either). Literal values
+   only — the build re-serializes this block and cannot round-trip var(). */
 [data-theme="dark"] {
-  --background: #fcfbf7;
-  --surface: #fcfbf7;
+  --background: #ffffff;
+  --surface: #ffffff;
   --card: #ffffff;
   --popover: #ffffff;
   --foreground: #2a2c26;
@@ -41,8 +57,14 @@ drives the reading face, and the paper look swaps it wholesale. */
   --muted: #f0efe8;
   --muted-foreground: #6b6d62;
   --border: #dedcd2;
+  --code-block-border: transparent;
+  --code-block-shadow: none;
   --font-sans:
     "Times New Roman", Georgia, "Noto Serif SC", "Songti SC", "SimSun", serif;
+  --font-heading:
+    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC",
+    sans-serif;
   --text-body: 1rem;
   --text-body--line-height: 1.9;
   /* Code chrome: tokens.css hard-codes a dark code surface for dark mode,
@@ -56,16 +78,85 @@ drives the reading face, and the paper look swaps it wholesale. */
   --code-block-header-border: rgb(255 255 255 / 0.16);
 }
 
+/* —— Body text: justified with first-line indents —— */
+
 .rich-prose {
   text-align: justify;
 }
 
+/* The 2em indent alone marks a paragraph boundary, exactly as on paper:
+   no blank line between paragraphs. Direct children only — paragraphs
+   nested in quotes and list items keep the plugin's web rhythm. */
 .rich-prose > p {
   text-indent: 2em;
+  margin-block: 0;
 }
 
-.rich-prose h2 {
-  text-align: center;
+/* —— Section titles: heiti faces, left-aligned, paper spacing —— */
+
+.rich-prose :where(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--font-heading);
+}
+
+.rich-prose :where(h1, h2) {
+  margin-block: 2.5em 1.25em;
+}
+
+.rich-prose h3 {
+  margin-block: 2em 0.75em;
+}
+
+.rich-prose h4 {
+  margin-block: 1.75em 0.5em;
+}
+
+/* —— Three-line tables (booktabs): 1px rules above and below, one lighter
+   rule under the header row, no interior or vertical rules —— */
+
+.rich-prose table {
+  border-collapse: collapse;
+}
+
+.rich-prose thead th {
+  border-block-start: 1px solid var(--foreground-strong);
+  border-block-end: 1px solid var(--muted-foreground);
+}
+
+.rich-prose tbody td {
+  border-block-start: none;
+}
+
+.rich-prose tbody tr:last-child td {
+  border-block-end: 1px solid var(--foreground-strong);
+}
+
+/* —— Figures: centred image, caption stepped down like a printed 图注
+   (components.css already centres the caption text). :where() keeps the
+   specificity under the dark diagram rule below (biome
+   noDescendingSpecificity). —— */
+
+.rich-prose :where(figure.article-image) > img {
+  margin-inline: auto;
+}
+
+.rich-prose :where(figure.article-image) > figcaption {
+  font-size: 0.875em;
+}
+
+/* —— Quotations: an indented printed excerpt, not a web pull-quote —— */
+
+.rich-prose blockquote {
+  border-inline-start: none;
+  font-weight: 400;
+  padding-inline: 2em;
+}
+
+/* —— Code chrome: no frame, and no language/copy row — that header is
+   screen UI; paper shows only the code. The tinted surface alone
+   separates the block from the page. —— */
+
+code-block .code-block__header {
+  display: none;
 }
 
 /* Dark shows the same paper, so baked-light diagrams must keep their light
@@ -85,5 +176,55 @@ drives the reading face, and the paper look swaps it wholesale. */
   /* Chapter breaks; the first section stays on the title page. */
   .rich-prose h2:not(:first-of-type) {
     break-before: page;
+  }
+
+  /* Print compaction. The screen rhythm (1.9 line height, generous
+     heading and block gaps) wastes paper; the printed page runs the
+     tighter paper standard. Paragraphs are already flush — every block
+     steps closer to the text it belongs to, and headings keep just
+     enough air to read as section boundaries. Headings that start a page
+     lose their top margin to the break, so no blank space accrues. */
+  .rich-prose {
+    line-height: 1.7;
+  }
+
+  .rich-prose :where(h1, h2) {
+    margin-block: 1.75em 0.75em;
+  }
+
+  .rich-prose h3 {
+    margin-block: 1.5em 0.5em;
+  }
+
+  .rich-prose h4 {
+    margin-block: 1.25em 0.4em;
+  }
+
+  .rich-prose :where(ul, ol) {
+    margin-block: 0.75em;
+  }
+
+  .rich-prose :where(blockquote) {
+    margin-block: 1em;
+  }
+
+  .rich-prose :where(table) {
+    margin-block: 1em;
+  }
+
+  .rich-prose :where(figure.article-image) {
+    margin-block: 0.75rem;
+  }
+
+  code-block {
+    margin-block: 1rem;
+  }
+
+  .rich-prose :where(hr) {
+    margin-block: 1.5em;
+  }
+
+  .rich-prose :where(section[data-footnotes]) {
+    margin-block-start: 1.5rem;
   }
 }

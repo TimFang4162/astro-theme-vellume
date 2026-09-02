@@ -89,32 +89,11 @@ export const skins: Record<string, ProfileRegistration> = {
     },
   },
 
-  /* Warm paper neutrals with a terracotta accent; long-form reading look. */
-  sepia: {
-    file: "sepia.css",
-    label: "Sepia",
-    meta: {
-      browserColor: { light: "#f6f1e7", dark: "#191512" },
-      og: {
-        accent: [209, 154, 107],
-        backgroundGradient: [
-          [26, 21, 17],
-          [15, 12, 10],
-        ],
-        description: [148, 138, 124],
-        border: [209, 154, 107],
-      },
-      mermaid: {
-        secondaryColor: "#F7F1E5",
-        tertiaryColor: "#F0E6D6",
-        clusterBkg: "#F9F4EA",
-      },
-    },
-  },
-
-  /* Paper look: serif body, justified indented paragraphs, centred section
-     titles. Screen shows the paper typesetting; printing inherits it. The
-     dark block mirrors light so the paper look survives the dark toggle. */
+  /* Paper typesetting on plain white: serif body with justified indented
+     paragraphs, heiti section titles, three-line tables, chromeless code
+     and diagram panels, and a compact print rhythm. Screen shows the
+     paper; printing inherits it. The dark block mirrors light so the
+     paper look survives the dark toggle. */
   thesis: {
     file: "thesis.css",
     label: "论文",
