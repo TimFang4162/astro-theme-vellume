@@ -6,9 +6,10 @@ The default look IS tokens.css, so this file stays empty — it exists so the
 
 Skin file contract (parsed by src/config/theme-profiles.ts):
 - light tokens: one flat `:root { --token: value; }` block;
-- dark tokens: one flat `[data-theme="dark"]` block — the build wraps it in
-  `@media screen` (paper always renders the light values) and scopes every
-  selector to this skin with zero-specificity `:where([data-skin="<name>"])`;
+- dark tokens: one dark-anchored block (`[data-theme="dark"]`, optionally
+  through `:root`/`html`) — the build wraps it in `@media screen` (paper
+  always renders the light values) and scopes every selector to this skin
+  with zero-specificity `:where([data-skin="<name>"])`;
 - structural rules are allowed; the build prefixes their selectors.
 
 Every skin ships to every visitor and is runtime-switchable via the

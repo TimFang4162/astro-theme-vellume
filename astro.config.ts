@@ -5,11 +5,13 @@ import icon from "astro-icon";
 import pagefind from "astro-pagefind";
 import remarkBreaks from "remark-breaks";
 import remarkMath from "remark-math";
+import type { Plugin } from "vite";
 import { siteUrl } from "./src/config/site";
 import { createUnlistedSitemapFilter } from "./src/config/sitemap-filter";
 import {
   buildSkinCss,
   resolveThemeBranding,
+  skinsDir,
 } from "./src/config/theme-profiles";
 import { rehypeHierarchicalHeadingIds } from "./src/markdown/rehype-heading-ids";
 import { rehypeImageCaptions } from "./src/markdown/rehype-image-captions";
@@ -22,21 +24,38 @@ import { normalizeBasePath } from "./src/utils/base-path-core";
 const siteBase = normalizeBasePath(process.env.SITE_BASE || "/");
 const branding = resolveThemeBranding();
 
-const virtualThemeProfileModule = "\0virtual:vellume-theme-profile.css";
+const virtualSkinsModule = "\0virtual:vellume-skins.css";
 // Generates every registered skin's stylesheet (:where-scoped, dark blocks
 // screen-gated) so it can be imported between global.css and theme.css —
 // bundle order then guarantees the precedence chain
 // tokens.css < skins < theme.css < custom.css.
-const themeProfilePlugin = {
-  name: "vellume-theme-profile",
-  resolveId(id: string) {
-    if (id === "virtual:vellume-theme-profile.css")
-      return virtualThemeProfileModule;
+const skinsPlugin: Plugin = {
+  name: "vellume-skins",
+  resolveId(id) {
+    if (id === "virtual:vellume-skins.css") return virtualSkinsModule;
     return null;
   },
-  load(id: string) {
-    if (id !== virtualThemeProfileModule) return null;
+  load(id) {
+    if (id !== virtualSkinsModule) return null;
     return buildSkinCss();
+  },
+  configureServer(server) {
+    // Skin css is read from disk inside the virtual module, so it is not in
+    // the module graph; without this, edits to src/site/profiles/*.css
+    // would need a dev-server restart to show up.
+    const refresh = (file: string) => {
+      if (!file.startsWith(skinsDir)) return;
+      // The client and SSR graphs are unrelated classes — invalidate each.
+      const clientMod = server.moduleGraph.getModuleById(virtualSkinsModule);
+      if (clientMod) server.moduleGraph.invalidateModule(clientMod);
+      const ssrGraph = server.environments?.ssr?.moduleGraph;
+      const ssrMod = ssrGraph?.getModuleById(virtualSkinsModule);
+      if (ssrMod && ssrGraph) ssrGraph.invalidateModule(ssrMod);
+      server.ws.send({ type: "full-reload" });
+    };
+    server.watcher.on("add", refresh);
+    server.watcher.on("change", refresh);
+    server.watcher.on("unlink", refresh);
   },
 };
 
@@ -73,7 +92,7 @@ export default defineConfig({
   },
 
   vite: {
-    plugins: [themeProfilePlugin, tailwindcss()],
+    plugins: [skinsPlugin, tailwindcss()],
     environments: {
       client: {
         build: {

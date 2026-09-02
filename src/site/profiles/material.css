@@ -36,10 +36,8 @@
   --primary-foreground: #0d150f;
   /* The light block fixes --code-block-surface, and at equal specificity
      the skin's :root outranks the tokens.css dark block (it loads later) —
-     so dark must re-state it here or code chrome renders light. Literal
-     value (card #1d201c stepped 12% toward black): the build re-serializes
-     this block when wrapping it in @media screen, and lightningcss cannot
-     round-trip var() through that path. */
+     so dark must re-state it here or code chrome renders light.
+     Literal value (card #1d201c stepped 12% toward black). */
   --code-block-surface: #1a1c19;
 }
 

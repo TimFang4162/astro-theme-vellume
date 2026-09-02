@@ -1,8 +1,10 @@
 import type { SiteConfig } from "./theme-default";
 
 /**
- * Skin types, kept dependency-free so both the config defaults and the
- * profile resolver can import them without a module cycle.
+ * Skin types, kept dependency-free so both the config defaults and the skin
+ * resolver can import them without a module cycle — and so client scripts
+ * (the skin switcher) can import shared constants without pulling in Node
+ * built-ins.
  *
  * A skin is ONE css file under `src/site/profiles/` plus a small typed
  * registration entry in `src/config/theme-profiles.ts`:
@@ -19,9 +21,14 @@ import type { SiteConfig } from "./theme-default";
  * tokens.css < skins < theme.css < custom.css.
  */
 
+/** localStorage key for the visitor's skin choice. Shared by the skin
+ * switcher and BaseLayout's pre-paint bootstrap, which cannot import the
+ * switcher module (it touches `document` at the top level). */
+export const SKIN_STORAGE_KEY = "vellume-skin";
+
 /** Non-CSS color consumers that follow the owner's default skin. Each field
  * is a default that explicit user config (src/site/config.ts) outranks. */
-export interface ProfileBranding {
+export interface SkinBranding {
   browserColor?: { light: string; dark: string };
   shiki?: { light: string; dark: string };
   og?: {
@@ -36,11 +43,11 @@ export interface ProfileBranding {
 }
 
 /** One skin = one registration: a css file plus its typed metadata. */
-export interface ProfileRegistration {
+export interface SkinRegistration {
   /** css file path relative to `src/site/profiles/`. */
   file: string;
   /** Menu label; falls back to the skin name. */
   label?: string;
   /** Branding defaults for the non-CSS color consumers. */
-  meta?: ProfileBranding;
+  meta?: SkinBranding;
 }

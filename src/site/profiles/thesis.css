@@ -9,9 +9,9 @@
 
 Skin file contract (parsed by src/config/theme-profiles.ts):
 - light tokens: one flat `:root` block;
-- dark tokens: one flat `[data-theme="dark"]` block — the build wraps it in
-  `@media screen` and scopes every selector to this skin with
-  `:where([data-skin="thesis"])`;
+- dark tokens: one dark-anchored block (`[data-theme="dark"]`, optionally
+  through `:root`/`html`) — the build wraps it in `@media screen` and scopes
+  every selector to this skin with `:where([data-skin="thesis"])`;
 - structural rules are allowed; the build prefixes their selectors.
 
 --font-sans is overridden with a serif stack on purpose: the sans body
@@ -45,8 +45,9 @@ convention reserves for section titles. */
 }
 
 /* Mirror of the light block: paper stays paper in dark mode (the build
-   screen-gates dark blocks, so paper never sees either). Literal values
-   only — the build re-serializes this block and cannot round-trip var(). */
+   screen-gates dark blocks, so paper never sees either). The values are
+   deliberate literals so this mirror cannot drift when the light block is
+   edited — change both together. */
 [data-theme="dark"] {
   --background: #ffffff;
   --surface: #ffffff;

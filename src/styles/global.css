@@ -6,7 +6,7 @@
  * deliberately unlayered so they always outrank layered rules — toc because
  * its script toggles classes at runtime, transitions/print because they are
  * global overrides. Skin css is injected after this file by the
- * vellume-theme-profile virtual module; dark values are screen-gated there
+ * vellume-skins virtual module; dark values are screen-gated there
  * and here, so paper always renders light. */
 @import "tailwindcss";
 @import "./tokens.css";

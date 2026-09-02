@@ -1,6 +1,6 @@
+import { SKIN_STORAGE_KEY } from "../../config/skin-types";
 import { runOnPageLoad } from "./page-load";
 
-const STORAGE_KEY = "vellume-skin";
 const TRANSITION_SUPPRESS_MS = 600;
 
 /**
@@ -60,7 +60,7 @@ function applySkin(name: string) {
   );
   root.dataset.skin = name;
   try {
-    localStorage.setItem(STORAGE_KEY, name);
+    localStorage.setItem(SKIN_STORAGE_KEY, name);
   } catch {
     // Private-mode storage failures leave the choice session-only.
   }

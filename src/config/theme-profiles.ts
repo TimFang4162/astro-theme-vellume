@@ -1,10 +1,15 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { transform } from "lightningcss";
-import type { ProfileBranding, ProfileRegistration } from "./profile-types";
-import { siteConfig } from "./site";
-import type { SiteConfig } from "./theme-default";
-import { themeDefaultConfig } from "./theme-default";
+import { rawSiteConfigInput, siteConfig } from "./site";
+import type { SkinBranding, SkinRegistration } from "./skin-types";
+import {
+  isPlainObject,
+  type SiteConfig,
+  type SiteConfigInput,
+  themeDefaultConfig,
+} from "./theme-default";
 
 /**
  * Skins: one css file per skin under `src/site/profiles/`, plus a small
@@ -22,16 +27,22 @@ import { themeDefaultConfig } from "./theme-default";
  *   per-visitor behaviour.
  */
 
-export type { ProfileBranding, ProfileRegistration } from "./profile-types";
+export type { SkinBranding, SkinRegistration } from "./skin-types";
 
-const profilesDir = path.resolve(process.cwd(), "src/site/profiles");
+/* Resolved from this module's own URL, not the process cwd, so Node-side
+   consumers (astro.config.ts, the favicon script) resolve it the same way
+   no matter where they are invoked from. */
+export const skinsDir = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../site/profiles",
+);
 
 /**
  * Baseline branding for the default skin. Its css file stays empty
  * (tokens.css is the default look); meta carries the non-CSS consumers whose
  * defaults have no other single home.
  */
-const defaultBranding: Required<Pick<ProfileBranding, "shiki" | "mermaid">> = {
+const defaultBranding: Required<Pick<SkinBranding, "shiki" | "mermaid">> = {
   shiki: { light: "github-light", dark: "github-dark-default" },
   mermaid: {
     primaryColor: "#FFFFFF",
@@ -57,7 +68,7 @@ const defaultBranding: Required<Pick<ProfileBranding, "shiki" | "mermaid">> = {
  * file into `src/site/profiles/` and registering it here — it then shows up
  * in the visitor skin switcher automatically.
  */
-export const skins: Record<string, ProfileRegistration> = {
+export const skins = {
   /* The shipped look: zinc greys, single blue accent (tokens.css itself). */
   default: {
     file: "default.css",
@@ -101,24 +112,31 @@ export const skins: Record<string, ProfileRegistration> = {
       browserColor: { light: "#ffffff", dark: "#ffffff" },
     },
   },
-};
+} satisfies Record<string, SkinRegistration>;
+
+export type SkinName = keyof typeof skins;
+
+/* Explicit annotation: entries of the satisfies-typed literal carry the
+   per-entry literal types, which the label fallback below cannot read. */
+const skinEntries: [string, SkinRegistration][] = Object.entries(skins);
 
 /** Labels for the visitor-facing skin switcher (order = menu order). */
 export const skinOptions: Array<{ name: string; label: string }> =
-  Object.entries(skins).map(([name, registration]) => ({
+  skinEntries.map(([name, registration]) => ({
     name,
     label: registration.label ?? name,
   }));
 
 export interface ResolvedSkin {
   name: string;
-  registration: ProfileRegistration;
+  registration: SkinRegistration;
 }
 
-export function resolveSkin(): ResolvedSkin {
-  const name = siteConfig.theme.profile || "default";
-  if (Object.hasOwn(skins, name)) {
-    return { name, registration: skins[name] };
+export function resolveSkin(config: SiteConfig = siteConfig): ResolvedSkin {
+  const name = config.theme.profile || "default";
+  const found = skinEntries.find(([key]) => key === name);
+  if (found) {
+    return { name: found[0], registration: found[1] };
   }
   console.warn(
     `[vellume] Unknown skin "${name}"; falling back to "default". Known skins: ${Object.keys(skins).join(", ")}.`,
@@ -126,42 +144,171 @@ export function resolveSkin(): ResolvedSkin {
   return { name: "default", registration: skins.default };
 }
 
-function readProfileCss(registration: ProfileRegistration): string {
-  return readFileSync(path.join(profilesDir, registration.file), "utf8");
+function readSkinCss(registration: SkinRegistration): string {
+  return readFileSync(path.join(skinsDir, registration.file), "utf8");
 }
 
-/* ── Skin css scoping ────────────────────────────────────────────────────
+/* ── Skin css transform ──────────────────────────────────────────────────
  *
- * Emitted css is consumed verbatim by the browser, so the transform is a
+ * Emitted css is consumed verbatim by the browser, so every rewrite is a
  * real CSS parse (lightningcss), not text rewriting. Per skin:
  *
+ * - Dark blocks (selectors anchored on `[data-theme="dark"]`, optionally
+ *   through `:root`/`html`) are wrapped in `@media screen` TEXTUALLY, using
+ *   source ranges located by the parser. Text wrapping keeps the block
+ *   byte-identical: comments survive, and var()-bearing declarations never
+ *   round-trip through the napi bindings (which cannot deserialize them
+ *   back into Rust). Dark blocks nested inside an authored @media keep that
+ *   block's own media context and are not gated.
  * - Every selector gains a zero-specificity `:where([data-skin="<name>"])`
- *   constraint: appended for root-anchored selectors (`:root`, dark), so it
- *   constrains the same element; prefixed as a descendant for structural
- *   selectors. Zero specificity keeps the cascade order-based — a skin can
- *   never outrank tokens.css (earlier) or theme.css/custom.css (later).
- * - Dark blocks (`[data-theme="dark"]` first component) are wrapped in
- *   `@media screen`, so real printing and the browser print dialog's
- *   preview both render the light values.
+ *   constraint: appended for root-anchored selectors (`:root`, `html`,
+ *   dark anchors), so it constrains the same element; prefixed as a
+ *   descendant for everything else. Zero specificity keeps the cascade
+ *   order-based — a skin can never outrank tokens.css (earlier) or
+ *   theme.css/custom.css (later).
  */
 
-const isDarkAttribute = (component: {
+interface CssRange {
+  start: number;
+  /** Index of the rule's closing `}` (inclusive). */
+  end: number;
+}
+
+interface SimpleComponent {
   type: string;
   name?: string;
+  kind?: string;
   operation?: { operator?: string; value?: string } | null;
-}): boolean =>
+}
+
+const isDarkAttribute = (component: SimpleComponent): boolean =>
   component.type === "attribute" &&
   component.name === "data-theme" &&
   component.operation?.operator === "equal" &&
   component.operation?.value === "dark";
 
-function scopeSkinCss(name: string, css: string): string {
-  if (!css.trim()) return "";
+/* Root-anchored: the attribute lives on the same element the selector
+   starts from, so the :where constraint is appended instead of prefixed. */
+const isRootAnchored = (component: SimpleComponent): boolean =>
+  (component.type === "pseudo-class" && component.kind === "root") ||
+  (component.type === "type" && component.name === "html");
 
-  /* Source locs of rules this invocation already wrapped in `@media screen`;
-     file-scoped, since loc offsets are relative to the skin file. */
-  const wrappedRuleLocs = new Set<string>();
+const isDarkAnchoredSelector = (selector: SimpleComponent[]): boolean =>
+  selector.length > 0 &&
+  (isDarkAttribute(selector[0]) ||
+    (isRootAnchored(selector[0]) &&
+      selector.length > 1 &&
+      isDarkAttribute(selector[1])));
 
+/* lightningcss locates rules by line (0-based) + column (1-based, UTF-16
+   code units) — both map straight onto JS string offsets via a line table. */
+const offsetAt = (
+  css: string,
+  lineStarts: number[],
+  loc: { line: number; column: number },
+): number => (lineStarts[loc.line] ?? css.length) + loc.column - 1;
+
+/* Source range of the rule starting at `start`, found by brace-matching
+   with comments and quoted strings skipped, so a brace inside either
+   cannot miscount. */
+const ruleRange = (css: string, start: number): CssRange => {
+  let depth = 0;
+  let i = start;
+  while (i < css.length) {
+    const ch = css[i];
+    if (ch === "/" && css[i + 1] === "*") {
+      const close = css.indexOf("*/", i + 2);
+      if (close < 0) break;
+      i = close + 2;
+      continue;
+    }
+    if (ch === '"' || ch === "'") {
+      i++;
+      while (i < css.length && css[i] !== ch) {
+        if (css[i] === "\\") i++;
+        i++;
+      }
+    } else if (ch === "{") {
+      depth++;
+    } else if (ch === "}") {
+      depth--;
+      if (depth === 0) return { start, end: i };
+    }
+    i++;
+  }
+  throw new Error(
+    `[vellume] Unbalanced braces in skin css at offset ${start}.`,
+  );
+};
+
+/* Phase 1 — walk the authored file: record where the dark blocks are and
+   enforce the skin css contract. Returns the ranges of dark blocks that are
+   NOT nested inside an authored @media (such a block owns its media context
+   already; docs/theming.md documents nested dark blocks as ungated). */
+const analyzeSkinCss = (name: string, css: string): CssRange[] => {
+  const lineStarts = [0];
+  for (let i = 0; i < css.length; i++) {
+    if (css[i] === "\n") lineStarts.push(i + 1);
+  }
+
+  const darkRanges: CssRange[] = [];
+  const mediaRanges: CssRange[] = [];
+
+  transform({
+    filename: `${name}.css`,
+    code: Buffer.from(css),
+    minify: false,
+    visitor: {
+      Rule(rule) {
+        if (rule.type === "media") {
+          mediaRanges.push(
+            ruleRange(css, offsetAt(css, lineStarts, rule.value.loc)),
+          );
+          return;
+        }
+        if (rule.type !== "style") return;
+        const { selectors, loc } = rule.value;
+        if (selectors.length === 0) return;
+        if (selectors.every(isDarkAnchoredSelector)) {
+          darkRanges.push(ruleRange(css, offsetAt(css, lineStarts, loc)));
+          return;
+        }
+        /* The screen gate wraps dark-anchored blocks only. A dark attribute
+           anywhere else reaches print un-gated (the html attribute survives
+           into print media), so it is a build error rather than a silent
+           print leak. */
+        for (const selector of selectors) {
+          if (selector.some(isDarkAttribute)) {
+            throw new Error(
+              `[vellume] skins/${name}.css:${loc.line + 1}: [data-theme="dark"] must anchor its selector — write it first ("[data-theme=\\"dark\\"] .x") or right after :root/html (":root[data-theme=\\"dark\\"]"). Mid-selector dark styling is never screen-gated and would leak dark values into print; split it into its own dark-anchored rule. See docs/theming.md.`,
+            );
+          }
+        }
+      },
+    },
+  });
+
+  return darkRanges.filter(
+    (dark) =>
+      !mediaRanges.some(
+        (media) => media.start < dark.start && dark.end < media.end,
+      ),
+  );
+};
+
+/* Phase 2 — textual gate. Applied last-to-first so earlier offsets stay
+   valid while later ones are spliced. */
+const gateDarkBlocks = (css: string, ranges: CssRange[]): string => {
+  let out = css;
+  for (const { start, end } of [...ranges].sort((a, b) => b.start - a.start)) {
+    out = `${out.slice(0, start)}@media screen {\n${out.slice(start, end + 1)}\n}\n${out.slice(end + 1)}`;
+  }
+  return out;
+};
+
+/* Phase 3 — zero-specificity scoping (selectors never carry var(), so
+   returning rewritten selectors through the napi bindings is safe). */
+const scopeSkinSelectors = (name: string, css: string): string => {
   const whereSkin = () => ({
     type: "pseudo-class" as const,
     kind: "where" as const,
@@ -181,44 +328,10 @@ function scopeSkinCss(name: string, css: string): string {
     code: Buffer.from(css),
     minify: false,
     visitor: {
-      /* Rule-level (not whole-`StyleSheet`) visitor: lightningcss's napi
-         bindings cannot round-trip a `var()` declaration back through a
-         returned rule (failed to deserialize "Specifier"), and a StyleSheet
-         visitor re-crosses every rule in the file. A rule-level visitor only
-         crosses what it returns, so var()-bearing structural rules survive
-         untouched via a `void` return. */
-      Rule(rule) {
-        if (rule.type !== "style") return;
-        /* Returning a replacement re-visits it (re-deserialized, so object
-           identity is lost); the rule's source loc is the only stable key,
-           and it marks the wrap as done. */
-        const loc = rule.value.loc;
-        const locKey = `${loc.source_index}:${loc.line}:${loc.column}`;
-        if (wrappedRuleLocs.has(locKey)) return;
-        const { selectors } = rule.value;
-        const isDarkBlock =
-          selectors.length > 0 &&
-          selectors.every(
-            (selector) => selector.length > 0 && isDarkAttribute(selector[0]),
-          );
-        if (!isDarkBlock) return;
-        wrappedRuleLocs.add(locKey);
-        return {
-          type: "media" as const,
-          value: {
-            loc,
-            query: { mediaQueries: [{ mediaType: "screen" }] },
-            rules: [rule],
-          },
-        };
-      },
       Selector(selector) {
         if (selector.length === 0) return selector;
         const first = selector[0];
-        if (
-          isDarkAttribute(first) ||
-          (first.type === "pseudo-class" && first.kind === "root")
-        ) {
+        if (isDarkAttribute(first) || isRootAnchored(first)) {
           return [first, whereSkin(), ...selector.slice(1)];
         }
         return [
@@ -231,6 +344,16 @@ function scopeSkinCss(name: string, css: string): string {
   });
 
   return code.toString();
+};
+
+/**
+ * Gate a skin's dark blocks textually, then scope its selectors.
+ * Exported for tests; `buildSkinCss` is the build entry point.
+ */
+export function transformSkinCss(name: string, css: string): string {
+  if (!css.trim()) return "";
+  const darkRanges = analyzeSkinCss(name, css);
+  return scopeSkinSelectors(name, gateDarkBlocks(css, darkRanges));
 }
 
 /**
@@ -241,23 +364,23 @@ function scopeSkinCss(name: string, css: string): string {
 export function buildSkinCss(): string {
   const blocks = Object.entries(skins)
     .map(([name, registration]) =>
-      scopeSkinCss(name, readProfileCss(registration)),
+      transformSkinCss(name, readSkinCss(registration)),
     )
     .filter((css) => css.length > 0);
   return blocks.length > 0 ? `${blocks.join("\n")}\n` : "";
 }
 
-const valuesEqual = (a: unknown, b: unknown): boolean =>
-  JSON.stringify(a) === JSON.stringify(b);
-
 /**
- * Effective non-CSS branding: explicit user config outranks the owner's
- * default skin, which outranks the built-in defaults. A user value is
- * detected as explicit by differing from the theme default (the merge layer
- * cannot tell "unset" from "set to the default value", and both resolve
- * identically).
+ * Effective non-CSS branding: explicit user config (src/site/config.ts or
+ * env overrides) outranks the owner's default skin, which outranks the
+ * built-in defaults. "Explicit" is read from the raw pre-merge input, since
+ * the merged config cannot tell "unset" from "set to the default value" —
+ * a value the owner typed always wins, even when it equals the default.
  */
-export function resolveThemeBranding(): {
+export function resolveThemeBranding(
+  config: SiteConfig = siteConfig,
+  explicitInput: SiteConfigInput = rawSiteConfigInput,
+): {
   browserColor: SiteConfig["theme"]["browserColor"];
   shiki: { light: string; dark: string };
   og: {
@@ -268,20 +391,36 @@ export function resolveThemeBranding(): {
   };
   mermaidThemeVariables: Record<string, string | number>;
 } {
-  const meta = resolveSkin().registration.meta ?? {};
+  const meta = resolveSkin(config).registration.meta ?? {};
   const defaults = themeDefaultConfig;
-  const pick = <T>(user: T, profileValue: T | undefined, fallback: T): T =>
-    !valuesEqual(user, fallback) ? user : (profileValue ?? fallback);
+
+  const isExplicit = (keys: readonly string[]): boolean => {
+    let node: unknown = explicitInput;
+    for (const key of keys) {
+      if (!isPlainObject(node)) return false;
+      node = node[key];
+    }
+    return node !== undefined;
+  };
+
+  const pick = <T>(
+    user: T,
+    keys: readonly string[],
+    profileValue: T | undefined,
+    fallback: T,
+  ): T => (isExplicit(keys) ? user : (profileValue ?? fallback));
 
   return {
     browserColor: {
       light: pick(
-        siteConfig.theme.browserColor.light,
+        config.theme.browserColor.light,
+        ["theme", "browserColor", "light"],
         meta.browserColor?.light,
         defaults.theme.browserColor.light,
       ),
       dark: pick(
-        siteConfig.theme.browserColor.dark,
+        config.theme.browserColor.dark,
+        ["theme", "browserColor", "dark"],
         meta.browserColor?.dark,
         defaults.theme.browserColor.dark,
       ),
@@ -289,21 +428,29 @@ export function resolveThemeBranding(): {
     shiki: meta.shiki ?? defaultBranding.shiki,
     og: {
       backgroundGradient: pick(
-        siteConfig.og.backgroundGradient,
+        config.og.backgroundGradient,
+        ["og", "backgroundGradient"],
         meta.og?.backgroundGradient,
         defaults.og.backgroundGradient,
       ),
-      accent: pick(siteConfig.og.accent, meta.og?.accent, defaults.og.accent),
+      accent: pick(
+        config.og.accent,
+        ["og", "accent"],
+        meta.og?.accent,
+        defaults.og.accent,
+      ),
       description: pick(
-        siteConfig.og.description,
+        config.og.description,
+        ["og", "description"],
         meta.og?.description,
         defaults.og.description,
       ),
       border: {
         ...defaults.og.border,
-        ...siteConfig.og.border,
+        ...config.og.border,
         color: pick(
-          siteConfig.og.border.color,
+          config.og.border.color,
+          ["og", "border", "color"],
           meta.og?.border,
           defaults.og.border.color,
         ),

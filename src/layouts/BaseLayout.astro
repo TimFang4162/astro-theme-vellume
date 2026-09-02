@@ -6,6 +6,7 @@ import { ThemeScript } from "astro-theme-toggle";
 import MobileDrawer from "../components/navigation/MobileDrawer.astro";
 import SearchModal from "../components/search/SearchModal.astro";
 import { siteConfig } from "../config/site";
+import { SKIN_STORAGE_KEY } from "../config/skin-types";
 import {
   resolveSkin,
   resolveThemeBranding,
@@ -19,7 +20,7 @@ import "../styles/global.css";
 // Every registered skin's css, :where-scoped to its data-skin attribute;
 // bundle order keeps skins between tokens.css (inside global.css) and the
 // user-owned theme.css below.
-import "virtual:vellume-theme-profile.css";
+import "virtual:vellume-skins.css";
 import "../site/theme.css";
 import "../site/custom.css";
 
@@ -54,7 +55,7 @@ const skin = resolveSkin();
 // validation (see the skin bootstrap script in <head>).
 const skinBootstrap = `try{var n=${JSON.stringify(
   Object.keys(skins),
-)},v=localStorage.getItem("vellume-skin");if(n.indexOf(v)>-1)document.documentElement.dataset.skin=v}catch(e){}`;
+)},v=localStorage.getItem(${JSON.stringify(SKIN_STORAGE_KEY)});if(n.indexOf(v)>-1)document.documentElement.dataset.skin=v}catch(e){}`;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const currentPath = Astro.url.pathname;
 const defaultOgImage = "/assets/og/index.png";
