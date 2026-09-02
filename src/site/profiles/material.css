@@ -60,4 +60,19 @@
   .surface-card {
     border: none;
   }
+
+  /* The list-view shell (article archive, feed list mode) is a card too:
+     card fill and radius, so it drops the hairline like every other card. */
+  .view-collection[data-view-target="list"] {
+    border: none;
+  }
+
+  /* White floating controls: the secondary Button paints bg-card behind a
+     hairline; in Material the white fill against the tinted canvas is the
+     separation. Class-pair hook on the Button utilities — the only
+     border-border + bg-card combo in the theme — so hairline dividers
+     (footer, drawer, TOC rows) keep theirs. */
+  .border-border.bg-card {
+    border-color: transparent;
+  }
 }
