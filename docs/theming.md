@@ -27,7 +27,36 @@ theme: {
 
 改过 `browserColor` 后，favicon 需要 `bun run generate:favicons` 重新生成。
 皮肤 CSS 改动在 `astro dev` 下即时热更新；改注册表（theme-profiles.ts）或
-`theme.profile` 需要重启 dev server。
+槽位配置（`src/site/config.ts`）需要重启 dev server。
+
+## 模式槽位（亮 / 暗 / 打印）
+
+`profile` 决定亮色与家族默认。想按模式拆分，在它上面再配两个可选槽位：
+
+```ts
+// src/site/config.ts
+theme: {
+  profile: "material", // 亮色 + 家族默认
+  dark: "default",     // 可选：暗色模式改用该皮肤的暗色半边
+  print: "thesis",     // 可选：打印一律用该皮肤
+}
+```
+
+- **`dark`** 服务"白天要纸张排版、夜里不要白纸刺眼"这类组合。构建期把该
+  皮肤的暗色块（暗色 token + 暗色结构）单独抽出，作用域改成 `data-skin-dark`
+  追加注入；screen 层各皮肤自己的暗色块会带上 `:not([data-skin-dark])`
+  守卫，槽位存在时让位。**访客一选皮肤即删除 `data-skin-dark`**（选择的皮肤
+  拥有两种模式）；不配或名字无效＝暗色跟随 `profile`。
+- **`print`**：打印与打印预览固定用该皮肤——不管访客切到哪个皮肤、也不管
+  明暗模式，一律渲染成纸面。构建期把该皮肤的整个文件按原文包进
+  `@media print`（不约束 `data-skin`）。不配＝打印跟随活动皮肤的亮色半边。
+  特别地，`print: "thesis"` 让你在屏幕上用任意皮肤，打印仍得论文排版。
+- 两个槽位都不配＝现状（一套皮肤，屏幕亮暗两半 + 打印走其亮色）。
+- 槽位参与者在现有皮肤里选；新增皮肤（注册表）后它们自动可用。
+
+`browserColor`、shiki 主题的**暗色半边**跟随 `dark` 槽（否则暗色槽开了、
+浏览器栏却还是 profile 的暗色）；OG / Mermaid 是整站一份的构建产物，固定
+跟随 `profile`。
 
 ## 内置皮肤
 
@@ -50,7 +79,9 @@ thesis 是"纸张调性"的皮肤：屏幕上呈现的就是纸上排版（WYSIW
   `:root`/`html` 紧随其后也可，如 `:root[data-theme="dark"]`）——构建期把
   块**按原文**包进 `@media screen`，**纸张永远渲染亮色值**（打印与打印
   对话框预览都是 print media），皮肤作者无需关心打印；块内的 `var()`、
-  字面量、任意格式都原样保留；
+  字面量、任意格式都原样保留。同时给暗色块加一个零特异度守卫
+  `:not([data-skin-dark])`——配置了 `theme.dark` 槽位时，槽位皮肤接管
+  暗色模式，各皮肤自己的暗色半边让位；不配槽位时该属性不存在，守卫恒真；
 - **结构规则**：允许携带（如 thesis 的居中标题）；构建期为每个选择器加上
   零特异度的 `:where([data-skin="<name>"])` 约束——根锚定选择器
   （`:root`、`html`、暗色锚点）后置附加（约束同一元素），其余前缀为
@@ -117,13 +148,14 @@ footer）→ `--card`（浮起元素）。`--surface` 默认等于 `--background
   或 JS。
 - **皮肤切换**：访客经页头/抽屉的调色板菜单切换，写入 `<html data-skin>` 与
   localStorage（`vellume-skin`）；head 内联脚本在首绘前恢复，SPA 导航随
-  `data-theme` 一同迁移。非法名字（如皮肤被移除）自动回落服务端默认。
-- **打印**：没有打印专用档案、没有选项、没有预览面板——切到想要的皮肤后
-  直接 Ctrl+P（或文章菜单"打印"调起）。打印样式只有一个固定底线
-  `src/styles/print.css`（纯 `@media print`）：隐藏 chrome、通栏单列、代码
+  `data-theme` 一同迁移。访客一旦选择皮肤，`theme.dark` 槽位即被忽略（该
+  选择拥有两种模式），直到清除本地选择。
+- **打印**：默认没有打印选项——切到想要的皮肤后直接 Ctrl+P（或文章菜单
+  "打印"调起），皮肤亮色半边随皮肤进纸张。若配了 `theme.print` 槽位，打印
+  固定走该皮肤（见"模式槽位"），这层 `@media print` 注入在 print.css 底线
+  之前。print.css（纯 `@media print`）：隐藏 chrome、通栏单列、代码
   折行、外链展开为脚注、白纸白底、分页卫生（figure/table 不跨页、标题不
-  孤悬、orphans/widows）。皮肤自带的排版（字体、缩进、章节起新页）随皮肤
-  自然进入纸张。
+  孤悬、orphans/widows）。
 
 ## 边界与已知限制
 
@@ -139,7 +171,8 @@ footer）→ `--card`（浮起元素）。`--surface` 默认等于 `--background
 - CSS 文件没有编译期类型检查，写错属性名靠构建产物审查兜底。
 - `@page` 页边距是主题固定值（2cm），不能吃自定义属性也不能按皮肤切换。
 - 每页页眉/页码由浏览器自带开关控制，CSS 无法定制。
-- OG 图 / favicon / 代码高亮主题跟随站长默认皮肤（构建期），不随访客切换。
+- OG 图 / favicon / 代码高亮主题跟随站长默认皮肤（构建期），不随访客切换
+  （其中代码高亮与浏览器栏的**暗色半边**随 `theme.dark` 槽位）。
 
 ## 新增一个皮肤
 

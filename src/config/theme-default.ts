@@ -50,9 +50,19 @@ export interface SiteConfig {
   };
   theme: {
     /** Named skin from the `skins` registry (one css file each
-        under `src/site/profiles/`). Selects the server-side default; the
-        visitor can switch skins at runtime via the skin switcher. */
+        under `src/site/profiles/`). Selects the server-side default for
+        both color modes; the visitor can switch skins at runtime via the
+        skin switcher. */
     profile: string;
+    /** Optional dark-mode slot: use this skin's dark half in dark mode
+        while `profile` keeps the light look (e.g. paper typesetting by
+        day, a normal dark theme at night). A visitor's skin pick wins;
+        unset means dark mode follows `profile`. */
+    dark?: string;
+    /** Optional print slot: always print with this skin's light
+        presentation, regardless of the visitor's screen skin. Unset means
+        print follows the active skin's light half. */
+    print?: string;
     browserColor: {
       light: string;
       dark: string;

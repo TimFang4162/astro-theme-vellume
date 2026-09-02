@@ -59,6 +59,8 @@ function applySkin(name: string) {
     TRANSITION_SUPPRESS_MS,
   );
   root.dataset.skin = name;
+  // A picked skin owns both color modes; drop the owner's dark-mode slot.
+  delete root.dataset.skinDark;
   try {
     localStorage.setItem(SKIN_STORAGE_KEY, name);
   } catch {

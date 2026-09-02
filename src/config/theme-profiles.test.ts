@@ -6,15 +6,22 @@ import { mergeSiteConfig, themeDefaultConfig } from "./theme-default";
 import {
   buildSkinCss,
   resolveSkin,
+  resolveSkinSlot,
   resolveThemeBranding,
   skinOptions,
   skins,
   transformSkinCss,
 } from "./theme-profiles";
 
-const withProfile = (profile: string): SiteConfig => {
+const withProfile = (
+  profile: string,
+  slots: { dark?: string; print?: string } = {},
+): SiteConfig => {
   const config = mergeSiteConfig();
-  return { ...config, theme: { ...config.theme, profile } };
+  return {
+    ...config,
+    theme: { ...config.theme, profile, ...slots },
+  };
 };
 
 describe("skins registry", () => {
@@ -50,6 +57,39 @@ describe("resolveSkin", () => {
       expect(warn).toHaveBeenCalledExactlyOnceWith(
         expect.stringContaining('Unknown skin "nope"'),
       );
+    } finally {
+      warn.mockRestore();
+    }
+  });
+});
+
+describe("resolveSkinSlot", () => {
+  it("resolves a configured slot to its skin", () => {
+    expect(
+      resolveSkinSlot("print", withProfile("material", { print: "thesis" }))
+        ?.name,
+    ).toBe("thesis");
+  });
+
+  it("returns undefined when the slot is unset", () => {
+    expect(resolveSkinSlot("print", withProfile("default"))).toBeUndefined();
+    expect(resolveSkinSlot("dark", withProfile("default"))).toBeUndefined();
+  });
+
+  it("warns once and disables the slot for an unknown skin name", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      const resolved = resolveSkinSlot(
+        "dark",
+        withProfile("default", { dark: "nope" }),
+      );
+      expect(resolved).toBeUndefined();
+      expect(warn).toHaveBeenCalledExactlyOnceWith(
+        expect.stringContaining('Unknown skin "nope" for theme.dark'),
+      );
+      // Repeated renders must not spam the log.
+      resolveSkinSlot("dark", withProfile("default", { dark: "nope" }));
+      expect(warn).toHaveBeenCalledTimes(1);
     } finally {
       warn.mockRestore();
     }
@@ -97,6 +137,16 @@ describe("buildSkinCss", () => {
   it("leaves no legacy print-attribute plumbing behind", () => {
     expect(css).not.toContain("data-print");
   });
+
+  it("emits no dark-slot or print-slot layer when none is configured", () => {
+    // The default config sets no theme.dark / theme.print, so no selector
+    // is scoped to data-skin-dark (the :not([data-skin-dark]) in the
+    // bundle is the screen layer's own dark-block yield guard, not a slot)
+    // and no print-slot layer exists (thesis's own @media print rules are
+    // scoped parts of its screen layer, not a slot).
+    expect(css).not.toMatch(/\[data-skin-dark=/);
+    expect(css).not.toMatch(/@media print\s*\{\s*:root:where/);
+  });
 });
 
 describe("transformSkinCss", () => {
@@ -118,12 +168,15 @@ describe("transformSkinCss", () => {
     );
     // lightningcss merges adjacent screen-gated blocks, so both forms may
     // share one wrapper; what matters is both are gated and same-element
-    // scoped.
+    // scoped. The screen layer also guards its own dark blocks against the
+    // dark slot (:not([data-skin-dark])).
     expect(out).toContain("@media screen {");
     expect(out).toMatch(
-      /:root:where\(\[data-skin="t"\]\)\[data-theme="dark"\]/,
+      /:root:where\(\[data-skin="t"\]\):where\(:not\(\[data-skin-dark\]\)\)\[data-theme="dark"\]/,
     );
-    expect(out).toMatch(/html:where\(\[data-skin="t"\]\)\[data-theme="dark"\]/);
+    expect(out).toMatch(
+      /html:where\(\[data-skin="t"\]\):where\(:not\(\[data-skin-dark\]\)\)\[data-theme="dark"\]/,
+    );
   });
 
   it("scopes bare html rules same-element instead of as a dead descendant", () => {
@@ -168,6 +221,55 @@ describe("transformSkinCss", () => {
   });
 });
 
+describe("transformSkinCss layers", () => {
+  const css = [
+    ":root { --bg: #fff; }",
+    '[data-theme="dark"] { --bg: #000; }',
+    ".card { background: var(--bg); }",
+    '[data-theme="dark"] .card { color: #ccc; }',
+    '@media screen { [data-theme="dark"] .flag { color: red; } }',
+    "@media print { h2 { break-before: page; } }",
+  ].join("\n");
+
+  it("screen layer gates and scopes everything to data-skin", () => {
+    const out = transformSkinCss("t", css);
+    expect(out).toContain(':root:where([data-skin="t"])');
+    expect(out).toContain(':where([data-skin="t"]) .card {');
+    expect(out).toContain("@media screen {");
+    expect(out).toMatch(
+      /@media screen\s*\{\s*\[data-theme="dark"\]:where\(\[data-skin="t"\]\)/,
+    );
+    expect(out).not.toContain('[data-skin="t"] @media');
+  });
+
+  it("dark-screen layer carries only the dark blocks, scoped to data-skin-dark", () => {
+    const out = transformSkinCss("t", css, "dark-screen");
+    expect(out).toContain(':where([data-skin-dark="t"]) .card {');
+    expect(out).toContain("--bg: #000"); // the flat dark token block stays
+    expect(out).not.toContain("--bg: #fff"); // light tokens dropped
+    expect(out).not.toContain('data-skin="t"');
+    expect(out).not.toContain("@keyframes"); // structural/keyframe rules dropped
+    // The authored @media screen block is a light-context rule here (the
+    // @media print block too) — the extract is top-level dark rules only.
+    expect(out).not.toContain(".flag");
+  });
+
+  it("dark-screen is empty for a file with no dark half", () => {
+    expect(transformSkinCss("t", ":root { --a: 1; }", "dark-screen")).toBe("");
+  });
+
+  it("print layer wraps everything in @media print, ungated and unconstrained", () => {
+    const out = transformSkinCss("t", css, "print");
+    expect(out).toContain("@media print {");
+    expect(out).toContain(":root {");
+    expect(out).toContain(".card {");
+    expect(out).not.toContain("data-skin");
+    expect(out).not.toContain("@media print { @media"); // no nesting of print inside print
+    // Flat dark blocks stay inside their screen gate, inert within print.
+    expect(out).toMatch(/@media screen\s*\{[^}]*\[data-theme="dark"\]/);
+  });
+});
+
 describe("resolveThemeBranding", () => {
   const defaults = themeDefaultConfig;
   /* Mirror the real composition (site.ts): the merged config and the raw
@@ -196,6 +298,29 @@ describe("resolveThemeBranding", () => {
         theme: { browserColor: { light: "#123456" } },
       }).browserColor.light,
     ).toBe("#123456");
+  });
+
+  it("dark-mode branding follows the dark slot while light keeps profile", () => {
+    const { browserColor } = brandingFor({ theme: { dark: "default" } });
+    expect(browserColor.light).toBe("#eaf0eb"); // material light stays
+    expect(browserColor.dark).toBe(defaults.theme.browserColor.dark); // #0e1116, not material's #121411
+  });
+
+  it("dark slot equal to profile changes nothing", () => {
+    const { browserColor } = brandingFor({ theme: { dark: "material" } });
+    expect(browserColor.light).toBe("#eaf0eb");
+    expect(browserColor.dark).toBe("#121411");
+  });
+
+  it("an unknown dark slot falls back to the profile skin", () => {
+    const { browserColor } = brandingFor({ theme: { dark: "nope" } });
+    expect(browserColor.dark).toBe("#121411");
+  });
+
+  it("shiki dark follows the dark slot when it carries one", () => {
+    const { shiki } = brandingFor({ theme: { dark: "default" } });
+    expect(shiki.light).toBe("github-light");
+    expect(shiki.dark).toBe("github-dark-default");
   });
 });
 

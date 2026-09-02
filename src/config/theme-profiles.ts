@@ -144,6 +144,34 @@ export function resolveSkin(config: SiteConfig = siteConfig): ResolvedSkin {
   return { name: "default", registration: skins.default };
 }
 
+/* Slot names are validated once per name; resolveThemeBranding resolves on
+   every page render, so the warning must not spam the build log. */
+const warnedSlotNames = new Set<string>();
+
+/**
+ * Resolve an optional per-mode slot (`theme.dark` / `theme.print`) to a
+ * skin. Unset or unknown names return undefined, which disables the slot.
+ */
+export function resolveSkinSlot(
+  slot: "dark" | "print",
+  config: SiteConfig = siteConfig,
+): ResolvedSkin | undefined {
+  const name = config.theme[slot];
+  if (!name) return undefined;
+  const found = skinEntries.find(([key]) => key === name);
+  if (found) {
+    return { name: found[0], registration: found[1] };
+  }
+  const warningKey = `${slot}:${name}`;
+  if (!warnedSlotNames.has(warningKey)) {
+    warnedSlotNames.add(warningKey);
+    console.warn(
+      `[vellume] Unknown skin "${name}" for theme.${slot}; ignoring the slot. Known skins: ${Object.keys(skins).join(", ")}.`,
+    );
+  }
+  return undefined;
+}
+
 function readSkinCss(registration: SkinRegistration): string {
   return readFileSync(path.join(skinsDir, registration.file), "utf8");
 }
@@ -306,9 +334,28 @@ const gateDarkBlocks = (css: string, ranges: CssRange[]): string => {
   return out;
 };
 
+/* Pull just the dark blocks out of the file (for the dark-slot layer,
+   which must not carry the light tokens or structural rules). */
+const extractDarkBlocks = (css: string, ranges: CssRange[]): string =>
+  ranges.map(({ start, end }) => css.slice(start, end + 1)).join("\n");
+
 /* Phase 3 — zero-specificity scoping (selectors never carry var(), so
-   returning rewritten selectors through the napi bindings is safe). */
-const scopeSkinSelectors = (name: string, css: string): string => {
+   returning rewritten selectors through the napi bindings is safe).
+   `attribute` selects the root attribute the skin is scoped to. */
+/* Zero-specificity scoping (selectors never carry var(), so returning
+   rewritten selectors through the napi bindings is safe). `attribute` is the
+   root attribute the skin is scoped to. `darkYieldsToSlot` marks the skin's
+   OWN dark blocks as conditional on the dark slot being absent: without it
+   a `data-skin` that equals the owner's `profile` would apply its dark half
+   even when `theme.dark` names a different skin. The screen layer sets it;
+   the dark-slot layer (scoped to data-skin-dark) does not, since there the
+   attribute is the slot itself. */
+const scopeSkinSelectors = (
+  name: string,
+  css: string,
+  attribute: string = "data-skin",
+  darkYieldsToSlot: boolean = false,
+): string => {
   const whereSkin = () => ({
     type: "pseudo-class" as const,
     kind: "where" as const,
@@ -316,8 +363,31 @@ const scopeSkinSelectors = (name: string, css: string): string => {
       [
         {
           type: "attribute" as const,
-          name: "data-skin",
+          name: attribute,
           operation: { operator: "equal" as const, value: name },
+        },
+      ],
+    ],
+  });
+
+  /* `[data-skin=x]:where(:not([data-skin-dark]))` — active only while no
+     dark slot overrides the mode. */
+  const whereNoDarkSlot = () => ({
+    type: "pseudo-class" as const,
+    kind: "where" as const,
+    selectors: [
+      [
+        {
+          type: "pseudo-class" as const,
+          kind: "not" as const,
+          selectors: [
+            [
+              {
+                type: "attribute" as const,
+                name: "data-skin-dark",
+              },
+            ],
+          ],
         },
       ],
     ],
@@ -332,7 +402,13 @@ const scopeSkinSelectors = (name: string, css: string): string => {
         if (selector.length === 0) return selector;
         const first = selector[0];
         if (isDarkAttribute(first) || isRootAnchored(first)) {
-          return [first, whereSkin(), ...selector.slice(1)];
+          const darkBlock = isDarkAnchoredSelector(selector);
+          return [
+            first,
+            whereSkin(),
+            ...(darkBlock && darkYieldsToSlot ? [whereNoDarkSlot()] : []),
+            ...selector.slice(1),
+          ];
         }
         return [
           whereSkin(),
@@ -346,20 +422,70 @@ const scopeSkinSelectors = (name: string, css: string): string => {
   return code.toString();
 };
 
+/** Which bundle layer a skin's css is emitted into. */
+export type SkinLayer =
+  /** The regular skin layer: everything, scoped to `data-skin`. */
+  | "screen"
+  /** The dark-mode slot layer: only the dark half, scoped to
+      `data-skin-dark` so it can apply while the screen skin stays
+      `profile`'s. */
+  | "dark-screen"
+  /** The print slot layer: the light presentation wrapped in
+      `@media print`, unconstrained — printing follows the owner's slot,
+      not the visitor's skin. */
+  | "print";
+
 /**
- * Gate a skin's dark blocks textually, then scope its selectors.
+ * Transform one skin file into a bundle layer.
  * Exported for tests; `buildSkinCss` is the build entry point.
  */
-export function transformSkinCss(name: string, css: string): string {
+export function transformSkinCss(
+  name: string,
+  css: string,
+  layer: SkinLayer = "screen",
+): string {
   if (!css.trim()) return "";
+
+  if (layer === "print") {
+    // The whole file becomes the print presentation. Dark blocks keep
+    // their screen gate, which nesting inside print renders inert; the
+    // author's own @media print blocks nest harmlessly. No data-skin
+    // constraint: the print slot applies whatever the visitor picked.
+    const gated = gateDarkBlocks(css, analyzeSkinCss(name, css));
+    return `@media print {\n${gated}\n}\n`;
+  }
+
+  if (layer === "dark-screen") {
+    const only = extractDarkBlocks(css, analyzeSkinCss(name, css));
+    if (!only.trim()) return "";
+    const gated = gateDarkBlocks(only, analyzeSkinCss(name, only));
+    // data-skin-dark IS the slot, so no :not([data-skin-dark]) gating.
+    return scopeSkinSelectors(name, gated, "data-skin-dark");
+  }
+
   const darkRanges = analyzeSkinCss(name, css);
-  return scopeSkinSelectors(name, gateDarkBlocks(css, darkRanges));
+  // The skin's own dark half yields to the dark slot when it is present.
+  return scopeSkinSelectors(
+    name,
+    gateDarkBlocks(css, darkRanges),
+    "data-skin",
+    true,
+  );
 }
 
 /**
- * Build the skin stylesheet injected between global.css and the user's
- * theme.css, so precedence is always: tokens.css < skins < theme.css.
- * Every registered skin is emitted (scoped); empty files emit nothing.
+ * Build the stylesheet injected between global.css and the user's
+ * theme.css, so precedence is always:
+ * tokens.css < skins < dark slot < print slot < theme.css.
+ *
+ * - Every registered skin is emitted into the screen layer (scoped);
+ *   empty files emit nothing.
+ * - `theme.dark` adds the slot skin's dark half scoped to `data-skin-dark`,
+ *   after the skins layer so it wins for dark mode while the visitor has
+ *   not picked a skin. Same skin as `profile` emits nothing (identical).
+ * - `theme.print` adds the slot skin's light presentation wrapped in
+ *   `@media print`, unconstrained: printing is publisher intent and
+ *   outranks whatever skin the visitor is on.
  */
 export function buildSkinCss(): string {
   const blocks = Object.entries(skins)
@@ -367,6 +493,26 @@ export function buildSkinCss(): string {
       transformSkinCss(name, readSkinCss(registration)),
     )
     .filter((css) => css.length > 0);
+
+  const profile = resolveSkin();
+  const dark = resolveSkinSlot("dark");
+  if (dark && dark.name !== profile.name) {
+    blocks.push(
+      transformSkinCss(
+        dark.name,
+        readSkinCss(dark.registration),
+        "dark-screen",
+      ),
+    );
+  }
+
+  const print = resolveSkinSlot("print");
+  if (print) {
+    blocks.push(
+      transformSkinCss(print.name, readSkinCss(print.registration), "print"),
+    );
+  }
+
   return blocks.length > 0 ? `${blocks.join("\n")}\n` : "";
 }
 
@@ -391,7 +537,14 @@ export function resolveThemeBranding(
   };
   mermaidThemeVariables: Record<string, string | number>;
 } {
-  const meta = resolveSkin(config).registration.meta ?? {};
+  /* Light-mode branding follows `profile`; the dark half follows the
+     `theme.dark` slot when configured, so browser chrome and code
+     highlighting stay coherent with what dark-mode visitors actually
+     see. og/mermaid are single-look build artifacts and follow `profile`. */
+  const light = resolveSkin(config);
+  const darkSkin = resolveSkinSlot("dark", config) ?? light;
+  const lightMeta = light.registration.meta ?? {};
+  const darkMeta = darkSkin.registration.meta ?? {};
   const defaults = themeDefaultConfig;
 
   const isExplicit = (keys: readonly string[]): boolean => {
@@ -415,34 +568,37 @@ export function resolveThemeBranding(
       light: pick(
         config.theme.browserColor.light,
         ["theme", "browserColor", "light"],
-        meta.browserColor?.light,
+        lightMeta.browserColor?.light,
         defaults.theme.browserColor.light,
       ),
       dark: pick(
         config.theme.browserColor.dark,
         ["theme", "browserColor", "dark"],
-        meta.browserColor?.dark,
+        darkMeta.browserColor?.dark,
         defaults.theme.browserColor.dark,
       ),
     },
-    shiki: meta.shiki ?? defaultBranding.shiki,
+    shiki: {
+      light: lightMeta.shiki?.light ?? defaultBranding.shiki.light,
+      dark: darkMeta.shiki?.dark ?? defaultBranding.shiki.dark,
+    },
     og: {
       backgroundGradient: pick(
         config.og.backgroundGradient,
         ["og", "backgroundGradient"],
-        meta.og?.backgroundGradient,
+        lightMeta.og?.backgroundGradient,
         defaults.og.backgroundGradient,
       ),
       accent: pick(
         config.og.accent,
         ["og", "accent"],
-        meta.og?.accent,
+        lightMeta.og?.accent,
         defaults.og.accent,
       ),
       description: pick(
         config.og.description,
         ["og", "description"],
-        meta.og?.description,
+        lightMeta.og?.description,
         defaults.og.description,
       ),
       border: {
@@ -451,14 +607,14 @@ export function resolveThemeBranding(
         color: pick(
           config.og.border.color,
           ["og", "border", "color"],
-          meta.og?.border,
+          lightMeta.og?.border,
           defaults.og.border.color,
         ),
       },
     },
     mermaidThemeVariables: {
       ...defaultBranding.mermaid,
-      ...meta.mermaid,
+      ...lightMeta.mermaid,
     },
   };
 }

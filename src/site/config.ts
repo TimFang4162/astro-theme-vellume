@@ -54,4 +54,14 @@ export const siteOverride = defineSiteConfig({
   // theme: {
   //   profile: "material",
   // },
+  // Optional per-mode slots, layered on top of `profile`:
+  //   dark: use another skin's dark half in dark mode (e.g. thesis days,
+  //         normal dark nights) — a visitor skin pick overrides it.
+  //   print: always print with a skin's light paper presentation,
+  //          regardless of the visitor's screen skin.
+  // theme: {
+  //   profile: "material",
+  //   dark: "default",
+  //   print: "thesis",
+  // },
 });
