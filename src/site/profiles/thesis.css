@@ -1,0 +1,67 @@
+/* 论文 — paper-oriented skin: serif body on a warm white canvas, justified
+   paragraphs with first-line indents, centred section titles. The screen
+   shows the paper typesetting, so printing inherits it; the @media print
+   block only adds chapter breaks.
+
+Skin file contract (parsed by src/config/theme-profiles.ts):
+- light tokens: one flat `:root` block;
+- dark tokens: one flat `[data-theme="dark"]` block — the build wraps it in
+  `@media screen` and scopes every selector to this skin with
+  `:where([data-skin="thesis"])`;
+- structural rules are allowed; the build prefixes their selectors.
+
+--font-sans is overridden with a serif stack on purpose: the sans body token
+drives the reading face, and the paper look swaps it wholesale. */
+
+:root {
+  --background: #fcfbf7;
+  --surface: #fcfbf7;
+  --card: #ffffff;
+  --popover: #ffffff;
+  --foreground: #2a2c26;
+  --foreground-strong: #161811;
+  --muted: #f0efe8;
+  --muted-foreground: #6b6d62;
+  --border: #dedcd2;
+  --font-sans:
+    "Times New Roman", Georgia, "Noto Serif SC", "Songti SC", "SimSun", serif;
+  --text-body: 1rem;
+  --text-body--line-height: 1.9;
+}
+
+/* Mirror of the light block: paper stays paper in dark mode (the build
+   screen-gates dark blocks, so paper never sees either). */
+[data-theme="dark"] {
+  --background: #fcfbf7;
+  --surface: #fcfbf7;
+  --card: #ffffff;
+  --popover: #ffffff;
+  --foreground: #2a2c26;
+  --foreground-strong: #161811;
+  --muted: #f0efe8;
+  --muted-foreground: #6b6d62;
+  --border: #dedcd2;
+  --font-sans:
+    "Times New Roman", Georgia, "Noto Serif SC", "Songti SC", "SimSun", serif;
+  --text-body: 1rem;
+  --text-body--line-height: 1.9;
+}
+
+.rich-prose {
+  text-align: justify;
+}
+
+.rich-prose > p {
+  text-indent: 2em;
+}
+
+.rich-prose h2 {
+  text-align: center;
+}
+
+@media print {
+  /* Chapter breaks; the first section stays on the title page. */
+  .rich-prose h2:not(:first-of-type) {
+    break-before: page;
+  }
+}

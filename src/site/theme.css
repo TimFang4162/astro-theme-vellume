@@ -1,19 +1,18 @@
 /*
 User-owned theme token overrides.
-Loaded after the active theme profile (see src/config/theme-profiles.ts),
-so anything here wins over both the tokens.css defaults and the profile.
+Loaded after the injected skin css (see src/config/theme-profiles.ts), so
+anything here wins over both the tokens.css defaults and every skin — for
+the visitor's current skin and for print.
 
 Keep in mind: `src/site/config.ts` may carry its own `theme.browserColor`
-override; otherwise browser chrome colors follow the active profile.
+override; otherwise browser chrome colors follow the default skin.
 
 :root {
   --primary: #2f6fed;
   --radius: 0.75rem;
 }
 
-@media not print {
-  [data-theme="dark"] {
-    --primary: #8fb4ff;
-  }
+[data-theme="dark"] {
+  --primary: #8fb4ff;
 }
 */

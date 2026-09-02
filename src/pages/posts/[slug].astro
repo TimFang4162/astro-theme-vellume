@@ -4,7 +4,6 @@ import type { InferGetStaticPropsType } from "astro";
 import ArtalkComments from "../../components/blog/ArtalkComments.astro";
 import ArticleActions from "../../components/blog/ArticleActions.astro";
 import PostNavigation from "../../components/blog/PostNavigation.astro";
-import PrintPreviewPanel from "../../components/blog/PrintPreviewPanel.astro";
 import SeriesNavigation from "../../components/blog/SeriesNavigation.astro";
 import TableOfContents from "../../components/blog/TableOfContents.astro";
 import ChipLink from "../../components/ui/ChipLink.astro";
@@ -196,7 +195,6 @@ const jsonLd = {
       pageKey={pageKey}
       showFeedback={commentsEnabled}
     />
-    <PrintPreviewPanel />
 
     {commentsEnabled && (
       <div class="article-column">

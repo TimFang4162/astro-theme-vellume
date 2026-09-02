@@ -47,11 +47,11 @@ export const siteOverride = defineSiteConfig({
   //     dark: "#09090b",
   //   },
   // },
-  // Pick a theme profile by name — one css file per theme lives in
-  // src/site/profiles/ (default / material / sepia; print profiles under
-  // print/). Visitors can switch the print profile from the article menu.
+  // Pick the default skin by name — one css file per skin lives in
+  // src/site/profiles/ (default / material / sepia / thesis). Visitors can
+  // switch skins at runtime via the header skin switcher; this only picks
+  // what first-time visitors (and build-time branding) see.
   // theme: {
   //   profile: "material",
-  //   print: "thesis",
   // },
 });

@@ -1,34 +1,26 @@
-/* Print stylesheet. Intentionally left unlayered (like toc.css and
- * transitions.css) so print rules outrank every @layer on screen styles.
+/* Print floor — the only print-specific stylesheet. Plain `@media print`
+ * rules, unlayered (like toc.css and transitions.css) so they outrank every
+ * @layer on screen styles.
  *
- * Activation is attribute-driven: the theme profile system and the print
- * preview set [data-print-style] on <html> (an inline head script mirrors
- * beforeprint/afterprint so real printing — Ctrl+P included — gets the same
- * treatment). Preview additionally sets [data-print-preview], which the
- * config panel and the paper-sheet simulation key on.
- *
- * This file owns look-and-feel. Content behaviour — link expansion, image
- * visibility, chapter breaks — lives in print-settings.css so settings stay
- * independent of the chosen print profile. @media appears twice, each for
- * something an attribute cannot express: the @page + no-JS / panel-hiding
- * fallbacks, and the preview simulation, which is screen chrome and must
- * never reach paper (printing from an open preview emits only the
- * [data-print-style] rules). */
+ * Paper is decided here and only here: chrome hidden, single column, code
+ * that wraps instead of scrolls, expanded external URLs, white paper. Dark
+ * tokens never reach paper because the build screen-gates every dark block
+ * (`@media screen`), so print media renders the light values; there is no
+ * attribute plumbing and no mirror script. Skins contribute typography that
+ * simply carries into print (thesis's serif/indents/centred titles come
+ * along for free); the floor owns everything skin-independent. */
 
 @media print {
-  /* No-JS baseline: without the inline mirror script [data-print-style]
-     never appears, so this block keeps the printout readable — plain white
-     paper, chrome hidden. With JS it is a harmless subset of the rules
-     below (the attribute selectors out-specify it). */
   @page {
     margin: 2cm;
   }
 
+  /* Paper stays white even with "background graphics" enabled. */
   body {
     background: #ffffff !important;
-    color: #1f2328 !important;
   }
 
+  /* Site chrome: header, drawer, overlays, sidebars, comments, actions. */
   body > header,
   body > footer,
   #search-modal,
@@ -39,11 +31,17 @@
   nav[aria-label="Post navigation"],
   [data-artalk-comments],
   [data-article-sidebar],
-  [data-article-actions],
-  [data-print-preview-panel] {
+  [data-article-actions] {
     display: none !important;
   }
 
+  /* The screen "sheet" surface must not print as a tinted box. */
+  .site-header.bg-surface,
+  main.bg-surface {
+    background: none !important;
+  }
+
+  /* Single-column flow. */
   main,
   .main-frame,
   .page-frame {
@@ -59,164 +57,89 @@
   .article-column {
     max-width: 100%;
   }
-}
 
-/* ── Full print styling ──────────────────────────────────────────────── */
-
-[data-print-style] {
-  color-scheme: light !important;
-}
-
-[data-print-style] body {
-  background: var(--background) !important;
-  color: var(--foreground) !important;
-}
-
-[data-print-style] body > header,
-[data-print-style] body > footer,
-[data-print-style] #search-modal,
-[data-print-style] #mobile-drawer,
-[data-print-style] #mobile-drawer-overlay,
-[data-print-style] .skip-link,
-[data-print-style] .post-nav-feedback,
-[data-print-style] nav[aria-label="Post navigation"],
-[data-print-style] [data-artalk-comments],
-[data-print-style] [data-article-sidebar],
-[data-print-style] [data-article-actions] {
-  display: none !important;
-}
-
-/* The config panel is screen chrome: it must survive the preview (it is
-   only suppressed by the @media print block above, i.e. on paper). */
-
-[data-print-style] main,
-[data-print-style] .main-frame,
-[data-print-style] .page-frame {
-  max-width: 100%;
-  padding: 0;
-  margin: 0;
-}
-
-/* The screen "sheet" surface must not carry into print; ink and paper come
-   from the print profile tokens instead. */
-[data-print-style] .site-header.bg-surface,
-[data-print-style] main.bg-surface {
-  background: none !important;
-}
-
-[data-print-style] .content-layout {
-  display: block;
-}
-
-[data-print-style] .article-column {
-  max-width: 100%;
-}
-
-[data-print-style] code-block {
-  background: var(--code-block-surface);
-  border-color: var(--code-block-border);
-}
-
-[data-print-style] .code-block__header {
-  break-after: avoid;
-  background-color: transparent !important;
-  border-bottom-color: var(--code-block-header-border);
-}
-
-[data-print-style] .code-block__copy {
-  display: none !important;
-}
-
-[data-print-style] code-block {
-  box-shadow: none;
-}
-
-[data-print-style] .math-block {
-  overflow: visible;
-}
-
-[data-print-style] .math-inline img,
-[data-print-style] .math-block img {
-  width: auto;
-  max-width: 100%;
-}
-
-[data-print-style] .code-block__scroller {
-  overflow: visible;
-}
-
-[data-print-style] .code-block__pre {
-  width: 100%;
-  min-width: 0;
-}
-
-[data-print-style] .code-block__code {
-  min-width: 0;
-}
-
-[data-print-style] .code-block__line {
-  grid-template-columns: 2.5rem minmax(0, 1fr);
-}
-
-[data-print-style] .code-block__line-inner {
-  max-width: min(80ch, 100%);
-  width: auto;
-  white-space: pre-wrap;
-  word-break: break-word;
-  overflow-wrap: anywhere;
-}
-
-[data-print-style] .code-block__diagram {
-  width: 100%;
-  min-width: 0;
-}
-
-[data-print-style] .code-block__diagram img {
-  width: 100%;
-  max-width: 100%;
-}
-
-/* ── Print profile structure ───────────────────────────────────────────
-   A profile may bring *typographic* structure keyed on the data-print
-   value (owner default via BaseLayout, live via the preview panel). It
-   must not encode content behaviour — links, images, chapter breaks are
-   the settings vocabulary in print-settings.css, so any profile composes
-   with any setting combination. */
-
-/* 论文: serif body via the profile tokens, plus justified paragraphs with
-   first-line indents and centred section titles. */
-[data-print-style][data-print="thesis"] .rich-prose {
-  text-align: justify;
-}
-
-[data-print-style][data-print="thesis"] .rich-prose > p {
-  text-indent: 2em;
-}
-
-[data-print-style][data-print="thesis"] .rich-prose h2 {
-  text-align: center;
-  break-after: avoid;
-}
-
-/* ── Preview session (screen chrome) ─────────────────────────────────── */
-
-/* Paper-sheet simulation: dimmed backdrop, the article column becomes the
-   sheet. Scoped to screen — printing straight from an open preview
-   (Ctrl+P) must emit only the [data-print-style] rules above, never the
-   simulated sheet and its border. !important outbids the equally specific
-   [data-print-style] body / main.bg-surface resets while previewing. */
-@media screen {
-  [data-print-preview] body {
-    background: var(--muted) !important;
+  /* Code: paper cannot scroll, so lines wrap. */
+  .code-block__header {
+    break-after: avoid;
+    background-color: transparent !important;
   }
 
-  [data-print-preview] main.page-frame {
-    max-width: 52rem;
-    min-height: 100vh;
-    margin: 2rem auto;
-    padding: 3rem 3.5rem;
-    background: var(--background) !important;
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-floating);
+  .code-block__copy {
+    display: none !important;
+  }
+
+  .code-block__scroller {
+    overflow: visible;
+  }
+
+  .code-block__pre {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .code-block__code {
+    min-width: 0;
+  }
+
+  .code-block__line {
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+  }
+
+  .code-block__line-inner {
+    max-width: min(80ch, 100%);
+    width: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  .code-block__diagram {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .code-block__diagram img {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .math-block {
+    overflow: visible;
+  }
+
+  .math-inline img,
+  .math-block img {
+    width: auto;
+    max-width: 100%;
+  }
+
+  /* Pagination hygiene: keep atomic blocks whole, keep headings with their
+     content, and leave no stranded lines at page edges. */
+  .rich-prose figure,
+  .rich-prose table,
+  .rich-prose blockquote,
+  .math-block {
+    break-inside: avoid;
+  }
+
+  .rich-prose h2,
+  .rich-prose h3,
+  .rich-prose h4 {
+    break-after: avoid;
+  }
+
+  .rich-prose p {
+    orphans: 2;
+    widows: 2;
+  }
+
+  /* Footnote-style link expansion for content links. In-page anchors and
+     non-HTTP schemes stay quiet; long URLs must wrap, not overflow. */
+  .rich-prose
+  a[href]:not([href^="#"]):not([href^="mailto:"]):not([href^="tel:"])::after {
+    content: " (" attr(href) ")";
+    font-size: 0.85em;
+    overflow-wrap: anywhere;
+    word-break: break-all;
   }
 }

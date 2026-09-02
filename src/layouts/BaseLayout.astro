@@ -7,16 +7,18 @@ import MobileDrawer from "../components/navigation/MobileDrawer.astro";
 import SearchModal from "../components/search/SearchModal.astro";
 import { siteConfig } from "../config/site";
 import {
+  resolveSkin,
   resolveThemeBranding,
-  resolveThemeProfiles,
+  skins,
 } from "../config/theme-profiles";
 import { toAbsoluteSiteUrl, withBasePath } from "../utils/paths";
 import Footer from "./Footer.astro";
 import Header from "./Header.astro";
 import "medium-zoom/dist/style.css";
 import "../styles/global.css";
-// Active theme profile tokens; bundle order keeps them between tokens.css
-// (inside global.css) and the user-owned theme.css below.
+// Every registered skin's css, :where-scoped to its data-skin attribute;
+// bundle order keeps skins between tokens.css (inside global.css) and the
+// user-owned theme.css below.
 import "virtual:vellume-theme-profile.css";
 import "../site/theme.css";
 import "../site/custom.css";
@@ -47,7 +49,12 @@ const {
   jsonLd,
 } = Astro.props;
 const branding = resolveThemeBranding();
-const { rootStates, printAttribute } = resolveThemeProfiles();
+const skin = resolveSkin();
+// Inline bootstrap payload: registered skin names for localStorage
+// validation (see the skin bootstrap script in <head>).
+const skinBootstrap = `try{var n=${JSON.stringify(
+  Object.keys(skins),
+)},v=localStorage.getItem("vellume-skin");if(n.indexOf(v)>-1)document.documentElement.dataset.skin=v}catch(e){}`;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const currentPath = Astro.url.pathname;
 const defaultOgImage = "/assets/og/index.png";
@@ -108,8 +115,7 @@ const seoProps = {
   lang={siteConfig.site.lang}
   dir="ltr"
   data-theme="light"
-  data-print={printAttribute}
-  {...rootStates}
+  data-skin={skin.name}
 >
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -155,6 +161,10 @@ const seoProps = {
         e.newDocument.documentElement.dataset.theme = current;
         e.newDocument.documentElement.style.colorScheme = current;
       }
+      const skin = document.documentElement.dataset.skin;
+      if (skin) {
+        e.newDocument.documentElement.dataset.skin = skin;
+      }
     });
     document.addEventListener(
       "click",
@@ -168,24 +178,10 @@ const seoProps = {
       true,
     );
     </script>
-    <!-- Print state mirror: the print stylesheet is attribute-driven
-        ([data-print-style]), so real printing — Ctrl+P included — must set
-        it too. beforeprint fires before the dialog renders; afterprint
-        restores the screen, keeping the styling while a preview session
-        (data-print-preview) is still open. -->
-    <script is:inline>
-    window.addEventListener("beforeprint", () => {
-      document.documentElement.setAttribute("data-print-style", "");
-    });
-    window.addEventListener("afterprint", () => {
-      const el = document.documentElement;
-      if (el.hasAttribute("data-print-preview")) {
-        el.setAttribute("data-print-style", "");
-      } else {
-        el.removeAttribute("data-print-style");
-      }
-    });
-    </script>
+    <!-- Skin bootstrap: restore the visitor's chosen skin before first
+        paint. Names are validated against the registry so a skin removed
+        upstream falls back to the server-stamped default. -->
+    <script is:inline set:html={skinBootstrap} />
     <LoadingIndicator color="var(--primary)" />
     <SEO {...seoProps} />
     {jsonLd && (

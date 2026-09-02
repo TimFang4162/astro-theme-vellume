@@ -2,6 +2,7 @@
 import { Icon } from "astro-icon/components";
 import NavLinks from "../components/navigation/NavLinks.astro";
 import Button from "../components/ui/Button.astro";
+import SkinSwitcher from "../components/ui/SkinSwitcher.astro";
 import ThemeToggle from "../components/ui/ThemeToggle.astro";
 import { siteConfig } from "../config/site";
 import { withBasePath } from "../utils/paths";
@@ -36,6 +37,12 @@ const homeHref = withBasePath("/");
       >
         <Icon name="material-symbols:search-rounded" size={20} />
       </Button>
+      <SkinSwitcher
+        class:list={[
+          "shrink-0",
+          mobileDrawerEnabled && "hidden md:block",
+        ]}
+      />
       <ThemeToggle
         class:list={[
           "shrink-0",

@@ -1,0 +1,61 @@
+---
+import { Icon } from "astro-icon/components";
+import { skinOptions } from "../../config/theme-profiles";
+import Button from "./Button.astro";
+
+interface Props {
+  class?: string;
+}
+
+// One switcher instance per mount point (header, mobile drawer); the id
+// keeps each trigger's aria-controls pointing at its own menu.
+let instanceCount = 0;
+const { class: className } = Astro.props;
+const menuId = `skin-switcher-menu-${++instanceCount}`;
+---
+
+<div class:list={["relative", className]} data-skin-switcher>
+  <Button
+    variant="borderless"
+    shape="circle"
+    size="md"
+    class="text-muted-foreground"
+    aria-label="切换皮肤"
+    title="切换皮肤"
+    data-skin-switcher-toggle
+    aria-haspopup="true"
+    aria-expanded="false"
+    aria-controls={menuId}
+  >
+    <Icon name="material-symbols:palette-outline" size={20} />
+  </Button>
+  <div
+    id={menuId}
+    class="popover-card absolute top-12 right-0 z-[90] hidden w-40 p-2"
+    data-skin-switcher-menu
+    role="menu"
+    aria-label="选择皮肤"
+  >
+    {skinOptions.map((option) => (
+        <button
+          type="button"
+          role="menuitemradio"
+          aria-checked="false"
+          class="article-action"
+          data-skin-option={option.name}
+        >
+          <span class="flex-1">{option.label}</span>
+          <Icon
+            name="material-symbols:check-rounded"
+            size={18}
+            class="hidden shrink-0"
+            data-skin-check
+          />
+        </button>
+      ))}
+  </div>
+</div>
+
+<script>
+import "../../scripts/ui/skin-switcher";
+</script>

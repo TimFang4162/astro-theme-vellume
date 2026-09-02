@@ -1,37 +1,33 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import type {
-  ProfileBranding,
-  ProfileRegistration,
-  ProfileStates,
-} from "./profile-types";
+import { transform } from "lightningcss";
+import type { ProfileBranding, ProfileRegistration } from "./profile-types";
 import { siteConfig } from "./site";
 import type { SiteConfig } from "./theme-default";
 import { themeDefaultConfig } from "./theme-default";
 
 /**
- * Theme profiles: one css file per theme under `src/site/profiles/`, plus a
- * small typed registration entry here.
+ * Skins: one css file per skin under `src/site/profiles/`, plus a small
+ * typed registration entry here.
  *
  * Boundary contract (see docs/theming.md):
- * - The profile system is semantic-free. It loads the active profile's css,
- *   injects it as CSS custom properties, and relays root state attributes to
- *   <html>.
- * - Profiles carry values only; structural variants live in the theme
- *   stylesheets keyed on those state attributes.
+ * - Every registered skin ships to every visitor and is runtime-switchable
+ *   via the `data-skin` root attribute; `theme.profile` only picks the
+ *   server-side default.
+ * - The build scopes each skin's selectors with zero-specificity
+ *   `:where([data-skin="<name>"])` and wraps dark blocks in `@media screen`
+ *   (paper always renders the light values), so the cascade is purely
+ *   order-based: tokens.css < skins < theme.css < custom.css.
+ * - Skins carry values and their own structural rules; nothing here encodes
+ *   per-visitor behaviour.
  */
 
-export type {
-  ProfileBranding,
-  ProfileRegistration,
-  ProfileStates,
-  TokenOverrides,
-} from "./profile-types";
+export type { ProfileBranding, ProfileRegistration } from "./profile-types";
 
 const profilesDir = path.resolve(process.cwd(), "src/site/profiles");
 
 /**
- * Baseline branding for the default profile. Its css file stays empty
+ * Baseline branding for the default skin. Its css file stays empty
  * (tokens.css is the default look); meta carries the non-CSS consumers whose
  * defaults have no other single home.
  */
@@ -55,10 +51,11 @@ const defaultBranding: Required<Pick<ProfileBranding, "shiki" | "mermaid">> = {
 };
 
 /**
- * The screen-profile registry: one css file per theme. Adding a theme means
- * dropping a file into `src/site/profiles/` and registering it here.
+ * The skin registry: one css file per skin. Adding a skin means dropping a
+ * file into `src/site/profiles/` and registering it here — it then shows up
+ * in the visitor skin switcher automatically.
  */
-export const themeProfiles: Record<string, ProfileRegistration> = {
+export const skins: Record<string, ProfileRegistration> = {
   /* The shipped look: zinc greys, single blue accent (tokens.css itself). */
   default: {
     file: "default.css",
@@ -111,129 +108,158 @@ export const themeProfiles: Record<string, ProfileRegistration> = {
       },
     },
   },
+
+  /* Paper look: serif body, justified indented paragraphs, centred section
+     titles. Screen shows the paper typesetting; printing inherits it. The
+     dark block mirrors light so the paper look survives the dark toggle. */
+  thesis: {
+    file: "thesis.css",
+    label: "论文",
+    meta: {
+      browserColor: { light: "#ffffff", dark: "#ffffff" },
+    },
+  },
 };
 
-/**
- * The print-profile registry (css files under `profiles/print/`).
- * A profile may bring *typographic* structure only, implemented in
- * print.css keyed on the `data-print` root attribute. Content behaviour —
- * link expansion, image visibility, chapter breaks — is the settings
- * vocabulary in print-settings.css and never part of a profile, so any
- * profile composes with any setting combination.
- */
-export const printProfiles: Record<string, ProfileRegistration> = {
-  default: { file: "default.css", label: "标准" },
-  thesis: { file: "print/thesis.css", label: "论文" },
-};
-
-/** Labels for the visitor-facing print menu (order = menu order). */
-export const printProfileOptions: Array<{ name: string; label: string }> =
-  Object.entries(printProfiles).map(([name, registration]) => ({
+/** Labels for the visitor-facing skin switcher (order = menu order). */
+export const skinOptions: Array<{ name: string; label: string }> =
+  Object.entries(skins).map(([name, registration]) => ({
     name,
     label: registration.label ?? name,
   }));
 
-export interface ResolvedThemeProfiles {
-  screen: { name: string; registration: ProfileRegistration };
-  print: { name: string; registration: ProfileRegistration };
-  /** State attributes to stamp on every page's `<html>`. */
-  rootStates: ProfileStates;
-  /** `data-print` value for the active print profile; unset for "default". */
-  printAttribute: string | undefined;
+export interface ResolvedSkin {
+  name: string;
+  registration: ProfileRegistration;
 }
 
-const isRegisteredScreenProfile = (
-  name: string,
-): name is keyof typeof themeProfiles => Object.hasOwn(themeProfiles, name);
-
-const isRegisteredPrintProfile = (
-  name: string,
-): name is keyof typeof printProfiles => Object.hasOwn(printProfiles, name);
-
-export function resolveThemeProfiles(): ResolvedThemeProfiles {
-  const screenName = siteConfig.theme.profile || "default";
-  const printName = siteConfig.theme.print || "default";
-  const screenKnown = isRegisteredScreenProfile(screenName);
-  const printKnown = isRegisteredPrintProfile(printName);
-
-  if (!screenKnown) {
-    console.warn(
-      `[vellume] Unknown theme profile "${screenName}"; falling back to "default". Known profiles: ${Object.keys(themeProfiles).join(", ")}.`,
-    );
+export function resolveSkin(): ResolvedSkin {
+  const name = siteConfig.theme.profile || "default";
+  if (Object.hasOwn(skins, name)) {
+    return { name, registration: skins[name] };
   }
-  if (!printKnown) {
-    console.warn(
-      `[vellume] Unknown print profile "${printName}"; falling back to "default". Known profiles: ${Object.keys(printProfiles).join(", ")}.`,
-    );
-  }
-
-  return {
-    screen: {
-      name: screenKnown ? screenName : "default",
-      registration: themeProfiles[screenKnown ? screenName : "default"],
-    },
-    print: {
-      name: printName,
-      registration: printProfiles[printKnown ? printName : "default"],
-    },
-    rootStates:
-      themeProfiles[screenKnown ? screenName : "default"].states ?? {},
-    printAttribute:
-      printKnown && printName !== "default" ? printName : undefined,
-  };
+  console.warn(
+    `[vellume] Unknown skin "${name}"; falling back to "default". Known skins: ${Object.keys(skins).join(", ")}.`,
+  );
+  return { name: "default", registration: skins.default };
 }
 
 function readProfileCss(registration: ProfileRegistration): string {
   return readFileSync(path.join(profilesDir, registration.file), "utf8");
 }
 
-/** Print profile files hold ONE flat `:root { --token: value; }` block; the
- * system re-scopes copies for the visitor menu's `[data-print]` switching. */
-function parsePrintTokens(css: string): string[] {
-  return css.match(/--[\w-]+\s*:\s*[^;{}]+;/g) ?? [];
+/* ── Skin css scoping ────────────────────────────────────────────────────
+ *
+ * Emitted css is consumed verbatim by the browser, so the transform is a
+ * real CSS parse (lightningcss), not text rewriting. Per skin:
+ *
+ * - Every selector gains a zero-specificity `:where([data-skin="<name>"])`
+ *   constraint: appended for root-anchored selectors (`:root`, dark), so it
+ *   constrains the same element; prefixed as a descendant for structural
+ *   selectors. Zero specificity keeps the cascade order-based — a skin can
+ *   never outrank tokens.css (earlier) or theme.css/custom.css (later).
+ * - Dark blocks (`[data-theme="dark"]` first component) are wrapped in
+ *   `@media screen`, so real printing and the browser print dialog's
+ *   preview both render the light values.
+ */
+
+const isDarkAttribute = (component: {
+  type: string;
+  name?: string;
+  operation?: { operator?: string; value?: string } | null;
+}): boolean =>
+  component.type === "attribute" &&
+  component.name === "data-theme" &&
+  component.operation?.operator === "equal" &&
+  component.operation?.value === "dark";
+
+function scopeSkinCss(name: string, css: string): string {
+  if (!css.trim()) return "";
+
+  const whereSkin = () => ({
+    type: "pseudo-class" as const,
+    kind: "where" as const,
+    selectors: [
+      [
+        {
+          type: "attribute" as const,
+          name: "data-skin",
+          operation: { operator: "equal" as const, value: name },
+        },
+      ],
+    ],
+  });
+
+  const { code } = transform({
+    filename: `${name}.css`,
+    code: Buffer.from(css),
+    minify: false,
+    visitor: {
+      StyleSheet(stylesheet) {
+        stylesheet.rules = stylesheet.rules.map((rule) => {
+          if (rule.type !== "style") return rule;
+          const { selectors } = rule.value;
+          const isDarkBlock =
+            selectors.length > 0 &&
+            selectors.every(
+              (selector) => selector.length > 0 && isDarkAttribute(selector[0]),
+            );
+          if (!isDarkBlock) return rule;
+          return {
+            type: "media" as const,
+            value: {
+              loc: rule.value.loc,
+              query: { mediaQueries: [{ mediaType: "screen" }] },
+              rules: [rule],
+            },
+          };
+        });
+        return stylesheet;
+      },
+      Selector(selector) {
+        if (selector.length === 0) return selector;
+        const first = selector[0];
+        if (
+          isDarkAttribute(first) ||
+          (first.type === "pseudo-class" && first.kind === "root")
+        ) {
+          return [first, whereSkin(), ...selector.slice(1)];
+        }
+        return [
+          whereSkin(),
+          { type: "combinator" as const, value: "descendant" },
+          ...selector,
+        ];
+      },
+    },
+  });
+
+  return code.toString();
 }
 
 /**
- * Build the profile stylesheet injected between global.css and the user's
- * theme.css, so precedence is always: tokens.css < profile < theme.css.
- *
- * The active screen profile's css is injected verbatim. Every registered
- * print profile's tokens are scoped to
- * `[data-print-style][data-print="<name>"]` — print.css and the preview
- * panel toggle those root attributes, so preview and paper share one rule
- * source and one set of values. Print styling itself is attribute-driven;
- * @media print only keeps the no-JS fallback and panel hiding.
+ * Build the skin stylesheet injected between global.css and the user's
+ * theme.css, so precedence is always: tokens.css < skins < theme.css.
+ * Every registered skin is emitted (scoped); empty files emit nothing.
  */
-export function buildThemeProfileCss(): string {
-  const { screen } = resolveThemeProfiles();
-  const blocks: string[] = [];
-
-  const screenCss = readProfileCss(screen.registration).trim();
-  if (screenCss) {
-    blocks.push(screenCss);
-  }
-
-  for (const [name, registration] of Object.entries(printProfiles)) {
-    if (name === "default") continue;
-    const tokens = parsePrintTokens(readProfileCss(registration));
-    if (tokens.length > 0) {
-      blocks.push(
-        `[data-print-style][data-print="${name}"] {\n  ${tokens.join("\n  ")}\n}`,
-      );
-    }
-  }
-
-  return `${blocks.join("\n")}\n`;
+export function buildSkinCss(): string {
+  const blocks = Object.entries(skins)
+    .map(([name, registration]) =>
+      scopeSkinCss(name, readProfileCss(registration)),
+    )
+    .filter((css) => css.length > 0);
+  return blocks.length > 0 ? `${blocks.join("\n")}\n` : "";
 }
 
 const valuesEqual = (a: unknown, b: unknown): boolean =>
   JSON.stringify(a) === JSON.stringify(b);
 
 /**
- * Effective non-CSS branding: explicit user config outranks the active
- * profile, which outranks the built-in defaults. A user value is detected as
- * explicit by differing from the theme default (the merge layer cannot tell
- * "unset" from "set to the default value", and both resolve identically).
+ * Effective non-CSS branding: explicit user config outranks the owner's
+ * default skin, which outranks the built-in defaults. A user value is
+ * detected as explicit by differing from the theme default (the merge layer
+ * cannot tell "unset" from "set to the default value", and both resolve
+ * identically).
  */
 export function resolveThemeBranding(): {
   browserColor: SiteConfig["theme"]["browserColor"];
@@ -246,7 +272,7 @@ export function resolveThemeBranding(): {
   };
   mermaidThemeVariables: Record<string, string>;
 } {
-  const meta = resolveThemeProfiles().screen.registration.meta ?? {};
+  const meta = resolveSkin().registration.meta ?? {};
   const defaults = themeDefaultConfig;
   const pick = <T>(user: T, profileValue: T | undefined, fallback: T): T =>
     !valuesEqual(user, fallback) ? user : (profileValue ?? fallback);

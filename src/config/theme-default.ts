@@ -49,11 +49,10 @@ export interface SiteConfig {
     };
   };
   theme: {
-    /** Named profile from the `themeProfiles` registry (one css file each
-        under `src/site/profiles/`). */
+    /** Named skin from the `skins` registry (one css file each
+        under `src/site/profiles/`). Selects the server-side default; the
+        visitor can switch skins at runtime via the skin switcher. */
     profile: string;
-    /** Named print profile (see `printProfiles` in the same module). */
-    print: string;
     browserColor: {
       light: string;
       dark: string;
@@ -162,7 +161,6 @@ export const themeDefaultConfig: SiteConfig = {
   },
   theme: {
     profile: "default",
-    print: "default",
     browserColor: {
       light: "#ffffff",
       dark: "#0e1116",

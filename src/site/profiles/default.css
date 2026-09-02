@@ -1,13 +1,16 @@
 /*
-Default theme profile.
+Default skin.
 
 The default look IS tokens.css, so this file stays empty — it exists so the
-"default" profile has a uniform on-disk home like every other profile.
+"default" skin has a uniform on-disk home like every other skin.
 
-Profile file contract (parsed by src/config/theme-profiles.ts):
-- screen profiles: flat `:root { --token: value; }` light block plus an
-  optional `[data-theme="dark"] { ... }` block; injected verbatim between
-  global.css and theme.css.
-- print profiles (print/*.css): ONE flat `:root { --token: value; }` block
-  (no media wrapper); the system scopes copies for the visitor print menu.
+Skin file contract (parsed by src/config/theme-profiles.ts):
+- light tokens: one flat `:root { --token: value; }` block;
+- dark tokens: one flat `[data-theme="dark"]` block — the build wraps it in
+  `@media screen` (paper always renders the light values) and scopes every
+  selector to this skin with zero-specificity `:where([data-skin="<name>"])`;
+- structural rules are allowed; the build prefixes their selectors.
+
+Every skin ships to every visitor and is runtime-switchable via the
+`data-skin` root attribute; `theme.profile` only picks the server default.
 */

@@ -1,53 +1,63 @@
 # 主题定制指南
 
-Vellume 的视觉由三层叠加决定，优先级从低到高：
+Vellume 的视觉由"皮肤（skin）"决定。一个皮肤就是 `src/site/profiles/` 下的一个
+CSS 文件，外加 `src/config/theme-profiles.ts` 里的一行注册——所有已注册皮肤
+会全量注入站点并出现在访客可见的**皮肤切换器**（页头调色板按钮）里，
+`theme.profile` 只决定服务端默认值。
+
+级联优先级从低到高，完全由加载顺序决定（皮肤选择器经构建期 `:where()` 作用域，
+零特异度，不参与特异度竞争）：
 
 ```
-tokens.css 默认值 < 主题档案（profile） < 用户覆盖（src/site/theme.css）
+tokens.css 默认值 < 皮肤（全部） < 用户覆盖（src/site/theme.css） < src/site/custom.css
 ```
 
-- **tokens.css** 定义全部语义变量及其派生关系，是"默认档案"本身。
-- **主题档案** 是 `src/site/profiles/` 下的一个 CSS 文件——一个主题一个文件。
-- **theme.css** 是你的手改入口，永远最优先，适合对某个档案做单点微调。
+- **tokens.css** 定义全部语义变量及其派生关系，是"default 皮肤"本身。
+- **皮肤文件** 携带自己的 token 与结构规则，一处文件即完整外观。
+- **theme.css** 是你的手改入口，永远最优先，对任何皮肤生效。
 
 ## 快速开始
 
 ```ts
-// src/site/config.ts —— 换主题 = 改一个键
+// src/site/config.ts —— 换默认皮肤 = 改一个键
 theme: {
-  profile: "material",  // 屏幕：default | material | sepia | 你注册的任何名字
-  print: "thesis",      // 打印：default | thesis
+  profile: "material",  // default | material | sepia | thesis | 你注册的任何名字
 },
 ```
 
-改过 `browserColor` 或打印档案后，favicon 需要 `bun run generate:favicons` 重新生成。
+改过 `browserColor` 后，favicon 需要 `bun run generate:favicons` 重新生成。
 
-## 一个主题一个文件
-
-主题的全部 token 都住在自己的 CSS 文件里，所见即所得：
+## 内置皮肤
 
 ```
 src/site/profiles/
-  default.css        ← 空文件（tokens.css 就是默认外观）
-  material.css       ← 灰绿画布 + 白色 sheet + 绿色主色 + 大圆角
-  sepia.css          ← 暖纸中性底 + 陶土主色
-  print/
-    thesis.css       ← 论文排版：衬线正文、首行缩进、居中章节标题
+  default.css    ← 空文件（tokens.css 就是默认外观）
+  material.css   ← 灰绿画布 + 白色 sheet + 绿色主色 + 大圆角
+  sepia.css      ← 暖纸中性底 + 陶土主色
+  thesis.css     ← 纸张观感：衬线正文、首行缩进、居中章节标题
 ```
 
-文件形态（由 `src/config/theme-profiles.ts` 解析）：
+thesis 是"纸张调性"的皮肤：屏幕上呈现的就是纸上排版（WYSIWYG），打印时
+直接继承；它的暗色块刻意镜像亮色值，暗色模式下仍是纸张观感。
 
-- **屏幕档案**：一个 `:root { --token: value; }` 亮色块 + 可选的
-  `[data-theme="dark"] { ... }` 暗色块，原样注入。
-- **打印档案**：一个扁平的 `:root { ... }` token 块（不写 `@media print`，
-  系统负责作用域）。
+## 文件形态（由 `src/config/theme-profiles.ts` 解析）
+
+皮肤 CSS 经 lightningcss 做真实解析后重写，不是文本替换：
+
+- **亮色 token**：一个扁平 `:root { --token: value; }` 块；
+- **暗色 token**：一个扁平 `[data-theme="dark"] { ... }` 块——构建期自动包进
+  `@media screen`，**纸张永远渲染亮色值**（打印与打印对话框预览都是 print
+  media），皮肤作者无需关心打印；
+- **结构规则**：允许携带（如 thesis 的居中标题）；构建期为每个选择器加上
+  零特异度的 `:where([data-skin="<name>"])` 约束——根锚定选择器（`:root`、
+  暗色）后置附加，其余前缀为后代。
 
 只需写"个性"：`--accent`、`--ring`、tonal 填充阶梯、代码块外框、首页粒子
-全部从 `--primary` 等基底自动派生。material.css 一共也就二十几行。
+全部从 `--primary` 等基底自动派生。material.css 一共二十几行。
 
 ## 注册表
 
-`src/config/theme-profiles.ts` 里每个档案对应一条小注册项——名字、文件、
+`src/config/theme-profiles.ts` 里每个皮肤对应一条小注册项——名字、文件、
 菜单标签，以及 CSS 装不下的非颜色消费方：
 
 ```ts
@@ -62,9 +72,9 @@ material: {
 },
 ```
 
-`meta` 的解析优先级：`src/site/config.ts` 显式配置 > 档案 `meta` > 内置默认。
-浏览器地址栏 / favicon / OG 图 / 代码高亮 / Mermaid 图表全部跟随所选档案；
-换打印档案后记得重跑 favicon 生成。
+`meta` 的解析优先级：`src/site/config.ts` 显式配置 > 皮肤 `meta` > 内置默认。
+浏览器地址栏 / favicon / OG 图 / 代码高亮 / Mermaid 图表跟随**站长选的默认
+皮肤**（构建期产物，不随访客实时切换）。
 
 ## 派生与强度
 
@@ -87,51 +97,39 @@ material: {
 footer）→ `--card`（浮起元素）。`--surface` 默认等于 `--background`，
 单画布零配置；给两者不同值（如 material）即得到分层 Material 效果。
 
-## 打印主题与打印预览
+## 皮肤切换与打印
 
-打印样式是**属性驱动**的：真实打印时由 `beforeprint` / `afterprint` 内联脚本在
-`<html>` 上镜像 `data-print-style`，预览会话则直接持有该属性——同一份规则、
-同一个开关，预览所见即打印所得。
-
-- **站长**：`theme.print` 选默认打印档案。
-- **访客**：文章标题右侧"更多"菜单 →"打印"进入**打印预览**：页面切换为打印
-  样式，右下角浮出配置面板，可调打印风格（标准/论文）、链接展开、图片显隐、
-  章节起新页，全部即时生效；"开始打印"调起浏览器打印（面板不会被印出），
-  "退出预览"或 Esc 还原屏幕状态。在预览中直接 Ctrl+P 也安全：纸张模拟限定在
-  屏幕媒体，落纸的只有打印规则本身。
-
-面板调整映射到根属性状态词汇（也可由自定义档案在注册表 `states` 里预置）。
-**设置与打印档案是两个正交维度**：档案只管"纸上长什么样"（版式、字体、
-节奏），链接/图片/分页这些"纸上放什么内容"的行为由状态词汇独占，规则住在
-独立的 `src/styles/print-settings.css`，任何档案都不许编码这些行为——
-因此任意档案可与任意设置组合。
-
-| 状态 | 取值 |
-| --- | --- |
-| `data-print-links` | `footnote`（默认，展开链接）/ `plain`（收起）/ `external`（仅外链） |
-| `data-print-images` | `all`（默认）/ `none` |
-| `data-print-break` | `none`（默认）/ `chapter` |
-
-`@media` 只剩两处：`@media print` 承担**无 JS 时的最低打印保障**（隐藏
-chrome、白底黑字、通栏布局——属性方案依赖 JS，这一块保底）、面板隐藏和
-`@page` 页边距（引擎专属语法，属性表达不了）；`@media screen` 承担预览的
-纸张模拟（暗背景 + 纸张投影），这是屏幕装饰，绝不能落纸。
+- **暗色**：`[data-theme="dark"]` 属性切换（astro-theme-toggle），所有暗色
+  token 块（tokens.css 与皮肤文件）都被限定在 `@media screen` 内。打印及
+  打印对话框预览以 print media 渲染，自然得到亮色纸张——无需任何属性镜像
+  或 JS。
+- **皮肤切换**：访客经页头/抽屉的调色板菜单切换，写入 `<html data-skin>` 与
+  localStorage（`vellume-skin`）；head 内联脚本在首绘前恢复，SPA 导航随
+  `data-theme` 一同迁移。非法名字（如皮肤被移除）自动回落服务端默认。
+- **打印**：没有打印专用档案、没有选项、没有预览面板——切到想要的皮肤后
+  直接 Ctrl+P（或文章菜单"打印"调起）。打印样式只有一个固定底线
+  `src/styles/print.css`（纯 `@media print`）：隐藏 chrome、通栏单列、代码
+  折行、外链展开为脚注、白纸白底、分页卫生（figure/table 不跨页、标题不
+  孤悬、orphans/widows）。皮肤自带的排版（字体、缩进、章节起新页）随皮肤
+  自然进入纸张。
 
 ## 边界与已知限制
 
-- 主题管理器是**无语义**的：只注入 token 与透传状态。新增主题 = 加一个
-  css 文件 + 注册表加一行；新增结构行为 = 主题样式表加规则，系统零改动。
-- 档案文件只放 token（扁平声明块），不放 CSS 规则；版式结构写进 print.css
-  （keyed on `data-print`），内容行为设置写进 print-settings.css，其余进
-  `src/site/custom.css`。
+- 皮肤系统是**无语义**的：只注入 `:where` 作用域的 token/规则。新增皮肤 =
+  加一个 css 文件 + 注册表加一行 + 切换器自动出现，系统零改动。
+- 皮肤文件可携带结构规则，但它们的特异度与 authored 写法一致（`:where` 零
+  贡献），永远输给 theme.css / custom.css 的后置覆盖。
+- 暗色块必须是顶层的扁平 `[data-theme="dark"]` 块才会被构建期包进
+  `@media screen`；写进其他媒体块不会被识别。
 - CSS 文件没有编译期类型检查，写错属性名靠构建产物审查兜底。
-- 打印样式的激活依赖 JS 镜像打印状态（`beforeprint`）；无 JS 访客打印时
-  只应用 `@media print` 最低保障块。
-- `@page` 页边距是主题固定值（2cm），既不能吃自定义属性也不能按属性切换。
+- `@page` 页边距是主题固定值（2cm），不能吃自定义属性也不能按皮肤切换。
 - 每页页眉/页码由浏览器自带开关控制，CSS 无法定制。
+- OG 图 / favicon / 代码高亮主题跟随站长默认皮肤（构建期），不随访客切换。
 
-## 新增一个主题
+## 新增一个皮肤
 
-1. 在 `src/site/profiles/` 放一个 css 文件（照抄 material.css 改值）。
-2. 在 `themeProfiles` 注册表加一行 `{ file, label, meta? }`。
-3. `theme.profile` 指向它。未注册的名字会在构建时告警并回退 `default`。
+1. 在 `src/site/profiles/` 放一个 css 文件（照抄 material.css 改值；
+   需要结构就写规则，构建期自动作用域化）。
+2. 在 `skins` 注册表加一行 `{ file, label, meta? }`。
+3. 完成——切换器自动出现该皮肤；`theme.profile` 想指它就改一个键。
+   未注册的名字会在构建时告警并回退 `default`。

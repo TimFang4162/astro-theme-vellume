@@ -8,7 +8,7 @@ import remarkMath from "remark-math";
 import { siteUrl } from "./src/config/site";
 import { createUnlistedSitemapFilter } from "./src/config/sitemap-filter";
 import {
-  buildThemeProfileCss,
+  buildSkinCss,
   resolveThemeBranding,
 } from "./src/config/theme-profiles";
 import { rehypeHierarchicalHeadingIds } from "./src/markdown/rehype-heading-ids";
@@ -23,9 +23,10 @@ const siteBase = normalizeBasePath(process.env.SITE_BASE || "/");
 const branding = resolveThemeBranding();
 
 const virtualThemeProfileModule = "\0virtual:vellume-theme-profile.css";
-// Generates the active profile's stylesheet so it can be imported between
-// global.css and theme.css — bundle order then guarantees the precedence
-// chain tokens.css < profile < theme.css < custom.css.
+// Generates every registered skin's stylesheet (:where-scoped, dark blocks
+// screen-gated) so it can be imported between global.css and theme.css —
+// bundle order then guarantees the precedence chain
+// tokens.css < skins < theme.css < custom.css.
 const themeProfilePlugin = {
   name: "vellume-theme-profile",
   resolveId(id: string) {
@@ -35,7 +36,7 @@ const themeProfilePlugin = {
   },
   load(id: string) {
     if (id !== virtualThemeProfileModule) return null;
-    return buildThemeProfileCss();
+    return buildSkinCss();
   },
 };
 
