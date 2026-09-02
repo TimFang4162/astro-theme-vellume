@@ -30,7 +30,9 @@ export interface ProfileBranding {
     description?: SiteConfig["og"]["description"];
     border?: SiteConfig["og"]["border"]["color"];
   };
-  mermaid?: Record<string, string>;
+  /** Mermaid themeVariables; mmdr's schema wants numeric values for
+   * quantitative entries (fontSize) and strings for colors. */
+  mermaid?: Record<string, string | number>;
 }
 
 /** One skin = one registration: a css file plus its typed metadata. */

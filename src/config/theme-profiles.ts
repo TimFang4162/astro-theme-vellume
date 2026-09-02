@@ -46,7 +46,9 @@ const defaultBranding: Required<Pick<ProfileBranding, "shiki" | "mermaid">> = {
     background: "#FFFFFF",
     fontFamily:
       'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif',
-    fontSize: "13",
+    /* mmdr's config schema wants a float here; a string fails the whole
+       compile (serde: invalid type: string, expected f32). */
+    fontSize: 13,
   },
 };
 
@@ -270,7 +272,7 @@ export function resolveThemeBranding(): {
     description: SiteConfig["og"]["description"];
     border: SiteConfig["og"]["border"];
   };
-  mermaidThemeVariables: Record<string, string>;
+  mermaidThemeVariables: Record<string, string | number>;
 } {
   const meta = resolveSkin().registration.meta ?? {};
   const defaults = themeDefaultConfig;
