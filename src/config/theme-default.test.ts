@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { defineSiteConfig, mergeSiteConfig } from "./theme-default";
+import {
+  defineSiteConfig,
+  mergeSiteConfig,
+  mergeSiteConfigInputs,
+} from "./theme-default";
 
 describe("mergeSiteConfig", () => {
   it("returns the theme defaults when no overrides are given", () => {
@@ -43,6 +47,32 @@ describe("mergeSiteConfig", () => {
     mergeSiteConfig({ site: { title: "Changed" } });
 
     expect(mergeSiteConfig().site.title).toBe("Vellume");
+  });
+});
+
+describe("mergeSiteConfigInputs", () => {
+  it("merges inputs without applying the theme defaults", () => {
+    const merged = mergeSiteConfigInputs({ theme: { profile: "material" } });
+
+    expect(merged.theme?.profile).toBe("material");
+    expect(merged.theme?.browserColor).toBeUndefined();
+    expect(merged.site).toBeUndefined();
+  });
+
+  it("deep-merges nested inputs and lets later inputs win", () => {
+    const merged = mergeSiteConfigInputs(
+      { og: { accent: [1, 2, 3], border: { width: 4 } } },
+      { og: { border: { color: [9, 9, 9] } } },
+    );
+
+    expect(merged.og?.accent).toEqual([1, 2, 3]);
+    expect(merged.og?.border).toEqual({ width: 4, color: [9, 9, 9] });
+  });
+
+  it("skips undefined values so they never count as explicit config", () => {
+    const merged = mergeSiteConfigInputs({ site: { title: undefined } });
+
+    expect(merged.site?.title).toBeUndefined();
   });
 });
 

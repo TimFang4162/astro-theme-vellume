@@ -78,7 +78,9 @@ export interface SiteConfig {
 
 export type SiteConfigInput = DeepPartial<SiteConfig>;
 
-const isPlainObject = (value: unknown): value is Record<string, unknown> =>
+export const isPlainObject = (
+  value: unknown,
+): value is Record<string, unknown> =>
   Object.prototype.toString.call(value) === "[object Object]";
 
 const mergeConfigObject = <T extends Record<string, unknown>>(
@@ -113,6 +115,18 @@ export const mergeSiteConfig = (...overrides: SiteConfigInput[]): SiteConfig =>
   overrides.reduce<SiteConfig>(
     (config, override) => mergeConfigObject(config, override) as SiteConfig,
     createSiteConfig(),
+  );
+
+/** Deep-merge raw config inputs WITHOUT the theme defaults underneath.
+ * `mergeSiteConfig` answers "what is effective"; this answers "what did the
+ * owner actually write" — consumers that need to tell "unset" apart from
+ * "set to the default value" (skin branding resolution) merge on this. */
+export const mergeSiteConfigInputs = (
+  ...inputs: SiteConfigInput[]
+): SiteConfigInput =>
+  inputs.reduce<SiteConfigInput>(
+    (merged, input) => mergeConfigObject(merged, input),
+    {},
   );
 
 export const themeDefaultConfig: SiteConfig = {
