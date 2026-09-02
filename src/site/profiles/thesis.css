@@ -45,6 +45,15 @@ drives the reading face, and the paper look swaps it wholesale. */
     "Times New Roman", Georgia, "Noto Serif SC", "Songti SC", "SimSun", serif;
   --text-body: 1rem;
   --text-body--line-height: 1.9;
+  /* Code chrome: tokens.css hard-codes a dark code surface for dark mode,
+     but its text tokens derive from this skin's paper foreground (near-
+     black), leaving the header label unreadable on the dark strip. The
+     body itself reads as a coherent dark code block (shiki-dark colors) —
+     an embedded-panel look on the page — so only the chrome pair needs
+     dark-surface literals. */
+  --code-block-language: #8f9086;
+  --code-block-copy-color: #8f9086;
+  --code-block-header-border: rgb(255 255 255 / 0.16);
 }
 
 .rich-prose {
@@ -57,6 +66,19 @@ drives the reading face, and the paper look swaps it wholesale. */
 
 .rich-prose h2 {
   text-align: center;
+}
+
+/* Dark shows the same paper, so baked-light diagrams must keep their light
+   rendering: the core dark treatment (invert + screen onto the surface)
+   would print them as a black box on paper — or, with the blend, wash them
+   out entirely against the white card. Same selectors as the core rule;
+   the skin loads after it and wins the cascade. */
+[data-theme="dark"] .math-inline img,
+[data-theme="dark"] .math-block img,
+[data-theme="dark"] .code-block--diagram[data-language="mermaid"] img,
+[data-theme="dark"] .code-block--diagram[data-language="typst"] img {
+  filter: none;
+  mix-blend-mode: normal;
 }
 
 @media print {
