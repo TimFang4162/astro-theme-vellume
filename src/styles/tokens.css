@@ -148,7 +148,8 @@
   --code-block-copy-hover-color: var(--primary);
   --code-block-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
   /* Diagram images (mermaid/typst) are baked to SVG with an opaque canvas;
-     the surface must match that canvas or dark mode shows a bright box. */
+     dark inverts them and screens the img over this surface, so the canvas
+     reads as the card color instead of a dead-black box. */
   --diagram-surface: #ffffff;
   --scrollbar-thumb: var(--border);
 }
@@ -203,7 +204,7 @@
     --code-block-copy-hover-background: var(--container-faint-tint);
     --code-block-copy-hover-color: var(--primary);
     --code-block-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
-    --diagram-surface: #000000;
+    --diagram-surface: var(--card);
     --scrollbar-thumb: color-mix(in srgb, var(--border) 82%, var(--muted));
   }
 }

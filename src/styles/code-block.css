@@ -105,6 +105,10 @@
     width: max-content;
     min-width: 100%;
     background: var(--diagram-surface);
+    /* Blend backdrop for the dark-mode screened diagram img: isolation
+       keeps the img's mix-blend-mode against this container's fill
+       instead of whatever sits behind the code block. */
+    isolation: isolate;
     padding: 0.25rem;
   }
 
@@ -170,6 +174,12 @@
     [data-theme="dark"] .math-inline img,
     [data-theme="dark"] .math-block img {
       filter: invert(1) hue-rotate(180deg);
+      /* Inversion turns the baked white canvas pure black; screening the
+         img over its surface lets that black adopt the backdrop instead —
+         the diagram canvas follows the card color on any skin rather than
+         reading as a dead-black box. Line work (light after inversion)
+         stays visible under screen. */
+      mix-blend-mode: screen;
     }
 
     [data-theme="dark"] .astro-code span[style*="--shiki-dark"] {
