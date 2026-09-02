@@ -15,9 +15,20 @@
     margin: 2cm;
   }
 
-  /* Paper stays white even with "background graphics" enabled. */
+  /* Paper stays white even with "background graphics" enabled and even
+     when the page was opened in dark mode: the margins (the @page box
+     and the html canvas behind it) must be white, not the dark canvas.
+     Setting html + body covers both the propagated canvas background and
+     the body box; color-scheme is reset to light so the UA does not paint
+     a dark canvas of its own. */
+  :root {
+    color-scheme: light !important;
+  }
+
+  html,
   body {
     background: #ffffff !important;
+    color-scheme: light !important;
   }
 
   /* Site chrome: header, drawer, overlays, sidebars, comments, actions. */
