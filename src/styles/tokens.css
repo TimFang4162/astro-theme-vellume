@@ -51,7 +51,7 @@
     background-color var(--motion-duration) var(--motion-easing),
     box-shadow var(--motion-duration) var(--motion-easing),
     transform var(--motion-duration) var(--motion-easing);
-  /* Mix strengths for the derived recipes below. Profiles and user themes
+  /* Mix strengths for the derived recipes below. Skins and user themes
      can retune tint depth (Material-style surfaces want stronger tints)
      without rewriting the recipes themselves. */
   --accent-strength: 12%;

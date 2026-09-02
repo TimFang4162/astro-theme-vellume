@@ -26,6 +26,8 @@ theme: {
 ```
 
 改过 `browserColor` 后，favicon 需要 `bun run generate:favicons` 重新生成。
+皮肤 CSS 改动在 `astro dev` 下即时热更新；改注册表（theme-profiles.ts）或
+`theme.profile` 需要重启 dev server。
 
 ## 内置皮肤
 
@@ -41,15 +43,23 @@ thesis 是"纸张调性"的皮肤：屏幕上呈现的就是纸上排版（WYSIW
 
 ## 文件形态（由 `src/config/theme-profiles.ts` 解析）
 
-皮肤 CSS 经 lightningcss 做真实解析后重写，不是文本替换：
+皮肤 CSS 由 lightningcss 真实解析驱动，选择器改写走 AST，不是文本正则替换：
 
 - **亮色 token**：一个扁平 `:root { --token: value; }` 块；
-- **暗色 token**：一个扁平 `[data-theme="dark"] { ... }` 块——构建期自动包进
-  `@media screen`，**纸张永远渲染亮色值**（打印与打印对话框预览都是 print
-  media），皮肤作者无需关心打印；
+- **暗色 token**：一个暗色锚定的块（`[data-theme="dark"]` 置于选择器最前，
+  `:root`/`html` 紧随其后也可，如 `:root[data-theme="dark"]`）——构建期把
+  块**按原文**包进 `@media screen`，**纸张永远渲染亮色值**（打印与打印
+  对话框预览都是 print media），皮肤作者无需关心打印；块内的 `var()`、
+  字面量、任意格式都原样保留；
 - **结构规则**：允许携带（如 thesis 的居中标题）；构建期为每个选择器加上
-  零特异度的 `:where([data-skin="<name>"])` 约束——根锚定选择器（`:root`、
-  暗色）后置附加，其余前缀为后代。
+  零特异度的 `:where([data-skin="<name>"])` 约束——根锚定选择器
+  （`:root`、`html`、暗色锚点）后置附加（约束同一元素），其余前缀为
+  后代；
+- **暗色属性必须锚定选择器**：出现在选择器中段（`.x [data-theme="dark"]`）
+  或与普通选择器混在同一个列表（`[data-theme="dark"] .x, .y`）都不会被
+  门控、会把暗色样式泄漏进打印，构建直接报错——把暗色部分拆成独立的
+  暗色锚定规则。写进其他媒体块内的暗色块不会被门控（该媒体块自己定义
+  了上下文）。
 
 只需写"个性"：`--accent`、`--ring`、tonal 填充阶梯、代码块外框、首页粒子
 全部从 `--primary` 等基底自动派生（material.css 只写值加一条"标题+正文"
@@ -73,7 +83,8 @@ material: {
 },
 ```
 
-`meta` 的解析优先级：`src/site/config.ts` 显式配置 > 皮肤 `meta` > 内置默认。
+`meta` 的解析优先级：`src/site/config.ts` 显式配置 > 皮肤 `meta` > 内置默认
+（"显式"按未合并的原始配置判断——即使设的值恰好等于默认值也按显式处理）。
 浏览器地址栏 / favicon / OG 图 / 代码高亮 / Mermaid 图表跟随**站长选的默认
 皮肤**（构建期产物，不随访客实时切换）。
 
@@ -120,12 +131,11 @@ footer）→ `--card`（浮起元素）。`--surface` 默认等于 `--background
   加一个 css 文件 + 注册表加一行 + 切换器自动出现，系统零改动。
 - 皮肤文件可携带结构规则，但它们的特异度与 authored 写法一致（`:where` 零
   贡献），永远输给 theme.css / custom.css 的后置覆盖。
-- 暗色块必须是顶层的扁平 `[data-theme="dark"]` 块才会被构建期包进
-  `@media screen`；写进其他媒体块不会被识别。
-- 暗色块里不要用 `var()`（包括 `color-mix()` 引用）：构建期包裹时会重新
-  序列化该规则，lightningcss napi 无法往返 `var()`，直接编译报错。派生值
-  写死字面量。皮肤在 `:root` 固定的 token 若要随暗色翻转，必须在暗色块里
-  重新声明（同特异度下皮肤 `:root` 会压过 tokens.css 的暗色块）。
+- 暗色块必须是**暗色锚定**的选择器（`[data-theme="dark"]` 置于最前，
+  `:root`/`html` 紧随其后也可）才会被构建期包进 `@media screen`；中段引用
+  会被构建报错拦下，写进其他媒体块内的暗色块不受门控保护。
+- 皮肤在 `:root` 固定的 token 若要随暗色翻转，必须在暗色块里重新声明
+  （同特异度下皮肤 `:root` 会压过 tokens.css 的暗色块）。
 - CSS 文件没有编译期类型检查，写错属性名靠构建产物审查兜底。
 - `@page` 页边距是主题固定值（2cm），不能吃自定义属性也不能按皮肤切换。
 - 每页页眉/页码由浏览器自带开关控制，CSS 无法定制。
