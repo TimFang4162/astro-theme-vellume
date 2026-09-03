@@ -131,19 +131,24 @@ Open `http://localhost:4321`.
 
 ```bash
 bun run dev
-bun run build
+bun run build            # astro build && bun run check:base
 bun run preview
+bun run sync             # one-way downstream merge: main → blog branch
+bun run sync --dry-run   # preview without changing the worktree
 bun run generate:favicons
-bun run check
-bun run test
+bun run check            # astro + biome + rumdl
 bun run check:astro
 bun run check:biome
+bun run check:markdown   # rumdl separately
+bun run check:base        # post-build base-path integrity (also runs after build)
+bun run test
 bun run fix:biome
+bun run fix:markdown
 ```
 
 `bun run generate:favicons` will rebuild the files under `public/favicons` from `public/assets/favicon.png` using the shared site metadata in `src/site/metadata.ts`.
 
-`bun run check` runs Astro type checking, Biome, and rumdl (Markdown lint/format) together. rumdl is not an npm package; install it separately, e.g. `pipx install rumdl==0.1.68`.
+`bun run check` runs Astro type checking, Biome, and rumdl (Markdown lint/format) together. rumdl is not an npm package; install it separately, e.g. `pipx install rumdl==0.1.68`. `check:markdown` / `fix:markdown` are the rumdl halves; `check:base` validates that `SITE_BASE`-prefixed builds contain no stray absolute paths.
 
 ## Customize The Site
 
@@ -162,22 +167,29 @@ The usual starting points are:
 
 ```text
 .
+├── docs/                # theming.md / content-authoring.md
 ├── public/
+│   ├── assets/          # favicon source, avatar, etc.
+│   └── favicons/        # generated output (bun run generate:favicons)
 ├── scripts/
+│   ├── sync-upstream.ts # bun run sync — one-way downstream merge
+│   ├── generate-favicons.ts
+│   ├── check-build-base.ts
+│   └── write-site-overrides.ts
 ├── src/
 │   ├── assets/
 │   ├── components/
 │   ├── config/
 │   ├── content/
 │   │   ├── about/
-│   │   ├── blog/
+│   │   ├── blog/<yyyy-mm>/<slug>/
 │   │   └── series/
 │   ├── layouts/
 │   ├── lib/
 │   ├── markdown/
 │   ├── pages/
 │   ├── scripts/
-│   ├── site/            # config + theme.css/custom.css + profiles (skins)
+│   ├── site/            # config + metadata + navigation + theme.css/custom.css + profiles (skins)
 │   ├── styles/
 │   └── utils/
 ├── astro.config.ts
@@ -193,14 +205,18 @@ To keep upstream theme updates easier to merge, treat these paths as your primar
   Your posts, series, and about page content.
 - `src/site/config.ts`
   Your site identity, links, comments, homepage feed copy, and browser chrome colors.
+- `src/site/metadata.ts`
+  Your `siteMetadata` (URL/title/description) and `faviconMetadata` defaults — consumed by `generate:favicons`.
 - `src/site/navigation.ts`
   Your header and footer navigation.
 - `src/site/theme.css`
   Your design-token overrides such as colors, radii, or typography variables.
 - `src/site/custom.css`
   Your final CSS escape hatch for intentional component-level overrides.
+- `src/site/profiles/**`
+  Your added skins (each skin is one CSS file + one registration in `src/config/theme-profiles.ts`).
 
-The rest of the theme can stay closer to upstream, which keeps future merges simpler.
+The rest of the theme can stay closer to upstream, which keeps future merges simpler. `bun run sync` auto-resolves along the same boundary (yours: `src/content/**` + `src/site/*`; theirs: `src/components/**`, `src/layouts/**`, `src/pages/**`, `src/styles/**`, etc. — see Updating From Upstream).
 
 ## Updating From Upstream
 

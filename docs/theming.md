@@ -129,11 +129,13 @@ footer）→ `--card`（浮起元素）。`--surface` 默认等于 `--background
   token 块（tokens.css 与皮肤文件）都被限定在 `@media screen` 内。打印及
   打印对话框预览以 print media 渲染，自然得到亮色纸张——无需任何属性镜像
   或 JS。
-- **打印**：Ctrl+P（或浏览器打印）即可。`print.css`（纯 `@media print`，
-  注入在打印模板层之后）提供固定底线：隐藏 chrome、通栏单列、代码折行、
-  外链展开为脚注、白纸白底、分页卫生（figure/table 不跨页、标题不孤悬、
-  orphans/widows）。默认 `theme.print: "thesis"` 时，模板层在 print.css 之前注入、
-  随模板带上排版（字体、缩进、章节起新页）；设 `print: ""` 关掉后则 profile 皮肤的亮色半边直接进纸。
+- **打印**：Ctrl+P（或浏览器打印）即可。`print.css`（纯 `@media print`）
+  提供固定底线：隐藏 chrome、通栏单列、代码折行、外链展开为脚注、白纸
+  白底、分页卫生（figure/table 不跨页、标题不孤悬、orphans/widows）。它
+  随 `src/styles/global.css` 最先加载；打印模板（默认 `thesis`）由
+  `virtual:vellume-skins.css` 在它之后注入，所以模板的纸面排版（字体、
+  缩进、章节起新页）会覆盖底线的扁平化样式；设 `print: ""` 关掉后则
+  profile 皮肤的亮色半边直接进纸。
 
 ## 边界与已知限制
 

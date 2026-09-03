@@ -77,6 +77,20 @@ description: "系列摘要"
 
 构建时会生成对应的附件静态路由，因此不需要手动复制到 `public/`。
 
+## 关于页
+
+`src/content/about/index.md` 是独立的 `about` 集合（见 `src/content.config.ts`）：
+
+```yaml
+---
+title: "关于"
+description: "一句话简介"
+---
+正文 Markdown
+```
+
+它渲染为 `/about`，不参与 `visibility` / `series` / `tags` 逻辑。模板已内置，直接改这个文件即可；不需要在 `src/content/series` 里为它建条目。
+
 ## 可见性规则
 
 - `public`: 正常出现在首页、归档、标签、RSS 和系列页

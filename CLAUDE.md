@@ -6,12 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 bun run dev              # Start dev server (localhost:4321)
-bun run build            # Build + post-build base path integrity check
+bun run build            # Build + post-build base path check (check:base)
 bun run preview          # Preview production build
 bun run check            # All checks: astro check + biome + rumdl
 bun run check:astro      # TypeScript type checking (astro check)
 bun run check:biome      # Lint + format check (JS/TS/CSS/HTML)
 bun run check:markdown   # Lint Markdown files (rumdl)
+bun run check:base       # Post-build base-path integrity (SITE_BASE)
 bun run test             # Unit tests (vitest)
 bun run fix:biome        # Auto-fix lint and formatting
 bun run fix:markdown     # Format Markdown files (rumdl)
@@ -27,7 +28,7 @@ Bun >= 1.3.11. Do not use npm or yarn.
 
 ## Linting & Formatting
 
-- **Biome** (`biome.json`) for JS/TS/CSS/HTML: 2-space indent, double quotes, auto-organized imports. Two files exempt from `noImportantStyles`: `src/styles/global.css` and `src/components/blog/ArtalkComments.astro`.
+- **Biome** (`biome.json`) for JS/TS/CSS/HTML: 2-space indent, double quotes, auto-organized imports. `src/styles/**/*.css` and `src/components/blog/ArtalkComments.astro` are exempt from `noImportantStyles` via `overrides`.
 - **rumdl** (`.rumdl.toml`) for Markdown: disabled MD013 (line length), MD036 (emphasis as heading), MD041 (first line heading). Showcase demo posts also exempt from MD025 (multiple H1) and MD033 (inline HTML) via per-file ignores. Unordered lists use dash style, indent 2.
 
 ## Architecture
@@ -72,9 +73,13 @@ These paths should be preferred for user edits; upstream changes belong everywhe
 
 - `src/content/**` — posts, series, about page
 - `src/site/config.ts` — site identity, links, comments, feed settings
+- `src/site/metadata.ts` — site URL/title/description + favicon defaults
 - `src/site/navigation.ts` — header/footer nav items
 - `src/site/theme.css` — design token overrides
 - `src/site/custom.css` — component-level CSS escape hatch
+- `src/site/profiles/**` — your added skins (one CSS file + one registration in `src/config/theme-profiles.ts`)
+
+`bun run sync` auto-resolves along the same boundary (`--ours` for `src/content/**` + `src/site/*`, `--theirs` for `src/components/**`/`src/layouts/**`/`src/pages/**`/`src/styles/**`/etc. — see README Updating From Upstream).
 
 ### Client Scripts (`src/scripts/`)
 
@@ -82,7 +87,7 @@ All use a `runOnPageLoad` pattern: each script module self-registers a callback 
 
 ### Base Path System
 
-`src/utils/base-path-core.ts` provides pure `withBasePathUsing`/`withoutBasePathUsing`. `src/utils/paths.ts` wraps these with Astro's `import.meta.env.BASE_URL`. CI sets `SITE_BASE=/astro-theme-vellume`. Post-build `check:base` script validates output paths.
+`src/utils/base-path-core.ts` provides pure `withBasePathUsing`/`withoutBasePathUsing`. `src/utils/paths.ts` wraps these with Astro's `import.meta.env.BASE_URL`. `bun run build` chains `astro build` + `bun run check:base`; when `SITE_BASE=/astro-theme-vellume` (CI/GitHub Pages) the `check:base` script validates that every absolute `href/src/content` in `dist` stays under that base (no stray `/assets/...` outside it). You can also run `bun run check:base` standalone after a build.
 
 ### Data Access
 
