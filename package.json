@@ -19,6 +19,7 @@
     "check:markdown": "rumdl check .",
     "check": "bun run check:astro && bun run check:biome && bun run check:markdown",
     "test": "vitest run",
+    "sync": "bun ./scripts/sync-upstream.ts",
     "fix:biome": "biome check --write .",
     "fix:markdown": "rumdl fmt ."
   },

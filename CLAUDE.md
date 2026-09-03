@@ -16,6 +16,7 @@ bun run test             # Unit tests (vitest)
 bun run fix:biome        # Auto-fix lint and formatting
 bun run fix:markdown     # Format Markdown files (rumdl)
 bun run generate:favicons # Regenerate favicons from public/assets/favicon.png
+bun run sync             # One-way downstream merge: main → blog branch (scripts/sync-upstream.ts)
 ```
 
 **External deps for sample content**: `typst` and `mmdr` must be in PATH for math/diagram compilation during build. If sample posts with math/diagrams are removed, these are not needed.

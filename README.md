@@ -204,23 +204,53 @@ The rest of the theme can stay closer to upstream, which keeps future merges sim
 
 ## Updating From Upstream
 
-If you keep this repository as your blog project, the cleanest update path is to track the original theme repository as `upstream` and merge it into your branch:
+This repository is also the theme. Your blog lives on a separate branch (e.g. `sync-origin-*`) that never merges back into `main` — sync is always one-way, `main → blog branch`, with `main` as the upstream.
+
+On your blog branch, one command does the whole sync:
 
 ```bash
-git remote add upstream <theme-repository-url>
+git checkout sync-origin-20260410   # your blog branch (never main)
+bun run sync                        # fetch → merge → auto-resolve → commit → check
+git push origin sync-origin-20260410
+```
+
+Preview without changing the worktree:
+
+```bash
+bun run sync --dry-run
+bun run sync --help                 # --remote/--branch/--no-verify
+```
+
+**What `bun run sync` does**
+
+- Refuses to run on `main`/`master` — it is downstream-only.
+- Requires a clean working tree (stash or commit first).
+- Defaults to `upstream/main` when the `upstream` remote exists, otherwise `origin/main` (same-repo blog branches). Pass `--remote`/`--branch` to override.
+- Fetches, then `git merge --no-commit` the upstream ref. A clean merge is committed as `chore(sync): merge <ref> into <branch>`.
+- On conflicts, auto-resolves the known ownership boundary and commits if nothing remains; otherwise it leaves the remaining `U` files for you to fix.
+
+**Ownership used for auto-resolve**
+
+- Yours (`--ours`): `src/content/**`, `src/site/config.ts`, `src/site/metadata.ts`, `src/site/navigation.ts`, `src/site/theme.css`, `src/site/custom.css`, `src/site/profiles/**`
+- Theirs (`--theirs`): `src/components/**`, `src/layouts/**`, `src/pages/**`, `src/lib/**`, `src/markdown/**`, `src/utils/**`, `src/assets/**`, `src/styles/**`, `src/config/theme-default.ts`, `src/config/theme-profiles.ts`, `src/config/site.ts`, `astro.config.ts`, `scripts/**`, `docs/**`, `CLAUDE.md`, `public/favicons/**`, `package.json`, `bun.lock`
+- Demo deletion: `src/content/blog/2026-03/**`, `src/content/series/theme-tour.md`, `src/content/series/example-series.md` — if you already deleted them locally but upstream touched them, the script keeps your deletion (`git rm`).
+- Anything else stays unmerged for you to decide. The script never pushes; you push the blog branch when green.
+
+Post-merge it reinstalls when `bun.lock`/`package.json` changed, hints `bun run generate:favicons` when profiles or `browserColor` changed, and runs `bun run check:astro` (skip with `--no-verify`).
+
+**Manual fallback** (if you prefer raw git):
+
+```bash
+git remote add upstream https://github.com/TimFang4162/astro-theme-vellume.git  # once, for forks
 git fetch upstream
-git checkout main
+git checkout sync-origin-20260410
 git merge upstream/main
 bun install
 bun run check:astro
 bun run build
 ```
 
-When merge conflicts happen, resolve them with these ownership rules in mind:
-
-- Prefer your edits in `src/content/**` and `src/site/**`.
-- Prefer upstream changes in theme implementation files such as `src/components/**`, `src/layouts/**`, `src/pages/**`, `src/lib/**`, and `src/styles/**`.
-- Keep `src/config/site.ts` as a thin merge layer between the theme defaults in `src/config/theme-default.ts` and your `src/site/config.ts` overrides so it stays easy to reconcile.
+When resolving by hand, keep the same ownership: prefer your edits in `src/content/**` and `src/site/**`; prefer upstream in `src/components/**`, `src/layouts/**`, `src/pages/**`, `src/lib/**`, and `src/styles/**`; keep `src/config/site.ts` as a thin merge layer between the theme defaults in `src/config/theme-default.ts` and your `src/site/config.ts` overrides so it stays easy to reconcile.
 
 ## Who This Theme Is For
 
